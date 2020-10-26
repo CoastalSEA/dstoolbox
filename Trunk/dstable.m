@@ -1,4 +1,4 @@
-classdef dstable < handle
+classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %
 %-------class help------------------------------------------------------
 % NAME
@@ -27,14 +27,12 @@ classdef dstable < handle
     end
     
     properties (Hidden)
-        RowType   %records the data type - used by RowNames set and get
-        DimType   %records the data type - used by Dimensions set and get
-    end
-    
-    properties (Hidden)
-        VariableRange        %min and max values of variable (auto loaded)
-        RowRange             %min and max values of row (auto loaded)
-        DimensionRange       %min and max values of dimension (auto loaded)
+        RowType         %records the data type - used by RowNames set and get
+        DimType         %records the data type - used by Dimensions set and get
+        DimPropsType    %dimension properties assigned as table or variable
+        VariableRange   %min and max values of variable (auto loaded)
+        RowRange        %min and max values of row (auto loaded)
+        DimensionRange  %min and max values of dimension (auto loaded)                
     end
     
     properties (Dependent=true)
@@ -80,7 +78,7 @@ classdef dstable < handle
         DimensionLabels       %labels for generic outputs
         DimensionFormats      %datetime or duration format (if used) 
                              
-        %Additional metadata        
+        %Additional metadata
         Source     %source of dst - model name or input file name
         MetaData   %detailed description of dstable (e.g. how derived)
     end
@@ -90,6 +88,13 @@ classdef dstable < handle
         DSproperties = dsproperties   %to define call setDSproperties in class constructor
 %         dspstruct = dsproperties      %empty DSP struct (defines fieldnames))
     end
+   
+%% CONTENTS
+%   constructor methods
+%   dstable property Set and Get methods
+%   dstable functions getDStable, addvars, removevars, movevars, 
+%       horzcat, vertcat, get and set DSproperties, setDimensions2Table, 
+%       setDimensions2Variable, dst2tsc
     
     methods
         function obj = dstable(varargin)  
@@ -104,7 +109,17 @@ classdef dstable < handle
             nvars = length(varargin);
             idr = find(strcmp(varargin,'RowNames'), 1);
             idv = find(strcmp(varargin,'VariableNames'), 1);
+            idp = find(strcmp(varargin,'DSproperties'), 1);
+            idd = find(strcmp(varargin,'DimensionsNames'), 1);
             nrows = size(varargin{1},1);
+            
+            if ~isempty(idv) && ~isempty(idp)
+                warndlg('Use either VariableNames or DSproperties but not both')
+                return;
+            elseif ~isempty(idv) && ~isempty(idp)
+                warndlg('Use either DimensionNames or DSproperties but not both')
+                return;
+            end
 
             if strcmp(varargin{1},'Size')
                 %syntax to preallocate space in a table
@@ -145,54 +160,122 @@ classdef dstable < handle
             
             %handle other keywords such as RowNames and VariableNames
             for j=startprops:2:nvars   
-                if strcmp(varargin{j},'MetaData')
-                    %provision to add metadata using DSCproperties object
-                    %create DSCproperties class with options to load data
-                    %using DSproperties struct or interactively as row
-                    %definition, variable definition, dimension definition.
-                    %Use the DSCproperties to set and get DSproperties.
-                else
+%                 if strcmp(varargin{j},'DSproperties')
+%                     %place holder to load metadata using dsproperties object
+%                     if ~isempty(idr)
+%                         obj.(varargin{idr}) = varargin{idr+1};
+%                     end
+%                     %
+%                     if ~isempty(idp)
+%                         obj.(varargin{idp}) = varargin{idp+1};
+%                     end
+%                     %POSSIBLY SUPECEDED? review once dscollection working
+%                     %provision to add metadata using DSCproperties object
+%                     %create DSCproperties class with options to load data
+%                     %using DSproperties struct or interactively as row
+%                     %definition, variable definition, dimension definition.
+%                     %Use the DSCproperties to set and get DSproperties.
+%                 else
                     obj.(varargin{j}) = varargin{j+1};
-                end
+%                 end
             end     
             
-            %define variable ranges
+            %define dynamic properties and variable ranges
             varnames = obj.VariableNames;
             for i=1:length(varnames)
                 varname = varnames{i};
+                obj.add_dyn_prop(varname, [], false);
                 obj.VariableRange.(varname) = getVariableRange(obj,varname);
-            end
+            end            
+        end 
+%%
+        function add_dyn_prop(obj, prop, init_val, isReadOnly)
+            %modified from code by Amro on StackOverflow: 
+            %https://stackoverflow.com/questions/18258805/dynamically-assign-the-getter-for-a-dependent-property-in-matlab
+            % input arguments
+            narginchk(2,4);
+            if nargin < 3, init_val = []; end
+            if nargin < 4, isReadOnly = true; end
+
+            % create dynamic property
+            p = addprop(obj, prop);   %p is a meta.DynamicProperty object 
+            %p.Transient = true;
+
+            % set initial value if present
+            obj.(prop) = init_val;
+
+            % define property accessor methods
+            p.GetMethod = @get_method;
+            p.SetMethod = @set_method;
+            p.NonCopyable = false;
             
-        end  
+            % nested getter/setter functions with closure
+            function set_method(obj,val)
+                if isReadOnly
+                    ME = MException('MATLAB:class:SetProhibited', sprintf(...
+                      'You cannot set the read-only property ''%s'' of %s', ...
+                      prop, class(obj)));
+                    throwAsCaller(ME);
+                end
+                if isempty(val)
+                    obj.DataTable = removevars(obj.DataTable,prop);
+%                     clearVariable(obj,prop);
+                else
+                    obj.DataTable.(prop) = val;
+                    obj.VariableRange.(prop) = getVariableRange(obj,prop);
+                end
+            end
+            %
+            function val = get_method(obj)
+                val = obj.DataTable.(prop);
+            end
+        end         
 %%
         function addDefaultProperties(obj)
-            %add default properties used by dstable
-            obj.DataTable = addprop(obj.DataTable,'Dimensions','table');
+            %add additional properties used by dstable
+            obj.DimPropsType = 'table';
+%             obj.DataTable = addprop(obj.DataTable,'Dimensions','table');
             %additonal variable properties
-            obj.DataTable = addprop(obj.DataTable,'VariableLabels','variable');
-            obj.DataTable = addprop(obj.DataTable,'VariableQCs','variable');
+            addCustomProperties(obj,{'VariableLabels','VariableQCs'},...
+                                                {'variable','variable'});
+%             obj.DataTable = addprop(obj.DataTable,'VariableLabels','variable');
+%             obj.DataTable = addprop(obj.DataTable,'VariableQCs','variable');
             %additional row properties
-            obj.DataTable = addprop(obj.DataTable,'RowDescription','table');
-            obj.DataTable = addprop(obj.DataTable,'RowUnit','table');
-            obj.DataTable = addprop(obj.DataTable,'RowLabel','table');
-            obj.DataTable = addprop(obj.DataTable,'RowFormat','table');
+            propnames = {'RowDescription','RowUnit','RowLabel','RowFormat'};
+            proptypes = repmat({'table'},1,length(propnames));     
+            addCustomProperties(obj,propnames,proptypes);
+%             obj.DataTable = addprop(obj.DataTable,propnames,proptype); 
+%             obj.DataTable = addprop(obj.DataTable,'RowDescription','table');
+%             obj.DataTable = addprop(obj.DataTable,'RowUnit','table');
+%             obj.DataTable = addprop(obj.DataTable,'RowLabel','table');
+%             obj.DataTable = addprop(obj.DataTable,'RowFormat','table');
             %additional dimension properties
-            obj.DataTable = addprop(obj.DataTable,'DimensionNames','table');
-            obj.DataTable = addprop(obj.DataTable,'DimensionDescriptions','table');
-            obj.DataTable = addprop(obj.DataTable,'DimensionUnits','table');
-            obj.DataTable = addprop(obj.DataTable,'DimensionLabels','table');
-            obj.DataTable = addprop(obj.DataTable,'DimensionFormats','table');
+            setDimensions2Table(obj)
+%             obj.DataTable = addprop(obj.DataTable,'DimensionNames','table');
+%             obj.DataTable = addprop(obj.DataTable,'DimensionDescriptions','table');
+%             obj.DataTable = addprop(obj.DataTable,'DimensionUnits','table');
+%             obj.DataTable = addprop(obj.DataTable,'DimensionLabels','table');
+%             obj.DataTable = addprop(obj.DataTable,'DimensionFormats','table');
             %additional metadata properties
-            obj.DataTable = addprop(obj.DataTable,'Source','table');
-            obj.DataTable = addprop(obj.DataTable,'MetaData','table');   
+            addCustomProperties(obj,{'Source','MetaData'},...
+                                                {'table','table'});
+%             obj.DataTable = addprop(obj.DataTable,'Source','table');
+%             obj.DataTable = addprop(obj.DataTable,'MetaData','table');   
         end
-%--------------------------------------------------------------------------
-% Standard Table Metadata Properties
+%% ------------------------------------------------------------------------
+%% PROPERTY SET AND GET
+%% ------------------------------------------------------------------------
+% Standard table Metadata Properties
 %--------------------------------------------------------------------------
         function set.TableRowName(obj,name)
-            existingvals = obj.DataTable.Properties.DimensionNames;
-            newvals = {name{1},existingvals{2}};
-            obj.DataTable.Properties.DimensionNames = newvals;
+            %update row of table DimensionNames
+            if iscell(name), name = name{1}; end
+            %use existing collective name for Variables in Table
+            existingvals = obj.DataTable.Properties.DimensionNames;             
+            if ~isempty(name) %avoid overwriting existing with empty name
+                newvals = {name,existingvals{2}};
+                obj.DataTable.Properties.DimensionNames = newvals;
+            end
         end
         %
         function name = get.TableRowName(obj)
@@ -213,14 +296,14 @@ classdef dstable < handle
                 obj.DataTable.Properties.RowNames = cellstr(inrows);
                 obj.RowType = 'datetime';
                 if isempty(obj.RowFormat)
-                    obj.RowFormat = {inrows.Format};
+                    obj.RowFormat = inrows.Format;
                 end
                 obj.DataTable.Properties.DimensionNames{1} = 'Time'; %#ok<*MCSUP>                
             elseif isduration(inrows)
                 obj.DataTable.Properties.RowNames = cellstr(inrows);
                 obj.RowType = 'duration';
                 if isempty(obj.RowFormat)
-                    obj.RowFormat = {inrows.Format};
+                    obj.RowFormat = inrows.Format;
                 end
                 obj.DataTable.Properties.DimensionNames{1} = 'Time';
             elseif iscellstr(inrows) || ischar(inrows)             
@@ -244,18 +327,18 @@ classdef dstable < handle
             lastrec = obj.DataTable.Properties.RowNames{end};
             obj.RowRange = {firstrec,lastrec};         
         end
-        %
+%%
         function outrows = get.RowNames(obj)
             %get RowNames and return values in original format
             switch obj.RowType
                 case 'datetime'
                     outrows = datetime(obj.DataTable.Properties.RowNames,...
-                                            'InputFormat',obj.RowFormat{1});
-                    outrows.Format = obj.RowFormat{1};                    
+                                            'InputFormat',obj.RowFormat);
+                    outrows.Format = obj.RowFormat;                    
                 case 'duration'
                     outrows = duration(obj.DataTable.Properties.RowNames,...
-                                            'InputFormat',obj.RowFormat{1});
-                    outrows.Format = obj.RowFormat{1};                    
+                                            'InputFormat',obj.RowFormat);
+                    outrows.Format = obj.RowFormat;                    
                 case 'char'
                     outrows = obj.DataTable.Properties.RowNames;
                 case 'string'
@@ -281,11 +364,10 @@ classdef dstable < handle
         end
         %
         function userdata = get.UserData(obj)
-            userdata = obj.DataTable.Properties.Description;
+            userdata = obj.DataTable.Properties.UserData;
         end        
-%% 
-%--------------------------------------------------------------------------
-% Standard Table Variable Properties
+%% ------------------------------------------------------------------------
+% Standard table Variable Properties
 %--------------------------------------------------------------------------
         function set.VariableNames(obj,varname)
             obj.DataTable.Properties.VariableNames = varname;
@@ -310,26 +392,330 @@ classdef dstable < handle
         %
         function varunits = get.VariableUnits(obj)
             varunits = obj.DataTable.Properties.VariableUnits;
-        end
-%%
-%--------------------------------------------------------------------------
-% Standard Table Custom Properties - used for Dimensions and MetaData
+        end  
+%% ------------------------------------------------------------------------
+% Standard table Custom Properties - used for Dimensions and MetaData
 %-------------------------------------------------------------------------- 
         function set.CustomProperties(obj,propvals)
-            obj.DataTable.Properties.CustomeProperties = propvals;
+            obj.DataTable.Properties.CustomProperties = propvals;
         end
         %
         function propvals = get.CustomProperties(obj)
             propvals = obj.DataTable.Properties.CustomProperties;
         end
-%-------DataTable------------------------------------------------------------
+        
+%% ------------------------------------------------------------------------
+% Additional dstable Properties - Variables
+%--------------------------------------------------------------------------
+        function set.VariableLabels(obj,labels)
+            obj.DataTable.Properties.CustomProperties.VariableLabels = labels;
+        end        
+        %
+        function labels = get.VariableLabels(obj)
+            labels = obj.DataTable.Properties.CustomProperties.VariableLabels;
+        end       
 %%
-        function obj = getDStable(obj,varargin)
+        function set.VariableQCflags(obj,qcflag)
+            obj.DataTable.Properties.CustomProperties.VariableQCs = qcflag;
+        end        
+        %
+        function qcflag = get.VariableQCflags(obj)
+            qcflag = obj.DataTable.Properties.CustomProperties.VariableQCs;
+        end    
+%% ------------------------------------------------------------------------
+% Additional dstable Properties - Row
+%--------------------------------------------------------------------------        
+        function set.RowDescription(obj,desctext)
+            obj.DataTable.Properties.CustomProperties.RowDescription = desctext;
+        end        
+        %
+        function desctext = get.RowDescription(obj)
+            desctext = obj.DataTable.Properties.CustomProperties.RowDescription;
+        end         
+%%
+        function set.RowUnit(obj,unit)
+            obj.DataTable.Properties.CustomProperties.RowUnit = unit;
+        end        
+        %
+        function unit = get.RowUnit(obj)
+            unit = obj.DataTable.Properties.CustomProperties.RowUnit;
+        end                   
+%%
+        function set.RowLabel(obj,label)
+            obj.DataTable.Properties.CustomProperties.RowLabel = label;
+        end        
+        %
+        function label = get.RowLabel(obj)
+            label = obj.DataTable.Properties.CustomProperties.RowLabel;
+        end   
+ %%
+        function set.RowFormat(obj,format)
+            obj.DataTable.Properties.CustomProperties.RowFormat = format;
+        end        
+        %
+        function format = get.RowFormat(obj)
+            format = obj.DataTable.Properties.CustomProperties.RowFormat;
+        end         
+%% ------------------------------------------------------------------------
+% Additional dstable Properties - Dimensions
+%--------------------------------------------------------------------------        
+        function set.Dimensions(obj,vals)
+            %set Dimensions - Dimensions must be unique. Can be datetime, 
+            %duration, char arrays, strings or numeric vectors 
+            %set RowNames - requires a DataTable to exist. Rows must be unique
+            %can be datetime, duration, char arrays, strings or numeric vectors            
+%             isnew = true;
+%             if isempty(vals)
+%                 return;
+%             end
+
+            if ~strcmp(obj.DimPropsType,'table')
+                warndlg('Dimensions as a ''variable'' Custom Property not implemented')
+                return; 
+            end
+            %
+            if isstruct(vals)
+                %vals uses struct indexing so more than one dimension              
+                fname = fieldnames(vals);  %fields usedin vals struct
+                dimnum = length(fname);    %number of fields == dimensions
+%                 numprev = length(obj.DimensionNames);
+                for i=1:dimnum
+                    %vals is a struct with data in the defined input format. 
+                    oneval = vals.(fname{i});
+
+                    if ~isunique(obj,oneval)                        
+                        msg1 = 'Values for Dimension';
+                        msg2 = 'were not set';
+                        msg3 = 'Dimension values must be unique';
+                        msgtxt = sprintf('%s %s %s\n%s',msg1,fname{i},msg2,msg3);
+                        warndlg(msgtxt);
+                        dimvals.(fname{i}) = [];
+                    else
+                        if isempty(oneval)
+                            clearDimension(obj,i)                         
+                        else
+                            [valdim,typedim,rangedim] = setDimensionType(obj,oneval);
+                            dimvals.(fname{i}) = valdim;
+                            dimrange.(fname{i}) = rangedim;
+                            dimtype.(fname{i}) = typedim;
+                        end
+                    end 
+
+                end
+                %
+%                 if numprev~=dimnum 
+%                     %field is new and not in existing DimensionNames list                    
+%                     obj.DimensionNames{dimnum,1} = fname{dimnum};
+% %                     vals = vals.(fname{dimnum});
+% %                 else
+% %                     %selection is one of the existing DimensionNames
+% %                     isnew = false; 
+%                 end
+            else
+                %array and no struct indexing so just a single dimension
+                dimnum = 1;
+                if isempty(vals)
+                    clearDimension(obj,dimnum)
+                else
+                    [dimvals,dimtype,dimrange] = setDimensionType(obj,vals);   
+                end
+            end
+            
+%             if isnew
+%                 %add type and format if a new Dimension
+%                 obj.DimType{dimnum} = dimtype;
+%                 if (isempty(obj.DimensionFormats)  || ...
+%                                   isempty(obj.DimensionFormats{dimnum})) && ...
+%                                   (isdatetime(vals) || isduration(vals))
+%                     obj.DimensionFormats{dimnum} = vals.Format;
+%                 end
+%             end
+            %update dstable object properties
+            obj.DataTable.Properties.CustomProperties.Dimensions = dimvals;
+            obj.DimensionRange = dimrange; 
+            obj.DimType = dimtype;
+        end        
+%%
+        function [dimvals,dimtype,range] = setDimensionType(~,indims)
+            %check dimension type and return values as a char array
+            % indims - input dimension array
+            % dimvals - char array of values in indims
+            % dimtype - variable type used for indims
+            % range - min/max or start/end values
+            if isrow(indims), indims = indims'; end %make column vector
+            idrange = [1,length(indims)];           %default index for range
+            if isdatetime(indims)
+                dimvals = cellstr(indims);
+                dimtype = 'datetime';                
+            elseif isduration(indims)
+                dimvals = cellstr(indims);
+                dimtype = 'duration';                
+            elseif iscellstr(indims) || ischar(indims)             
+                dimvals = indims;
+                dimtype = 'char';
+            elseif isstring(indims) 
+                dimvals = indims;
+                dimtype = 'string';
+            elseif isnumeric(indims)                      
+                dimvals = cellstr(num2str(indims));
+                dimtype = 'numeric';
+                idrange = [min(indims),max(indims)];  %index for range
+            else
+%                 warndlg('Unknown data type for RowNames');
+                dimvals = []; dimtype = []; range = [];
+                return;
+            end
+            range = dimvals(idrange)';
+        end
+%%
+        function clearDimension(obj,dimnum)
+            %remove the metadata for a Dimension if deleted (set = [])
+            obj.DimensionNames(dimnum) = [];
+            obj.DimType(dimnum) = [];
+            obj.DimensionDescriptions(dimnum) = [];
+            obj.DimensionUnits(dimnum) = [];       
+            obj.DimensionLabels(dimnum) = [];       
+            obj.DimensionFormats(dimnum) = [];
+            obj.DimensionRange(dimnum) = [];
+        end       
+%%
+        function outdims = get.Dimensions(obj)
+            %get Dimensions and return values in original format
+            outdims = obj.DataTable.Properties.CustomProperties.Dimensions;          
+            if isstruct(outdims)
+                fnames = fieldnames(outdims);
+                dimnum = length(fnames);
+                for i=1:dimnum 
+                    oneval = outdims.(fnames{i});
+                    getvals = getDimensionType(obj,oneval,fnames{i});
+                    outdims.(obj.DimensionNames{i}) = getvals;
+                end
+            else
+                %can only be a single assignment
+                if ~isempty(outdims)
+                    outdims = getDimensionType(obj,outdims,1);
+                end
+            end
+        end
+%%
+        function outdims = getDimensionType(obj,source,dimname)
+            %check dimension type and return Dimension using input format
+            % source - saved Dimension values
+            % dimnum - the index of the Dimension based on DimensionNames
+            % outdims - dimension converted from char to input data format
+            if isnumeric(dimname)
+                dimtype = obj.DimType;
+                dimnum = 1;
+            else
+                dimtype = obj.DimType.(dimname);
+                dimnum = find(strcmp(obj.DimensionNames,dimname));
+            end
+            %
+            switch dimtype
+                case 'datetime'
+                    outdims = datetime(source,'InputFormat',...
+                                            obj.DimensionFormats{dimnum});
+                    outdims.Format = obj.DimensionFormats{dimnum};
+                case 'duration'
+                    outdims = duration(source,'InputFormat',...
+                                            obj.DimensionFormats{dimnum});
+                    outdims.Format = obj.DimensionFormats{dimnum};
+                case 'char'
+                    outdims = source;
+                case 'string'
+                    outdims = string(source);
+                case 'numeric'
+                    outdims = str2double(source);
+                otherwise
+%                     warndlg('Error in get.RowNames')
+                    outdims = [];
+            end
+        end
+%%
+        function set.DimensionNames(obj,fields)
+            obj.DataTable.Properties.CustomProperties.DimensionNames = fields;
+        end        
+        %
+        function fields = get.DimensionNames(obj)
+            fields = obj.DataTable.Properties.CustomProperties.DimensionNames;
+        end
+%%
+        function set.DimensionDescriptions(obj,desctext)
+            obj.DataTable.Properties.CustomProperties.DimensionDescriptions = desctext;
+        end        
+        %
+        function desctext = get.DimensionDescriptions(obj)
+            desctext = obj.DataTable.Properties.CustomProperties.DimensionDescriptions;
+        end         
+%%
+        function set.DimensionUnits(obj,units)
+            obj.DataTable.Properties.CustomProperties.DimensionUnits = units;
+        end        
+        %
+        function units = get.DimensionUnits(obj)
+            units = obj.DataTable.Properties.CustomProperties.DimensionUnits;
+        end                         
+%%
+        function set.DimensionLabels(obj,labels)
+            obj.DataTable.Properties.CustomProperties.DimensionLabels = labels;
+        end        
+        %
+        function labels = get.DimensionLabels(obj)
+            labels = obj.DataTable.Properties.CustomProperties.DimensionLabels;
+        end        
+%%
+        function set.DimensionFormats(obj,formats)
+            obj.DataTable.Properties.CustomProperties.DimensionFormats = formats;
+        end        
+        %
+        function formats = get.DimensionFormats(obj)
+            formats = obj.DataTable.Properties.CustomProperties.DimensionFormats;
+        end 
+%% ------------------------------------------------------------------------
+% Additional dstable Properties - Metadata
+%--------------------------------------------------------------------------
+        function set.Source(obj,sourcename)
+            obj.DataTable.Properties.CustomProperties.Source = sourcename;
+        end        
+        %
+        function sourcname = get.Source(obj)
+            sourcname = obj.DataTable.Properties.CustomProperties.Source;
+        end
+%%
+        function set.MetaData(obj,metatext)
+            obj.DataTable.Properties.CustomProperties.MetaData = metatext;
+        end        
+        %
+        function metatext = get.MetaData(obj)
+            metatext = obj.DataTable.Properties.CustomProperties.MetaData;
+        end
+%-------Custom Property functions------------------------------------------        
+%%
+        function addCustomProperties(obj,propnames,proptypes)
+            %add a custom property to the DataTable table
+            % propname is the new property name
+            % proptype - 'table' or 'variable'
+            obj.DataTable = addprop(obj.DataTable,propnames,proptypes);
+            
+        end
+        %
+        function rmCustomProperties(obj,propnames)
+            %remove a custom property from the DataTable table
+            % propname is the custom property of the DataTable to be removed
+            obj.DataTable = rmprop(obj.DataTable,propnames);
+        end      
+%% ------------------------------------------------------------------------
+%% PROPERTY FUNCTIONS
+%% ------------------------------------------------------------------------   
+% Subsample dstable using dimensions
+%-------------------------------------------------------------------------- 
+        function newdst = getDStable(obj,varargin)
             %extract data from a dstable using the dimension data
             %and return a dstable based on the selected dimension 
             %values. Update dimensions and preserve metadata
+            newdst = copy(obj);
             datatable = getDataTable(obj,varargin{:});
-            obj.DataTable = datatable;  
+            newdst.DataTable = datatable;  
             %if varargin includes 'Dimensions' amend arrays
             vars = varargin(1:2:end);
             idx = find(contains(vars,'Dimensions'));
@@ -337,15 +723,14 @@ classdef dstable < handle
             if ~isempty(idx)
                 for i=1:length(idv) 
                     parts = split(varargin{idv(i)},'.');
-                    obj.(parts{1}).(parts{2}) = varargin{idv(i)+1};
+                    newdst.(parts{1}).(parts{2}) = varargin{idv(i)+1};
                 end
             end
         end
 %%
         function datatable = getDataTable(obj,varargin)
             %extract data from a dstable using the dimension data
-            %and return a 'table' based on the selected dimension values
-            %optionally also returns           
+            %and return a 'table' based on the selected dimension values        
             nvarargin = length(varargin);    
             %initialise cell arrays
             propnames = cell(nvarargin/2,1); %input property list
@@ -372,7 +757,7 @@ classdef dstable < handle
                 if strcmp(propnames{k},'RowNames') && ...
                               isdatetime(in{k}) || isduration(in{k})
                     %if datetime or duration force match rows format
-                    in{k}.Format = obj.RowFormat{1};
+                    in{k}.Format = obj.RowFormat;
                 elseif isdatetime(in{k}) || isduration(in{k})
                     %if datetime or duration force match dimensions format
                     idx = strcmp(parts{2},obj.DimensionNames);
@@ -463,47 +848,87 @@ classdef dstable < handle
                     outdata = data(:,ind{1},ind{2},ind{3});
             end                
         end
-%-------Variables----------------------------------------------------------          
+
+%         function setVariable(obj,vardata)
+%             %handle function used by Dynamic Properties to set Variables
+%             varname = getDP_VariableName(obj);
+%             obj.DataTable.(varname) = vardata;
+%             obj.VariableRange.(varname) = getVariableRange(obj,varname);
+%         end
+%%        
+%         function vardata = getVariable(obj,varname)
+%             %handle function used by Dynamic Properties to get Variables
+%             varname = getDP_VariableName(obj);        
+%             vardata = obj.DataTable.(varname);
+%         end 
 %%
-        function set.VariableLabels(obj,labels)
-            obj.DataTable.Properties.CustomProperties.VariableLabels = labels;
-        end        
-        %
-        function labels = get.VariableLabels(obj)
-            labels = obj.DataTable.Properties.CustomProperties.VariableLabels;
-        end       
+%         function varname = getDP_VariableName(obj)
+%             %retrieve the name of the Dynamic Property being used
+%             varnames = obj.VariableNames;
+%             for j=1:length(varnames)
+%                 mdpo = findprop(obj,varnames{j});
+%             end  
+%             varname = mdpo.Name;
+%         end
 %%
-        function set.VariableQCflags(obj,qcflag)
-            obj.DataTable.Properties.CustomProperties.VariableQCs = qcflag;
-        end        
-        %
-        function qcflag = get.VariableQCflags(obj)
-            qcflag = obj.DataTable.Properties.CustomProperties.VariableQCs;
-        end 
-%%
-        function clearVariable(obj,varnum)
-            %remove the metadata for a Variable if deleted (set = [])
-            obj.VariableLabels(varnum) = [];
-            obj.VariableQC(varnum) = [];
-        end   
-%%
-        function addvars(obj,vars,varnames)
+%         function clearVariable(obj,varname)
+%             %remove the metadata for a Variable if deleted (set = [])
+%             %not NEEDED - removing variable removes the properties
+% %             obj.VariableLabels(varname) = [];
+% %             obj.VariableQCflags(varname) = [];
+%         end   
+%% ------------------------------------------------------------------------   
+% Manipulate Variables - add, remove, move, variable range, horzcat,
+% vertcat, sortrows, plot
+%--------------------------------------------------------------------------
+        function addvars(obj,varargin)
             %add variable to table and update properties
-            obj.DataTable = addvars(obj.DataTable,vars); 
-            addVariables(obj.DSproperties,varnames)
+%             position = []; varnames = [];
+            oldvarnames = obj.VariableNames;
+%             nvarg = length(varargin);
+%             idc = find(cellfun(@ischar,varargin),1);
+            %unpack variables in call
+%             for j = 2:2:nvarg
+%                 if strcmp(varargin{j},'Before') || strcmp(varargin{j},'After')
+%                     position = varargin{j};
+%                     location = varargin{j+1};
+%                 elseif strcmp(varargin{j},'NewVariableNames') 
+%                     varnames = varargin{j+1};
+%                 end
+%             end
+            %update table based on call
+            obj.DataTable = addvars(obj.DataTable,varargin{:});
+%             if isempty(position) && isempty(varnames)
+%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1});
+%             elseif ~isempty(position) && isempty(varnames)
+%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1},...
+%                     position,location);
+%             elseif isempty(position) && ~isempty(varnames)
+%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1},...
+%                     'NewVariableNames',varnames);
+%             else
+%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1},...
+%                     position,location,'NewVariableNames',varnames);
+%             end
             %add range of data set to obj.VariableRange struct
+%             if isempty(varnames)
+%                 newvarnames = obj.VariableNames;
+%                 varnames = setdiff(newvarnames,oldvarnames);
+%             end
+            newvarnames = obj.VariableNames;
+            varnames = setdiff(newvarnames,oldvarnames);
+            %
             for i=1:length(varnames)
                 varname = varnames{i};
                 obj.VariableRange.(varname) = getVariableRange(obj,varname);
             end
         end
 %%
-        function removevars(obj,varnames)
+        function newdst = removevars(obj,varnames)
             %remove variable from table and update properties
-            obj.DataTable = removevars(obj.DataTable,varnames); 
-            %****************************************************
-            %check that this updates dstable properties automatically
-            rmVariables(obj.DSproperties,varnames)
+            newdst = dstable;
+            newdst.DataTable = obj.DataTable;            
+            newdst.DataTable = removevars(newdst.DataTable,varnames); 
         end
 %%
         function movevars(obj,varname,position,location)
@@ -512,9 +937,6 @@ classdef dstable < handle
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
             obj.DataTable = movevars(obj.DataTable,varname,position,location);
-            %use function in dsproperties to adjust properties to align
-            %with table
-            moveVariable(obj,varname,position,location)
         end
 %%
         function range = getVariableRange(obj,varname)
@@ -531,274 +953,142 @@ classdef dstable < handle
                 range = [data(1),data(end)];
             end
         end
-%-------Row----------------------------------------------------------------                      
-  %%
-        function set.RowDescription(obj,desctext)
-            obj.DataTable.Properties.CustomProperties.RowDescription = desctext;
-        end        
-        %
-        function desctext = get.RowDescription(obj)
-            desctext = obj.DataTable.Properties.CustomProperties.RowDescription;
-        end         
 %%
-        function set.RowUnit(obj,unit)
-            obj.DataTable.Properties.CustomProperties.RowUnit = unit;
-        end        
-        %
-        function unit = get.RowUnit(obj)
-            unit = obj.DataTable.Properties.CustomProperties.RowUnit;
-        end                   
+        function newdst = horzcat(obj1,obj2)
+            %horizontal concatenation of two dstables
+            %number of rows in obj1 and obj2 must match and variable names
+            %must be unique
+            newdst = [];
+            msg = @(txt) sprintf('Invalid dstable objects: %s',txt);
+            if ~isa(obj2,'dstable'), warndlg(msg,'not a dstable'); return; end  %not a dstable
+            %
+            [table1,table2,chx] = getCatChecks(obj1,obj2);
+            %number of rows must be same in both tables
+            if ~chx.isheight, warndlg(msg('different number of rows')); return; end
+            %variable names in the two tables must be unique
+            if any(chx.isvar), warndlg(msg('variable names not unique')); return; end
+            %rownames in the two tables must be the same
+            if ~all(chx.isrow), warndlg(msg('rownames do not match')); return; end
+            %
+            newdst = copy(obj1);  %new instance of dstable retaining existing properties
+            newdst.DataTable = horzcat(table1,table2);
+        end
 %%
-        function set.RowLabel(obj,label)
-            obj.DataTable.Properties.CustomProperties.RowLabel = label;
-        end        
-        %
-        function label = get.RowLabel(obj)
-            label = obj.DataTable.Properties.CustomProperties.RowLabel;
-        end   
- %%
-        function set.RowFormat(obj,format)
-            obj.DataTable.Properties.CustomProperties.RowFormat = format;
-        end        
-        %
-        function format = get.RowFormat(obj)
-            format = obj.DataTable.Properties.CustomProperties.RowFormat;
-        end          
-%-------Dimensions---------------------------------------------------------
-%%
-        function set.Dimensions(obj,vals)
-            %set Dimensions - Dimensions must be unique. Can be datetime, 
-            %duration, char arrays, strings or numeric vectors 
-            %set RowNames - requires a DataTable to exist. Rows must be unique
-            %can be datetime, duration, char arrays, strings or numeric vectors            
-            isnew = true;
-            if isstruct(vals)
-                %vals uses struct indexing               
-                fname = fieldnames(vals);
-                dimnum = length(fname);
-                numprev = length(obj.DimensionNames);
-                for i=1:dimnum
-                    %vals is a struct with data in the defined input format. 
-                    oneval = vals.(fname{i});
-                    if ~isunique(obj,oneval)                        
-                        msg1 = 'Values for Dimension';
-                        msg2 = 'were not set';
-                        msg3 = 'Dimension values must be unique';
-                        msgtxt = sprintf('%s %s %s\n%s',msg1,fname{i},msg2,msg3);
-                        warndlg(msgtxt);
-                        dimvals.(fname{i}) = [];
-                    else
-                        if isempty(oneval)
-                            clearDimension(obj,i)
-                        else
-                            [setval,dimtype,strange] = setDimensionType(obj,oneval);
-                            dimvals.(fname{i}) = setval;
-                            range.(fname{i}) = strange;
-                        end
-                    end 
-                end
-                %
-                if numprev~=dimnum 
-                    %field is new and not in existing DimensionNames list                    
-                    obj.DimensionNames{dimnum,1} = fname{dimnum};
-                    vals = vals.(fname{dimnum});
-                else
-                    %selection is one of the existing DimensionNames
-                    isnew = false; 
-                end
-            else
-                %array and no struct indexing
-                dimnum = 1;
-                if isempty(vals)
-                    clearDimension(obj,dimnum)
-                else
-                    [dimvals,dimtype,range] = setDimensionType(obj,vals);   
-                end
-            end
-            
-            if isnew
-                %add type and format if a new Dimension
-                obj.DimType{dimnum} = dimtype;
-                if (isempty(obj.DimensionFormats)  || ...
-                                  isempty(obj.DimensionFormats{dimnum})) && ...
-                                  (isdatetime(vals) || isduration(vals))
-                    obj.DimensionFormats{dimnum} = vals.Format;
-                end
-            end
-            
-            obj.DataTable.Properties.CustomProperties.Dimensions = dimvals;
+        function newdst = vertcat(obj1,obj2)
+            %vertical concatenation of two dstables
+            %number and name of variables should be the same but can be in
+            %different order
+            %rows are sorted after concatenation into ascending order for
+            %the source data type of the RowNames data
+            newdst = [];
+            msg = @(txt) sprintf('Invalid dstable objects: %s',txt);
+            if ~isa(obj2,'dstable'), warndlg(msg('not a dstable')); return; end  %not a dstable
+            %
+            [table1,table2,chx] = getCatChecks(obj1,obj2);
+            %number of variables must be same in both tables
+            if ~chx.iswidth, warndlg(msg('number of variable do not match')); return; end
+            %variable names in the two tables must be the same
+            if ~all(chx.isvar), warndlg(msg('different variable names')); return; end
+            %check for duplicates in rownames
+            if any(chx.isrow), warndlg(msg('duplicate row names')); return; end
+            %
+            newdst = copy(obj1);  %new instance of dstable retaining existing properties
+            newdst.DataTable = vertcat(table1,table2);    
+            %sort rows to be in ascending order 
+            newdst = sortrows(newdst);
             %add range limits
-            obj.DimensionRange = range; 
-        end        
-%%
-        function [dimvals,dimtype,range] = setDimensionType(~,indims)
-            %check dimension type and return values as a char array
-            % dimvals - char array version of values in indims
-            % dimtype - variable type used for indims
-            if isrow(indims), indims = indims'; end %make column vector
-            idrange = [1,length(indims)];           %default index for range
-            if isdatetime(indims)
-                dimvals = cellstr(indims);
-                dimtype = 'datetime';                
-            elseif isduration(indims)
-                dimvals = cellstr(indims);
-                dimtype = 'duration';                
-            elseif iscellstr(indims) || ischar(indims)             
-                dimvals = indims;
-                dimtype = 'char';
-            elseif isstring(indims) 
-                dimvals = indims;
-                dimtype = 'string';
-            elseif isnumeric(indims)                      
-                dimvals = cellstr(num2str(indims));
-                dimtype = 'numeric';
-                idrange = [min(indims),max(indims)];  %index for range
-            else
-                warndlg('Unknown data type for RowNames');
-            end
-            range = dimvals(idrange)';
+            firstrec = newdst.DataTable.Properties.RowNames{1};
+            lastrec = newdst.DataTable.Properties.RowNames{end};
+            newdst.RowRange = {firstrec,lastrec};   
         end
 %%
-        function clearDimension(obj,dimnum)
-            %remove the metadata for a Dimension if deleted (set = [])
-            obj.DimensionNames(dimnum) = [];
-            obj.DimType(dimnum) = [];
-            obj.DimensionDescriptions(dimnum) = [];
-            obj.DimensionUnits(dimnum) = [];       
-            obj.DimensionLabels(dimnum) = [];       
-            obj.DimensionFormats(dimnum) = [];
-        end       
-%%
-        function outdims = get.Dimensions(obj)
-            %get Dimensions and return values in original format
-            outdims = obj.DataTable.Properties.CustomProperties.Dimensions;          
-            if isstruct(outdims)
-                fnames = fieldnames(outdims);
-                dimnum = length(fnames);
-                for i=1:dimnum 
-                    oneval = outdims.(fnames{i});
-                    getvals = getDimensionType(obj,oneval,i);
-                    outdims.(obj.DimensionNames{i}) = getvals;
-                end
-            else
-                %can only be a single assignment
-                if ~isempty(outdims)
-                    outdims = getDimensionType(obj,outdims,1);
-                end
-            end
+        function [table1,table2,chx] = getCatChecks(obj1,obj2)
+            %checks needed for horzcat and vertcat
+            table1 = obj1.DataTable;
+            table2 = obj2.DataTable;
+            chx.iswidth = width(table1)==width(table2);
+            chx.isheight = height(table1)==height(table2);
+            %variable names in the two tables must be the same
+            varnames1 = table1.Properties.VariableNames;
+            varnames2 = table2.Properties.VariableNames;
+            chx.isvar = ismember(varnames1,varnames2);
+            %check for duplicates in rownames
+            rownames1 = table1.Properties.RowNames;
+            rownames2 = table2.Properties.RowNames;
+            chx.isrow = ismember(rownames1,rownames2);
         end
 %%
-        function outdims = getDimensionType(obj,source,dimnum)
-            %check dimension type and return Dimension using input format
-            % source - saved Dimension values
-            % dimnum - the index of the Dimenion based on DimensionNames
-            dimtype = obj.DimType{dimnum};
-            switch dimtype
-                case 'datetime'
-                    outdims = datetime(source,'InputFormat',...
-                                            obj.DimensionFormats{dimnum});
-                    outdims.Format = obj.DimensionFormats{dimnum};
-                case 'duration'
-                    outdims = duration(source,'InputFormat',...
-                                            obj.DimensionFormats{dimnum});
-                    outdims.Format = obj.DimensionFormats{dimnum};
-                case 'char'
-                    outdims = source;
-                case 'string'
-                    outdims = string(source);
-                case 'numeric'
-                    outdims = str2double(source);
-                otherwise
-                    warndlg('Error in get.RowNames')
-                    outdims = [];
-            end
+        function obj = sortrows(obj)
+            %sort the rows in the dstable DataTable and return updated obj
+            %RowNames in a table are char and sortrows does not sort time
+            %formats correctly. Sort in ascending order
+            rowdata = obj.RowNames;
+            obj.DataTable = addvars(obj.DataTable,rowdata,...
+                                            'NewVariableNames',{'sxTEMPxs'});
+            obj.DataTable = sortrows(obj.DataTable,'sxTEMPxs');
+            obj.DataTable = removevars(obj.DataTable,'sxTEMPxs');
         end
 %%
-        function set.DimensionNames(obj,fields)
-            obj.DataTable.Properties.CustomProperties.DimensionNames = fields;
-        end        
-        %
-        function fields = get.DimensionNames(obj)
-            fields = obj.DataTable.Properties.CustomProperties.DimensionNames;
+        function h = plot(obj,variable,varargin)
+            %overload plot function to plot variable against RowNames
+            x = obj.RowNames;
+            y = obj.(variable);
+            plot(x,y,varargin{:});
         end
-%%
-        function set.DimensionDescriptions(obj,desctext)
-            obj.DataTable.Properties.CustomProperties.DimensionDescriptions = desctext;
-        end        
-        %
-        function desctext = get.DimensionDescriptions(obj)
-            desctext = obj.DataTable.Properties.CustomProperties.DimensionDescriptions;
-        end         
-%%
-        function set.DimensionUnits(obj,units)
-            obj.DataTable.Properties.CustomProperties.DimensionUnits = units;
-        end        
-        %
-        function units = get.DimensionUnits(obj)
-            units = obj.DataTable.Properties.CustomProperties.DimensionUnits;
-        end                         
-%%
-        function set.DimensionLabels(obj,labels)
-            obj.DataTable.Properties.CustomProperties.DimensionLabels = labels;
-        end        
-        %
-        function labels = get.DimensionLabels(obj)
-            labels = obj.DataTable.Properties.CustomProperties.DimensionLabels;
-        end        
-%%
-        function set.DimensionFormats(obj,formats)
-            obj.DataTable.Properties.CustomProperties.DimensionFormats = formats;
-        end        
-        %
-        function formats = get.DimensionFormats(obj)
-            formats = obj.DataTable.Properties.CustomProperties.DimensionFormats;
-        end          
-%-------Metadata-----------------------------------------------------------
-%%
-        function set.Source(obj,sourcename)
-            obj.DataTable.Properties.CustomProperties.Source = sourcename;
-        end        
-        %
-        function sourcname = get.Source(obj)
-            sourcname = obj.DataTable.Properties.CustomProperties.Source;
-        end
-%%
-        function set.MetaData(obj,metatext)
-            obj.DataTable.Properties.CustomProperties.MetaData = metatext;
-        end        
-        %
-        function metatext = get.MetaData(obj)
-            metatext = obj.DataTable.Properties.CustomProperties.MetaData;
-        end
-%-------Custom Property functions------------------------------------------        
-%%
-        function addCustomProperty(obj,propname,proptype)
-            %add a custom property to the DataTable table
-            % propname is the struct 'fieldname' for the new property
-            % proptype - 'table' or 'variable'
-            obj.DataTable = addprop(obj.DataTable,propname,proptype);
-        end
-        %
-        function rmCustomProperty(obj,propname)
-            %remove a custom property from the DataTable table
-            % propname is the struct 'fieldname' for the property to be removed
-            obj.DataTable = rmprop(obj.DataTable,propname);
-        end
-        %
+%% ------------------------------------------------------------------------   
+% Manipulate Dimensions - make dimensions apply to table or variable
+%--------------------------------------------------------------------------
         function setDimensions2Table(obj)
             %modify the propertyTypes of a CustomProperty to 'table' value
             %Dimensions data then applies to all variables in table
-            
+            %called from constuctor as the default setting
+            propnames = {'Dimensions','DimensionNames',...
+                         'DimensionDescriptions','DimensionUnits',...
+                         'DimensionLabels','DimensionFormats'};
+            proptypes = repmat({'table'},1,length(propnames));
+            if isprop(obj,'Dimensions')
+                %if already exits remove regardless of propertyType
+                rmCustomProperties(obj,propnames); 
+            end
+            addCustomProperties(obj,propnames,proptypes); 
+            obj.DimPropsType = 'table';
         end
-        %
+%%
         function setDimensions2Variable(obj)
             %modify the propertyTypes of a CustomProperty to 'variable' value
             %Dimensions data can then be defined independently for each
             %variable in the table
-            
+            propnames = {'Dimensions','DimensionNames',...
+                         'DimensionDescriptions','DimensionUnits',...
+                         'DimensionLabels','DimensionFormats'};
+            rmCustomProperties(obj,propnames);         
+            proptypes = repmat({'variable'},1,length(propnames));         
+            addCustomProperties(obj,propnames,proptypes);
+            obj.DimPropsType = 'variable';
         end
+%% ------------------------------------------------------------------------   
+% Manipulate Custom Properties - rmprop to remove dynamic properties from a dstable
+%--------------------------------------------------------------------------
+
+% addCustomProperty
+%         function addtableprop(obj,propertyNames,propertyTypes) 
+%             %adds properties that contain custom metadata to the table
+%             obj.DataTable = addprop(obj.DataTable,propertyNames,propertyTypes);
+%         end
+% %%
+%         function rmtableprop(obj,propertyNames) 
+%             %removes properties that contain custom metadata from the table
+%             obj.DataTable = rmprop(obj.DataTable,propertyNames);  
+%         end
 %%
-%-------DSproperties functions------------------------------------------ 
+        function rmprop(obj,varname)
+            %remove a dynamic property from a dstable object
+            p = findprop(obj,varname); 
+            delete(p);
+        end
+%% ------------------------------------------------------------------------   
+% DSproperties functions
+%--------------------------------------------------------------------------
         function set.DSproperties(obj,dsprops)
             %assign the data in dsprops to the dstable properties
             if isa(dsprops,'dsproperties')            
@@ -835,8 +1125,7 @@ classdef dstable < handle
                 dsdesc = obj.Description;
             end
         end
-%%
-%--------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 % Other functions
 %--------------------------------------------------------------------------  
         function answer = isunique(~,usevals)
@@ -848,21 +1137,40 @@ classdef dstable < handle
             answer = numel(idx)==numel(idy);
         end
 %%
-        function tsc = dst2tsc(obj,rows,variables)
+        function tsc = dst2tsc(obj,idxrows,idxvars)
             %convert dstable object to a tscollection if dstable has more than one
             %variable and a timeseries if only one variable
             T = obj.DataTable;
+            nvar = width(T);
+            nrow = height(T);
             if nargin<2
-                rows = 1:height(T);
-                variables = 1:width(T);
-            elseif nargin<3 || strcmp(variables,'all')                
-                variables = 1:width(T);
+                idxrows = 1:nrow;
+                idxvars = 1:nvar;
+            elseif nargin<3               
+                idxvars = 1:nvar;
+            elseif isempty(idxrows)
+                idxrows = 1:nrow;
             end
             %
-            T = obj.DataTable(rows,variables);
-            tsc = table2tscollection(T);    %see TSDataSet????******
-            %include option transfer any existing metadata
-            warndlg('Under development')
+            T = T(idxrows,:);             %subsample table to selcted rows
+            tsTime = obj.DataTable.Properties.RowNames(idxrows);
+            if isa(tsTime,'duration')
+                tsTime = datetime(sprintf('01-Jan-%d 00:00:00',0))+tsTime;                        
+                tsTime = cellstr(tsTime);  
+            end
+            %
+            tsc = tscollection(tsTime);
+            for j=1:length(idxvars)               
+                tsobj = timeseries(T{:,idxvars(j)},tsTime);                
+                tsobj.Name = obj.VariableNames{idxvars(j)};
+                tsobj.QualityInfo.Code = [0 1];
+                tsobj.QualityInfo.Description = {'good' 'bad'};
+                tsc = addts(tsc,tsobj);
+            end
+            tsc.Name = obj.Description;
+            newdsp = copy(obj.DSproperties);
+            newdsp.Variables = newdsp.Variables(idxvars);
+            tsc.TimeInfo.UserData = newdsp;
         end
     end 
     
@@ -909,9 +1217,11 @@ classdef dstable < handle
 %%
         function dsp = setgetDSprops(obj,dsprops)
             %set or get the dstable properties 
-            % dsprops is a dsproperties object
-            % dsp returns a structure of cell arrays that can be passed to
-            % dsproperties
+            % dsprops is a dsproperties object used to set the properties
+            % in a dstable object
+            % dsp gets a structure of cell arrays using the properties
+            % stored in the dstable in format that can be used to create
+            % dsproperties object
             if nargin<2
                 isget = true;
                 dsprops = dsproperties;
@@ -921,9 +1231,11 @@ classdef dstable < handle
             
             dspnames = {'Variables','Row','Dimensions'};           
             for i=1:3
+                isrow = strcmp(dspnames{i},'Row');
                 fnames = fieldnames(dsprops.(dspnames{i}));
+                %
                 for j=1:length(fnames)
-                    if strcmp(dspnames{i},'Row') && strcmp(fnames{j},'Name')
+                    if isrow && strcmp(fnames{j},'Name')
                         %Row Name is singular in dsp and plural in table
                         propname = ['Table',dspnames{i},fnames{j}];
                         if ~isget && isempty(dsprops.(dspnames{i}).(fnames{j}))
@@ -931,7 +1243,7 @@ classdef dstable < handle
                             %properties from a stuct or dsproperties object
                             dsp.(dspnames{i}).(fnames{j}) = obj.(propname);
                         end
-                    elseif strcmp(dspnames{i},'Row')
+                    elseif isrow
                         %Row field names are all singular
                         propname = [dspnames{i},fnames{j}];                       
                     else
@@ -941,11 +1253,16 @@ classdef dstable < handle
                     end
                     %
                     if isget
-                        if isempty(obj.(propname))
+                        if isempty(obj.(propname))  %dstable property
                             %pad empty fields to the number of variables
-                            if ischar(dsp.(dspnames{i}).Name)
+                            if contains(propname,'Names')
+                                %no variables/row/dimension names defined
+                            	nvar = 1;
+                            elseif ischar(dsp.(dspnames{i}).Name)
+                                %just a single variable/row/dimension
                                 nvar = 1;
                             else
+                                %multiple variables/row/dimension
                                 nvar = length(dsp.(dspnames{i}).Name);
                             end
                             dsp.(dspnames{i}).(fnames{j}) = repmat({''},1,nvar);
@@ -953,7 +1270,30 @@ classdef dstable < handle
                             dsp.(dspnames{i}).(fnames{j}) = obj.(propname);
                         end
                     else
-                        obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
+                        if isrow %handle row fields to avoid nesting cells
+                            if strcmp(propname,'RowFormat')
+                                oldfmt = obj.(propname);
+                                newfmt = dsprops.(dspnames{i}).(fnames{j});
+                                %******************************************
+                                %addtest to check that the new format works
+                                %for the data in RowNames
+                                %******************************************
+                                if ~isempty(oldfmt) && ~strcmp(oldfmt,newfmt)
+                                    promptxt = sprintf('Row format does not match existing row format\nSelect format to use');
+                                    newfmt = questdlg(promptxt,'Row format',oldfmt,newfmt,oldfmt);
+                                end 
+                                
+                                dsprops.(dspnames{i}).(fnames{j}) = newfmt;
+                            end
+                            obj.(propname) = dsprops.(dspnames{i}).(fnames{j}); 
+                        else
+                            propvalues = dsprops.(dspnames{i}).(fnames{j});
+                            if iscell(propvalues) && isempty(propvalues{1})
+                                obj.(propname) = {''};
+                            else
+                                obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
+                            end
+                        end
                     end
                 end
             end            

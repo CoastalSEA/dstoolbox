@@ -1,4 +1,4 @@
-classdef dsproperties < handle
+classdef dsproperties < handle & matlab.mixin.Copyable
 %
 %-------class help------------------------------------------------------
 % NAME
