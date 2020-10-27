@@ -92,9 +92,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %% CONTENTS
 %   constructor methods
 %   dstable property Set and Get methods
-%   dstable functions getDStable, addvars, removevars, movevars, 
-%       horzcat, vertcat, get and set DSproperties, setDimensions2Table, 
-%       setDimensions2Variable, dst2tsc
+%   dstable functions getDStable, getDataTable, addvars, removevars,  
+%       movevars, horzcat, vertcat, plot
+%       get and set DSproperties, setDimensions2Table, setDimensions2Variable
+%       dst2tsc
     
     methods
         function obj = dstable(varargin)  
@@ -160,24 +161,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             
             %handle other keywords such as RowNames and VariableNames
             for j=startprops:2:nvars   
-%                 if strcmp(varargin{j},'DSproperties')
-%                     %place holder to load metadata using dsproperties object
-%                     if ~isempty(idr)
-%                         obj.(varargin{idr}) = varargin{idr+1};
-%                     end
-%                     %
-%                     if ~isempty(idp)
-%                         obj.(varargin{idp}) = varargin{idp+1};
-%                     end
-%                     %POSSIBLY SUPECEDED? review once dscollection working
-%                     %provision to add metadata using DSCproperties object
-%                     %create DSCproperties class with options to load data
-%                     %using DSproperties struct or interactively as row
-%                     %definition, variable definition, dimension definition.
-%                     %Use the DSCproperties to set and get DSproperties.
-%                 else
                     obj.(varargin{j}) = varargin{j+1};
-%                 end
             end     
             
             %define dynamic properties and variable ranges
@@ -234,33 +218,18 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         function addDefaultProperties(obj)
             %add additional properties used by dstable
             obj.DimPropsType = 'table';
-%             obj.DataTable = addprop(obj.DataTable,'Dimensions','table');
             %additonal variable properties
             addCustomProperties(obj,{'VariableLabels','VariableQCs'},...
                                                 {'variable','variable'});
-%             obj.DataTable = addprop(obj.DataTable,'VariableLabels','variable');
-%             obj.DataTable = addprop(obj.DataTable,'VariableQCs','variable');
             %additional row properties
             propnames = {'RowDescription','RowUnit','RowLabel','RowFormat'};
             proptypes = repmat({'table'},1,length(propnames));     
             addCustomProperties(obj,propnames,proptypes);
-%             obj.DataTable = addprop(obj.DataTable,propnames,proptype); 
-%             obj.DataTable = addprop(obj.DataTable,'RowDescription','table');
-%             obj.DataTable = addprop(obj.DataTable,'RowUnit','table');
-%             obj.DataTable = addprop(obj.DataTable,'RowLabel','table');
-%             obj.DataTable = addprop(obj.DataTable,'RowFormat','table');
             %additional dimension properties
             setDimensions2Table(obj)
-%             obj.DataTable = addprop(obj.DataTable,'DimensionNames','table');
-%             obj.DataTable = addprop(obj.DataTable,'DimensionDescriptions','table');
-%             obj.DataTable = addprop(obj.DataTable,'DimensionUnits','table');
-%             obj.DataTable = addprop(obj.DataTable,'DimensionLabels','table');
-%             obj.DataTable = addprop(obj.DataTable,'DimensionFormats','table');
             %additional metadata properties
             addCustomProperties(obj,{'Source','MetaData'},...
-                                                {'table','table'});
-%             obj.DataTable = addprop(obj.DataTable,'Source','table');
-%             obj.DataTable = addprop(obj.DataTable,'MetaData','table');   
+                                                {'table','table'});   
         end
 %% ------------------------------------------------------------------------
 %% PROPERTY SET AND GET
@@ -464,11 +433,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %duration, char arrays, strings or numeric vectors 
             %set RowNames - requires a DataTable to exist. Rows must be unique
             %can be datetime, duration, char arrays, strings or numeric vectors            
-%             isnew = true;
-%             if isempty(vals)
-%                 return;
-%             end
-
             if ~strcmp(obj.DimPropsType,'table')
                 warndlg('Dimensions as a ''variable'' Custom Property not implemented')
                 return; 
@@ -478,11 +442,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 %vals uses struct indexing so more than one dimension              
                 fname = fieldnames(vals);  %fields usedin vals struct
                 dimnum = length(fname);    %number of fields == dimensions
-%                 numprev = length(obj.DimensionNames);
                 for i=1:dimnum
                     %vals is a struct with data in the defined input format. 
                     oneval = vals.(fname{i});
-
                     if ~isunique(obj,oneval)                        
                         msg1 = 'Values for Dimension';
                         msg2 = 'were not set';
@@ -502,15 +464,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     end 
 
                 end
-                %
-%                 if numprev~=dimnum 
-%                     %field is new and not in existing DimensionNames list                    
-%                     obj.DimensionNames{dimnum,1} = fname{dimnum};
-% %                     vals = vals.(fname{dimnum});
-% %                 else
-% %                     %selection is one of the existing DimensionNames
-% %                     isnew = false; 
-%                 end
             else
                 %array and no struct indexing so just a single dimension
                 dimnum = 1;
@@ -520,16 +473,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     [dimvals,dimtype,dimrange] = setDimensionType(obj,vals);   
                 end
             end
-            
-%             if isnew
-%                 %add type and format if a new Dimension
-%                 obj.DimType{dimnum} = dimtype;
-%                 if (isempty(obj.DimensionFormats)  || ...
-%                                   isempty(obj.DimensionFormats{dimnum})) && ...
-%                                   (isdatetime(vals) || isduration(vals))
-%                     obj.DimensionFormats{dimnum} = vals.Format;
-%                 end
-%             end
+
             %update dstable object properties
             obj.DataTable.Properties.CustomProperties.Dimensions = dimvals;
             obj.DimensionRange = dimrange; 
@@ -739,12 +683,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             in = ids;                        %requested values for input property 
             index = ids;                     %indices for input values
             dimfields = obj.DimensionNames;
-%             k = 1;
             %unpack the input variables, varargin
             for j=1:2:nvarargin  
                 k = ceil(j/2);                         %variable count
                 propnames{k} = varargin{j};            %property name
-%                 md.(propnames{k}) = obj.(varargin{j+1}); %assign to metadata
                 if contains(propnames{k},'.')          %struct variable                    
                     parts = split(propnames{k},'.');
                     propnames{k} = parts{1};           %property name only
@@ -764,8 +706,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     in{k}.Format = obj.DimensionFormats{idx};
                 end
                 %convert input selection to indices of values in DataTable
-                index{k} = getDimensionIndices(obj,ds{k},in{k});
-%                 k = k+1;                
+                index{k} = getDimensionIndices(obj,ds{k},in{k});                
             end 
             
             %extract indices for rows, variables and dimensions
@@ -796,7 +737,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     idd{j} = 1:length(obj.Dimensions.(dimfields{j}));    
                 end
             end
-
+            %
             datatable = obj.DataTable(idr,idv);     %dstable table
             %assume that dims are in order x,y,z etc and that
             %the variable should have at least as many dimensions as the
@@ -847,77 +788,19 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 case 3
                     outdata = data(:,ind{1},ind{2},ind{3});
             end                
-        end
-
-%         function setVariable(obj,vardata)
-%             %handle function used by Dynamic Properties to set Variables
-%             varname = getDP_VariableName(obj);
-%             obj.DataTable.(varname) = vardata;
-%             obj.VariableRange.(varname) = getVariableRange(obj,varname);
-%         end
-%%        
-%         function vardata = getVariable(obj,varname)
-%             %handle function used by Dynamic Properties to get Variables
-%             varname = getDP_VariableName(obj);        
-%             vardata = obj.DataTable.(varname);
-%         end 
-%%
-%         function varname = getDP_VariableName(obj)
-%             %retrieve the name of the Dynamic Property being used
-%             varnames = obj.VariableNames;
-%             for j=1:length(varnames)
-%                 mdpo = findprop(obj,varnames{j});
-%             end  
-%             varname = mdpo.Name;
-%         end
-%%
-%         function clearVariable(obj,varname)
-%             %remove the metadata for a Variable if deleted (set = [])
-%             %not NEEDED - removing variable removes the properties
-% %             obj.VariableLabels(varname) = [];
-% %             obj.VariableQCflags(varname) = [];
-%         end   
+        end  
 %% ------------------------------------------------------------------------   
 % Manipulate Variables - add, remove, move, variable range, horzcat,
 % vertcat, sortrows, plot
 %--------------------------------------------------------------------------
         function addvars(obj,varargin)
             %add variable to table and update properties
-%             position = []; varnames = [];
             oldvarnames = obj.VariableNames;
-%             nvarg = length(varargin);
-%             idc = find(cellfun(@ischar,varargin),1);
-            %unpack variables in call
-%             for j = 2:2:nvarg
-%                 if strcmp(varargin{j},'Before') || strcmp(varargin{j},'After')
-%                     position = varargin{j};
-%                     location = varargin{j+1};
-%                 elseif strcmp(varargin{j},'NewVariableNames') 
-%                     varnames = varargin{j+1};
-%                 end
-%             end
-            %update table based on call
             obj.DataTable = addvars(obj.DataTable,varargin{:});
-%             if isempty(position) && isempty(varnames)
-%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1});
-%             elseif ~isempty(position) && isempty(varnames)
-%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1},...
-%                     position,location);
-%             elseif isempty(position) && ~isempty(varnames)
-%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1},...
-%                     'NewVariableNames',varnames);
-%             else
-%                 obj.DataTable = addvars(obj.DataTable,varargin{1:idc-1},...
-%                     position,location,'NewVariableNames',varnames);
-%             end
-            %add range of data set to obj.VariableRange struct
-%             if isempty(varnames)
-%                 newvarnames = obj.VariableNames;
-%                 varnames = setdiff(newvarnames,oldvarnames);
-%             end
+
             newvarnames = obj.VariableNames;
             varnames = setdiff(newvarnames,oldvarnames);
-            %
+            
             for i=1:length(varnames)
                 varname = varnames{i};
                 obj.VariableRange.(varname) = getVariableRange(obj,varname);
@@ -1067,20 +950,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DimPropsType = 'variable';
         end
 %% ------------------------------------------------------------------------   
-% Manipulate Custom Properties - rmprop to remove dynamic properties from a dstable
+% Manipulate Dynamic Properties - rmprop to remove dynamic properties
 %--------------------------------------------------------------------------
-
-% addCustomProperty
-%         function addtableprop(obj,propertyNames,propertyTypes) 
-%             %adds properties that contain custom metadata to the table
-%             obj.DataTable = addprop(obj.DataTable,propertyNames,propertyTypes);
-%         end
-% %%
-%         function rmtableprop(obj,propertyNames) 
-%             %removes properties that contain custom metadata from the table
-%             obj.DataTable = rmprop(obj.DataTable,propertyNames);  
-%         end
-%%
         function rmprop(obj,varname)
             %remove a dynamic property from a dstable object
             p = findprop(obj,varname); 
@@ -1140,6 +1011,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         function tsc = dst2tsc(obj,idxrows,idxvars)
             %convert dstable object to a tscollection if dstable has more than one
             %variable and a timeseries if only one variable
+            % idxrows and idxvars and index vetors for the subselection
+            % idxvars can also be a cell array of character vectors
             T = obj.DataTable;
             nvar = width(T);
             nrow = height(T);
@@ -1150,6 +1023,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 idxvars = 1:nvar;
             elseif isempty(idxrows)
                 idxrows = 1:nrow;
+            end
+            %
+            if ~isnumeric(idxvars) && ~islogical(idxvars)
+                idxvars = find(contains(obj.VariableNames,idxvars));
             end
             %
             T = T(idxrows,:);             %subsample table to selcted rows
@@ -1175,46 +1052,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
     end 
     
     methods (Access=private)
-%         function dsprops = assignProperties(obj,dsprops)
-%             %assign properties to table or extract properties to dsprops
-%             isget = false;
-%             if nargin<2
-%                 isget = true;
-%             end
-%             dsp = obj.DSproperties;
-%             dspnames = fieldnames(dsp);
-%             propnames = getPropertyNames(obj);
-%             if isget
-%                 dsprops = getDSprops(obj);
-%             else
-%                 setDSprops(obj,dsprops);
-%             end
-%         end
-%% 
-% Not used but kept in case needed (not tested)
-%         function propnames = getPropertyNames(obj)
-%             %construct fields names from DSproperties struct
-%             dsprops = dsproperties;
-%             dspnames = {'Variables','Row','Dimensions'};            
-%             propnames{3,5} = [];       %NB: assumes 5 fields in struct
-%             for i=1:3
-%                 fnames = fieldnames(dsp.(dspnames{i}));
-%                 for j=1:length(fnames)
-%                     if strcmp(dspnames{i},'Row') && strcmp(fnames{j},'Name')
-%                         %Row Name is singular in dsp and plural in table
-%                         propnames{i,j} = [dspnames{i},fnames{j},'s'];
-%                     elseif strcmp(dspnames{i},'Row')
-%                         %Row field names are all singular
-%                         propnames{i,j} = [dspnames{i},fnames{j}];
-%                     else
-%                         %Variable and Dimension names are plural
-%                         %e.g. Dimenions.Name becomes DimensionNames
-%                         propnames{i,j} = [dspnames{i}(1:end-1),fnames{j},'s'];
-%                     end
-%                 end
-%             end            
-%         end
-%%
         function dsp = setgetDSprops(obj,dsprops)
             %set or get the dstable properties 
             % dsprops is a dsproperties object used to set the properties
@@ -1272,17 +1109,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     else
                         if isrow %handle row fields to avoid nesting cells
                             if strcmp(propname,'RowFormat')
-                                oldfmt = obj.(propname);
-                                newfmt = dsprops.(dspnames{i}).(fnames{j});
-                                %******************************************
-                                %addtest to check that the new format works
-                                %for the data in RowNames
-                                %******************************************
-                                if ~isempty(oldfmt) && ~strcmp(oldfmt,newfmt)
-                                    promptxt = sprintf('Row format does not match existing row format\nSelect format to use');
-                                    newfmt = questdlg(promptxt,'Row format',oldfmt,newfmt,oldfmt);
-                                end 
-                                
+                                if strcmp(obj.RowType,'datetime') || ...
+                                            strcmp(obj.RowType,'duration')                        
+                                    newfmt = checkRowFormat(obj,dsprops);
+                                end                                                                                              
                                 dsprops.(dspnames{i}).(fnames{j}) = newfmt;
                             end
                             obj.(propname) = dsprops.(dspnames{i}).(fnames{j}); 
@@ -1297,30 +1127,30 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     end
                 end
             end            
-        end       
+        end 
 %%
-%         function setDSprops(obj)
-%             %construct fields names from DSproperties struct
-%             dsprops = dsproperties;
-%             dspnames = {'Variables','Row','Dimensions'};               
-% %             propnames{3,5} = [];       %NB: assumes 5 fields in struct
-%             for i=1:3
-%                 fnames = fieldnames(dsprops.(dspnames{i}));
-%                 for j=1:length(fnames)
-%                     if strcmp(dspnames{i},'Row') && strcmp(fnames{j},'Name')
-%                         %Row Name is singular in dsp and plural in table
-%                         propname = [dspnames{i},fnames{j},'s'];
-%                     elseif strcmp(dspnames{i},'Row')
-%                         %Row field names are all singular
-%                         propname = [dspnames{i},fnames{j}];
-%                     else
-%                         %Variable and Dimension names are plural
-%                         %e.g. Dimenions.Name becomes DimensionNames
-%                         propname = [dspnames{i}(1:end-1),fnames{j},'s'];
-%                     end
-%                 end
-%                 obj.(propname){k} = {dsprops.(dspnames{i}).(fnames{j})};
-%             end            
-%         end        
+        function newfmt = checkRowFormat(obj,dsprops)
+            %test to check that the new format works for the data in RowNames
+            oldfmt = obj.RowFormat;
+            newfmt = dsprops.Row.Format;
+            if ~isempty(oldfmt) && ~strcmp(oldfmt,newfmt)
+                promptxt = sprintf('Row format does not match existing row format\nSelect format to use');
+                newfmt = questdlg(promptxt,'Row format',...
+                                oldfmt,newfmt,oldfmt);
+            end 
+
+            try
+                inputrow = obj.DataTable.Properties.RowNames{1};
+                switch obj.RowType
+                    case 'datetime'
+                        datetime(inputrow,'InputFormat',newfmt);                   
+                    case 'duration'
+                        duration(inputrow,'InputFormat',newfmt);
+                end
+            catch
+                newfmt = oldfmt;
+                warndlg(sprintf('Cannot read RowNames with selected format\nOld format retained'));
+            end
+        end
     end
 end

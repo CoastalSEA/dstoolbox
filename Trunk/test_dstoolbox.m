@@ -264,7 +264,7 @@ function test_dstable(testnum,option)
             t1.DSproperties = dsp_struct;   %assign properties to dstable
             tsc1 = dst2tsc(t1);         %convert to full table to tscollection
             figure; plot(tsc1.Var2);
-            tsc2 = dst2tsc(t1,5:16,2);  %convert subset of table to tscollection
+            tsc2 = dst2tsc(t1,5:16,{'Var2','Var3'});  %convert subset of table to tscollection
             hold on
             plot(tsc2.Var2);
             dst = tsc2dst(tsc2);        %convert subset tsc back to dstable

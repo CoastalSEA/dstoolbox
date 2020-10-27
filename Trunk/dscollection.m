@@ -17,13 +17,15 @@ classdef dscollection < handle
 % CoastalSEA (c)Sep 2020
 %--------------------------------------------------------------------------
 %       
-    properties        
-        dsTables   %holds multiple dstables - index using dsTableNames
+    properties  
+        Collection  %holds multiple dstables - index using dsTableNames
+        %dsTables   
         MetaData   %used to hold additional information about DataSet:  <<REVIEW whether this is the best place for these variables???
-        %   DataType          %type of data input (used to limit selection in listdlg)
+        %DataType          %type of data input (used to limit selection in listdlg)
         %   OutputStyle       %output style when writing data to Excel file
         %   DefaultDimension  %default dimension for plotting (row.Name or dim.Name)  
         RunData    %instance of runproperties class with details of data used
+        ClassIndex      %index of class instance  
     end
           %idFormat must be defined in subclass for imported data???needed  
     properties (Abstract)
@@ -34,7 +36,6 @@ classdef dscollection < handle
                       %dimensions should be stored in seperate dstables.
                       %Variables with time-varying dimensions should store
                       %the dimensions as variables.
-         ClassID      %index of class instance             
     end
     
     properties (Dependent=true)
@@ -114,24 +115,34 @@ classdef dscollection < handle
     end  
 %%
     methods
-        function setClassIndex(obj,caseid)
+        function set.ClassIndex(obj,caseid)
             %set the class index for a new instance
-            %obj is handle to class instance            
-            obj.ClassID = caseid;
+            %obj is handle to class instance       
+            fprintf('set class index')
+            %check if besoke code is actually needed
+            %obj.ClassIndex = caseid;
         end
 %%        
-        function classrec = getClassIndex(obj,caseid)
+        function classrec = get.ClassIndex(obj)
             %set the class index for a new instance
             %obj is handle to class instance
-            nclass = length(obj);
-            classid = zeros(1,nclass);
-            for i=1:nclass
-                classid(i) = obj(i).ClassID;
-            end
-            classrec = find(classid==caseid);
+            fprintf('get class index')
+            %see what this does without bespoke code. If does not work for
+            %multiple instances of obj then use code below
+%             nclass = length(obj);
+%             classid = zeros(1,nclass);
+%             for i=1:nclass
+%                 classid(i) = obj(i).ClassIndex;
+%             end
+%             classrec = find(classid==caseid);
         end
 %%        
-        
+function set.Collection(obj,dst)
+    
+end
+function dsc = get.Collection(obj)
+    
+end
         
  %%OLD CODE *************************************>       
         function sdsc = setCollection(obj,VarData,varargin)

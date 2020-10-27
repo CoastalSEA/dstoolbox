@@ -1,6 +1,6 @@
 classdef dstb_usage < handle
 %
-%-------class help------------------------------------------------------
+%-------class help---------------------------------------------------------
 % NAME
 %   dstb_usage.m
 % PURPOSE
@@ -15,5 +15,10 @@ classdef dstb_usage < handle
 %--------------------------------------------------------------------------
 %   
 
+
+%setup data class derived from dscollection and add record to dscatalogue
+%retrieve record
+%subsample record using dimensions
+%plot
 
 end
