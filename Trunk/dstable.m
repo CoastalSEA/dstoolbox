@@ -23,6 +23,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
     properties
         %Extend default table properties to include dimensions and
         %additional metadata as defined by dsproperties class
+        
         DataTable    %table with properties assigned using Dependent properties
     end
     
@@ -40,16 +41,17 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %defined as Dependent to provide short syntax access for
         %dstables (e.g. dst.PropertyName)
         %Standard matlab(c) table properties
+        
         TableRowName         %labels row column
         RowNames             %distinct non-empty values to define each row
         Description          %summary description of dstable
         UserData             %free for user assignment        
         VariableNames        %name of each variable (checked for variable compliance)
         VariableDescriptions %text to describe each variable
-        VariableUnits        %units used for each variable   
-        VariableQCflags      %flag to indicate any quality control of data 
+        VariableUnits        %units used for each variable          
         CustomProperties     %object for table or variable metadata 
         %Additional dstable properties
+        
         Dimensions %struct for each dimension included, with fieldnames 
                    % defined in DimensionNames
                    %use addCustomProperties to make Dimensions Table, or
@@ -62,29 +64,34 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %   variables: Vel1, Vel2, Vel2 all labelled 'Velocity (m/s)'
         
         %Additional Variable metatdata
+        
         VariableLabels        %labels for generic outputs
+        VariableQCflags       %flag to indicate any quality control of data 
         
         %Additional Row metadata
+        
         RowDescription        %text to describe row usage
         RowUnit               %unit used for row data (if used)
         RowLabel              %label for generic outputs
         RowFormat             %datetime or duration format (if used)         
         
         %Dimensions propety metatdata
-        DimensionNames       %duplicates property in table, so use:       
-%         DimensionFields       %names to define fieldname for each dimension
+        
+        DimensionNames        %name of each dimenions (distinct from property in table)      
         DimensionDescriptions %text to describe each dimension
         DimensionUnits        %units used for each dimension
         DimensionLabels       %labels for generic outputs
         DimensionFormats      %datetime or duration format (if used) 
                              
         %Additional metadata
+        
         Source     %source of dst - model name or input file name
         MetaData   %detailed description of dstable (e.g. how derived)
     end
     
     properties (Transient)
         %a dsproperties object is used to define metadata for a dstable
+        
         DSproperties = dsproperties   %to define call setDSproperties in class constructor
 %         dspstruct = dsproperties      %empty DSP struct (defines fieldnames))
     end
@@ -126,15 +133,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 %syntax to preallocate space in a table
                 obj.DataTable = table('Size',varargin{3},'VariableTypes',varargin{4});
                 startprops = 5;
-            elseif ~isempty(idr) || ~isempty(idv)
-                %either RowNames or VariableNames have been defined
-                if isempty(idr)
-                    startprops = idv;
-                elseif isempty(idv)
-                    startprops = idr;
-                else
-                    startprops = min([idr,idv]);
-                end
+            elseif ~isempty(idr) || ~isempty(idv) || ~isempty(idd) || ~isempty(idp)
+                %either RowNames, VariableNames, DimensionNamed or 
+                %DSpropertieshave been defined
+                startprops = min([idr,idv,idd,idp]);
                 %check that at least one variable has been included
                 if startprops<2
                     warndlg('Need at least one variable to construct a dstable');
@@ -165,12 +167,13 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end     
             
             %define dynamic properties and variable ranges
-            varnames = obj.VariableNames;
-            for i=1:length(varnames)
-                varname = varnames{i};
-                obj.add_dyn_prop(varname, [], false);
-                obj.VariableRange.(varname) = getVariableRange(obj,varname);
-            end            
+            updateVarNames(obj)
+%             varnames = obj.VariableNames;
+%             for i=1:length(varnames)
+%                 varname = varnames{i};
+%                 obj.add_dyn_prop(varname, [], false);
+%                 obj.VariableRange.(varname) = getVariableRange(obj,varname);
+%             end            
         end 
 %%
         function add_dyn_prop(obj, prop, init_val, isReadOnly)
@@ -213,24 +216,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             function val = get_method(obj)
                 val = obj.DataTable.(prop);
             end
-        end         
-%%
-        function addDefaultProperties(obj)
-            %add additional properties used by dstable
-            obj.DimPropsType = 'table';
-            %additonal variable properties
-            addCustomProperties(obj,{'VariableLabels','VariableQCs'},...
-                                                {'variable','variable'});
-            %additional row properties
-            propnames = {'RowDescription','RowUnit','RowLabel','RowFormat'};
-            proptypes = repmat({'table'},1,length(propnames));     
-            addCustomProperties(obj,propnames,proptypes);
-            %additional dimension properties
-            setDimensions2Table(obj)
-            %additional metadata properties
-            addCustomProperties(obj,{'Source','MetaData'},...
-                                                {'table','table'});   
-        end
+        end 
 %% ------------------------------------------------------------------------
 %% PROPERTY SET AND GET
 %% ------------------------------------------------------------------------
@@ -434,7 +420,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %set RowNames - requires a DataTable to exist. Rows must be unique
             %can be datetime, duration, char arrays, strings or numeric vectors            
             if ~strcmp(obj.DimPropsType,'table')
-                warndlg('Dimensions as a ''variable'' Custom Property not implemented')
+                warndlg('Dimensions as a ''variable'' Custom Property not yet implemented')
                 return; 
             end
             %
@@ -478,50 +464,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DataTable.Properties.CustomProperties.Dimensions = dimvals;
             obj.DimensionRange = dimrange; 
             obj.DimType = dimtype;
-        end        
-%%
-        function [dimvals,dimtype,range] = setDimensionType(~,indims)
-            %check dimension type and return values as a char array
-            % indims - input dimension array
-            % dimvals - char array of values in indims
-            % dimtype - variable type used for indims
-            % range - min/max or start/end values
-            if isrow(indims), indims = indims'; end %make column vector
-            idrange = [1,length(indims)];           %default index for range
-            if isdatetime(indims)
-                dimvals = cellstr(indims);
-                dimtype = 'datetime';                
-            elseif isduration(indims)
-                dimvals = cellstr(indims);
-                dimtype = 'duration';                
-            elseif iscellstr(indims) || ischar(indims)             
-                dimvals = indims;
-                dimtype = 'char';
-            elseif isstring(indims) 
-                dimvals = indims;
-                dimtype = 'string';
-            elseif isnumeric(indims)                      
-                dimvals = cellstr(num2str(indims));
-                dimtype = 'numeric';
-                idrange = [min(indims),max(indims)];  %index for range
-            else
-%                 warndlg('Unknown data type for RowNames');
-                dimvals = []; dimtype = []; range = [];
-                return;
-            end
-            range = dimvals(idrange)';
-        end
-%%
-        function clearDimension(obj,dimnum)
-            %remove the metadata for a Dimension if deleted (set = [])
-            obj.DimensionNames(dimnum) = [];
-            obj.DimType(dimnum) = [];
-            obj.DimensionDescriptions(dimnum) = [];
-            obj.DimensionUnits(dimnum) = [];       
-            obj.DimensionLabels(dimnum) = [];       
-            obj.DimensionFormats(dimnum) = [];
-            obj.DimensionRange(dimnum) = [];
-        end       
+        end              
 %%
         function outdims = get.Dimensions(obj)
             %get Dimensions and return values in original format
@@ -539,40 +482,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 if ~isempty(outdims)
                     outdims = getDimensionType(obj,outdims,1);
                 end
-            end
-        end
-%%
-        function outdims = getDimensionType(obj,source,dimname)
-            %check dimension type and return Dimension using input format
-            % source - saved Dimension values
-            % dimnum - the index of the Dimension based on DimensionNames
-            % outdims - dimension converted from char to input data format
-            if isnumeric(dimname)
-                dimtype = obj.DimType;
-                dimnum = 1;
-            else
-                dimtype = obj.DimType.(dimname);
-                dimnum = find(strcmp(obj.DimensionNames,dimname));
-            end
-            %
-            switch dimtype
-                case 'datetime'
-                    outdims = datetime(source,'InputFormat',...
-                                            obj.DimensionFormats{dimnum});
-                    outdims.Format = obj.DimensionFormats{dimnum};
-                case 'duration'
-                    outdims = duration(source,'InputFormat',...
-                                            obj.DimensionFormats{dimnum});
-                    outdims.Format = obj.DimensionFormats{dimnum};
-                case 'char'
-                    outdims = source;
-                case 'string'
-                    outdims = string(source);
-                case 'numeric'
-                    outdims = str2double(source);
-                otherwise
-%                     warndlg('Error in get.RowNames')
-                    outdims = [];
             end
         end
 %%
@@ -640,7 +549,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             % propname is the new property name
             % proptype - 'table' or 'variable'
             obj.DataTable = addprop(obj.DataTable,propnames,proptypes);
-            
         end
         %
         function rmCustomProperties(obj,propnames)
@@ -761,34 +669,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end  
             
         end
-%%
-        function index = getDimensionIndices(~,dsvals,invals)
-            %find the indices of the selected values of a dimension
-            % dsvals - reference values for index
-            % invals - values requested 
-            %intersect does not work with datetime (despite inclusion in
-            %manual)
-            if isdatetime(invals)
-                dsvals = cellstr(dsvals);
-                invals = cellstr(invals);
-            end
-            [~,index,~] = intersect(dsvals,invals,'stable');
-        end
-%%
-        function outdata = extractIndexDimensions(~,data,ind)              
-            %extract the dimesions based on the selected values
-            %handles 3 dimensions in addition to rows 
-            % data - source array of data
-            % ind  - cell array of index values
-            switch length(ind)
-                case 1
-                    outdata = data(:,ind{1});
-                case 2
-                    outdata = data(:,ind{1},ind{2});
-                case 3
-                    outdata = data(:,ind{1},ind{2},ind{3});
-            end                
-        end  
 %% ------------------------------------------------------------------------   
 % Manipulate Variables - add, remove, move, variable range, horzcat,
 % vertcat, sortrows, plot
@@ -809,7 +689,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %%
         function newdst = removevars(obj,varnames)
             %remove variable from table and update properties
-            newdst = dstable;
+            newdst = copy(obj);
             newdst.DataTable = obj.DataTable;            
             newdst.DataTable = removevars(newdst.DataTable,varnames); 
         end
@@ -820,21 +700,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
             obj.DataTable = movevars(obj.DataTable,varname,position,location);
-        end
-%%
-        function range = getVariableRange(obj,varname)
-            %find the minimum and maximum value of the data in varname 
-            %if numeric otherwise return first and last value
-            data = obj.DataTable.(varname);
-            if isnumeric(data)   %vector and array data
-                minval = num2str(min(data,[],'all'));
-                maxval = num2str(max(data,[],'all'));
-                range = {minval,maxval};
-            elseif iscell(data)  %character arrays
-                range ={data{1},data{end}};
-            else                 %character strings, string arrays
-                range = [data(1),data(end)];
-            end
         end
 %%
         function newdst = horzcat(obj1,obj2)
@@ -883,22 +748,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             firstrec = newdst.DataTable.Properties.RowNames{1};
             lastrec = newdst.DataTable.Properties.RowNames{end};
             newdst.RowRange = {firstrec,lastrec};   
-        end
-%%
-        function [table1,table2,chx] = getCatChecks(obj1,obj2)
-            %checks needed for horzcat and vertcat
-            table1 = obj1.DataTable;
-            table2 = obj2.DataTable;
-            chx.iswidth = width(table1)==width(table2);
-            chx.isheight = height(table1)==height(table2);
-            %variable names in the two tables must be the same
-            varnames1 = table1.Properties.VariableNames;
-            varnames2 = table2.Properties.VariableNames;
-            chx.isvar = ismember(varnames1,varnames2);
-            %check for duplicates in rownames
-            rownames1 = table1.Properties.RowNames;
-            rownames2 = table2.Properties.RowNames;
-            chx.isrow = ismember(rownames1,rownames2);
         end
 %%
         function obj = sortrows(obj)
@@ -952,9 +801,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %% ------------------------------------------------------------------------   
 % Manipulate Dynamic Properties - rmprop to remove dynamic properties
 %--------------------------------------------------------------------------
-        function rmprop(obj,varname)
+        function rmprop(obj,propertyName)
             %remove a dynamic property from a dstable object
-            p = findprop(obj,varname); 
+            p = findprop(obj,propertyName); 
             delete(p);
         end
 %% ------------------------------------------------------------------------   
@@ -987,32 +836,15 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             tableprops = setgetDSprops(obj);
             dsprops = dsproperties(tableprops,nullDescription(obj));
         end
-%%
-        function dsdesc = nullDescription(obj)
-            %set default description in no table description defined
-            if isempty(obj.Description)
-                dsdesc = 'dstable properties';
-            else
-                dsdesc = obj.Description;
-            end
-        end
 %% ------------------------------------------------------------------------
 % Other functions
 %--------------------------------------------------------------------------  
-        function answer = isunique(~,usevals)
-            %check that all values in usevals are unique
-            if isdatetime(usevals) || isduration(usevals)
-                usevals = cellstr(usevals);
-            end
-            [~,idx,idy] = unique(usevals,'stable');
-            answer = numel(idx)==numel(idy);
-        end
-%%
         function tsc = dst2tsc(obj,idxrows,idxvars)
             %convert dstable object to a tscollection if dstable has more than one
             %variable and a timeseries if only one variable
-            % idxrows and idxvars and index vetors for the subselection
-            % idxvars can also be a cell array of character vectors
+            % idxtime - index vector for the subselection of time
+            % idxvars - index vector for the subselection of variables, or the 
+            %           variable names as a cell array of character vectors 
             T = obj.DataTable;
             nvar = width(T);
             nrow = height(T);
@@ -1029,7 +861,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 idxvars = find(contains(obj.VariableNames,idxvars));
             end
             %
-            T = T(idxrows,:);             %subsample table to selcted rows
+            T = T(idxrows,:);             %subsample table to selected rows
             tsTime = obj.DataTable.Properties.RowNames(idxrows);
             if isa(tsTime,'duration')
                 tsTime = datetime(sprintf('01-Jan-%d 00:00:00',0))+tsTime;                        
@@ -1050,8 +882,191 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             tsc.TimeInfo.UserData = newdsp;
         end
     end 
-    
+%% ------------------------------------------------------------------------
+% Functions called by methods (private)`
+%--------------------------------------------------------------------------      
     methods (Access=private)
+%% dstable
+        function addDefaultProperties(obj)
+            %add additional properties used by dstable
+            obj.DimPropsType = 'table';
+            %additonal variable properties
+            addCustomProperties(obj,{'VariableLabels','VariableQCs'},...
+                                                {'variable','variable'});
+            %additional row properties
+            propnames = {'RowDescription','RowUnit','RowLabel','RowFormat'};
+            proptypes = repmat({'table'},1,length(propnames));     
+            addCustomProperties(obj,propnames,proptypes);
+            %additional dimension properties
+            setDimensions2Table(obj)
+            %additional metadata properties
+            addCustomProperties(obj,{'Source','MetaData'},...
+                                                {'table','table'});   
+        end        
+%% Variables
+        function updateVarNames(obj)
+            %define or update dynamic properties and variable ranges
+            varnames = obj.VariableNames;
+            for i=1:length(varnames)
+                varname = varnames{i};
+                if ~isprop(obj,varname)
+                    obj.add_dyn_prop(varname, [], false);
+                    obj.VariableRange.(varname) = getVariableRange(obj,varname);
+                end
+            end 
+        end
+%%
+        function range = getVariableRange(obj,varname)
+            %find the minimum and maximum value of the data in varname 
+            %if numeric otherwise return first and last value
+            data = obj.DataTable.(varname);
+            if isnumeric(data)   %vector and array data
+                minval = num2str(min(data,[],'all'));
+                maxval = num2str(max(data,[],'all'));
+                range = {minval,maxval};
+            elseif iscell(data)  %character arrays
+                range ={data{1},data{end}};
+            else                 %character strings, string arrays
+                range = [data(1),data(end)];
+            end
+        end        
+%% Row
+        function newfmt = checkRowFormat(obj,dsprops)
+            %test to check that the new format works for the data in RowNames
+            oldfmt = obj.RowFormat;
+            newfmt = dsprops.Row.Format;
+            if isempty(newfmt)
+                newfmt = oldfmt;
+                return;
+            end
+            
+            if ~isempty(oldfmt) && ~strcmp(oldfmt,newfmt)
+                promptxt = sprintf('Row format does not match existing row format\nSelect format to use');
+                newfmt = questdlg(promptxt,'Row format',...
+                                oldfmt,newfmt,oldfmt);
+            end 
+
+            try
+                inputrow = obj.DataTable.Properties.RowNames{1};
+                switch obj.RowType
+                    case 'datetime'
+                        datetime(inputrow,'InputFormat',newfmt);                   
+                    case 'duration'
+                        duration(inputrow,'InputFormat',newfmt);
+                end
+            catch
+                newfmt = oldfmt;
+                warndlg(sprintf('Cannot read RowNames with selected format\nOld format retained'));
+            end
+        end
+%% Dimensions
+        function [dimvals,dimtype,range] = setDimensionType(~,indims)
+            %check dimension type and return values as a char array
+            % indims - input dimension array
+            % dimvals - char array of values in indims
+            % dimtype - variable type used for indims
+            % range - min/max or start/end values
+            if isrow(indims), indims = indims'; end %make column vector
+            idrange = [1,length(indims)];           %default index for range
+            if isdatetime(indims)
+                dimvals = cellstr(indims);
+                dimtype = 'datetime';                
+            elseif isduration(indims)
+                dimvals = cellstr(indims);
+                dimtype = 'duration';                
+            elseif iscellstr(indims) || ischar(indims)             
+                dimvals = indims;
+                dimtype = 'char';
+            elseif isstring(indims) 
+                dimvals = indims;
+                dimtype = 'string';
+            elseif isnumeric(indims)                      
+                dimvals = cellstr(num2str(indims));
+                dimtype = 'numeric';
+                [~,imin] = min(indims);
+                [~,imax] = max(indims);
+                idrange = [imin,imax];  %index for range
+            else
+%                 warndlg('Unknown data type for RowNames');
+                dimvals = []; dimtype = []; range = [];
+                return;
+            end
+            range = dimvals(idrange)';
+        end
+%%
+        function outdims = getDimensionType(obj,source,dimname)
+            %check dimension type and return Dimension using input format
+            % source - saved Dimension values
+            % dimnum - the index of the Dimension based on DimensionNames
+            % outdims - dimension converted from char to input data format
+            if isnumeric(dimname)
+                dimtype = obj.DimType;
+                dimnum = 1;
+            else
+                dimtype = obj.DimType.(dimname);
+                dimnum = find(strcmp(obj.DimensionNames,dimname));
+            end
+            %
+            switch dimtype
+                case 'datetime'
+                    outdims = datetime(source,'InputFormat',...
+                                            obj.DimensionFormats{dimnum});
+                    outdims.Format = obj.DimensionFormats{dimnum};
+                case 'duration'
+                    outdims = duration(source,'InputFormat',...
+                                            obj.DimensionFormats{dimnum});
+                    outdims.Format = obj.DimensionFormats{dimnum};
+                case 'char'
+                    outdims = source;
+                case 'string'
+                    outdims = string(source);
+                case 'numeric'
+                    outdims = str2double(source);
+                otherwise
+%                     warndlg('Error in get.RowNames')
+                    outdims = [];
+            end
+        end
+%%
+        function clearDimension(obj,dimnum)
+            %remove the metadata for a Dimension if deleted (set = [])
+            obj.DimensionNames(dimnum) = [];
+            obj.DimType(dimnum) = [];
+            obj.DimensionDescriptions(dimnum) = [];
+            obj.DimensionUnits(dimnum) = [];       
+            obj.DimensionLabels(dimnum) = [];       
+            obj.DimensionFormats(dimnum) = [];
+            obj.DimensionRange(dimnum) = [];
+        end 
+%%
+        function index = getDimensionIndices(~,dstDimVals,inVals)
+            %find the indices of the selected values of a dimension
+            % dstDimVals - reference values for index
+            % inVals - values requested 
+            %intersect does not work with datetime (despite inclusion in
+            %manual)
+            if isdatetime(inVals)
+                dstDimVals = cellstr(dstDimVals);
+                inVals = cellstr(inVals);
+            end
+            [~,index,~] = intersect(dstDimVals,inVals,'stable');
+        end        
+%%
+        function outdata = extractIndexDimensions(~,data,ind)              
+            %extract the dimensions based on the selected values
+            %handles 3 dimensions in addition to rows 
+            % data - source array of data
+            % ind  - cell array of index values
+            switch length(ind)
+                case 1
+                    outdata = data(:,ind{1});
+                case 2
+                    outdata = data(:,ind{1},ind{2});
+                case 3
+                    outdata = data(:,ind{1},ind{2},ind{3});
+            end                
+        end  
+%% dsproperties       
         function dsp = setgetDSprops(obj,dsprops)
             %set or get the dstable properties 
             % dsprops is a dsproperties object used to set the properties
@@ -1120,6 +1135,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                             propvalues = dsprops.(dspnames{i}).(fnames{j});
                             if iscell(propvalues) && isempty(propvalues{1})
                                 obj.(propname) = {''};
+                            elseif strcmp(propname,'VariableNames')
+                                obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
+                                updateVarNames(obj)
                             else
                                 obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
                             end
@@ -1127,30 +1145,42 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     end
                 end
             end            
-        end 
-%%
-        function newfmt = checkRowFormat(obj,dsprops)
-            %test to check that the new format works for the data in RowNames
-            oldfmt = obj.RowFormat;
-            newfmt = dsprops.Row.Format;
-            if ~isempty(oldfmt) && ~strcmp(oldfmt,newfmt)
-                promptxt = sprintf('Row format does not match existing row format\nSelect format to use');
-                newfmt = questdlg(promptxt,'Row format',...
-                                oldfmt,newfmt,oldfmt);
-            end 
+        end
 
-            try
-                inputrow = obj.DataTable.Properties.RowNames{1};
-                switch obj.RowType
-                    case 'datetime'
-                        datetime(inputrow,'InputFormat',newfmt);                   
-                    case 'duration'
-                        duration(inputrow,'InputFormat',newfmt);
-                end
-            catch
-                newfmt = oldfmt;
-                warndlg(sprintf('Cannot read RowNames with selected format\nOld format retained'));
+%%
+        function dsdesc = nullDescription(obj)
+            %set default description in no table description defined
+            if isempty(obj.Description)
+                dsdesc = 'dstable properties';
+            else
+                dsdesc = obj.Description;
             end
         end
+%% functions
+        function [table1,table2,chx] = getCatChecks(obj1,obj2)
+            %checks needed for horzcat and vertcat
+            table1 = obj1.DataTable;
+            table2 = obj2.DataTable;
+            chx.iswidth = width(table1)==width(table2);
+            chx.isheight = height(table1)==height(table2);
+            %variable names in the two tables must be the same
+            varnames1 = table1.Properties.VariableNames;
+            varnames2 = table2.Properties.VariableNames;
+            chx.isvar = ismember(varnames1,varnames2);
+            %check for duplicates in rownames
+            rownames1 = table1.Properties.RowNames;
+            rownames2 = table2.Properties.RowNames;
+            chx.isrow = ismember(rownames1,rownames2);
+        end
+%%
+        function answer = isunique(~,usevals)
+            %check that all values in usevals are unique
+            if isdatetime(usevals) || isduration(usevals)
+                usevals = cellstr(usevals);
+            end
+            [~,idx,idy] = unique(usevals,'stable');
+            answer = numel(idx)==numel(idy);
+        end
+%%
     end
 end

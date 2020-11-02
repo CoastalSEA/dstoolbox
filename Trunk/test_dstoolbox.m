@@ -1,4 +1,4 @@
-function test_dstoolbox(classname,casenum,option)
+function h = test_dstoolbox(classname,casenum,option)
 %
 %-------function help------------------------------------------------------
 % NAME
@@ -10,7 +10,7 @@ function test_dstoolbox(classname,casenum,option)
 %       e.g. test_dstoolbox('dstable',6,[1,3,5]);
 % INPUT
 %   classsname - name of dstoolbox class function to be tested
-%   testnum - numver of test to run
+%   testnum - number of test to run
 %   option  - selects format for dimesnion when calling set_dimension in
 %             dstable (single value or vector depending on case)
 % OUTPUT
@@ -31,33 +31,42 @@ function test_dstoolbox(classname,casenum,option)
         case 'dscollection'
             %interface needs to be implemented by a class
         case 'dstb_usage'    %example of using the dstoolbox
-            test_dstb_usage(casenum);
+            h = test_dstb_usage(casenum);
     end
 end
 %%
 function test_dscatalogue()
     %test set, get edit and delete functions
     dsCases = dscatalogue;
-
-    recnum1 = setCase(dsCases,'TestClass','model');
-    recnum2 = setCase(dsCases,'TestClass','model');
-    recnum3 = setCase(dsCases,'DifferentClass','data');
-    recnum4 = setCase(dsCases,'DifferentClass','data');
-    recnum5 = setCase(dsCases,'DifferentClass','data');
-
+    
+    fprintf('Loading dscatalogue with records\n')
+    %daaCase returns the record number in the Catalogue property of dscatalogue
+    recnum1 = addCase(dsCases,'TestClass','model');  
+    recnum2 = addCase(dsCases,'TestClass','model');
+    recnum3 = addCase(dsCases,'DifferentClass','data');
+    recnum4 = addCase(dsCases,'DifferentClass','data');
+    recnum5 = addCase(dsCases,'DifferentClass','data');
+    
+    %access selected cases
     casedef = getCase(dsCases,recnum2);
+    fprintf('Display definition for case no.2\n')
     display(casedef)
-    casedef = getCase(dsCases,[],4);
+    fprintf('Display definition for case no.4 using caseid\n')
+    casedef = getCase(dsCases,dsCases.caseRec(4));
     display(casedef)
-
-    [caserec,newdesc] = editRecord(dsCases,recnum3);
-    fprintf('Record %g: %s\n',caserec,newdesc{1})
     
-    [caserec,~] = selectRecord(dsCases,'PromptText','Select case:',...
+    %edit the description of a case
+    [caserec,newdesc] = editDescription(dsCases,recnum3);
+    fprintf('Edited Record %g: to read: %s\n',caserec,newdesc{1})
+    
+    %select from the TestClass subset
+    [caserec,~] = selectCase(dsCases,'PromptText','Select case:',...
                      'CaseClass','TestClass','ListSize',[250,200]);
-    fprintf('Record %g\n',caserec)
+    fprintf('Selected TestCLass record %g\n',caserec)
     
-    deleteRecords(dsCases);
+    removeCase(dsCases,[2,4]);
+    removeCase(dsCases);  %prompts to select from list    
+    fprintf('Display catalogue table after deleting records\n')
     display(dsCases.Catalogue)
 end
 %%
@@ -80,9 +89,9 @@ function test_dsproperties(testnum)
             aa.DSPdescription = 'set';      %ui to set DSPdescription
             displayDSproperties(aa);        %display current definition
             
-        case 4 
+        case 4  %create using a struct and delete contents
             aa = dsproperties(dsp_struct);  %alternative call to initialise        
-            aa.Variables = [];              %clear all Variables
+            aa.Variables(2) = [];           %clear a Variable (Var2)
             aa.Dimensions = [];             %clear all Dimensions
             aa.Row = [];                    %clear Row
             aa.DSPdescription = [];         %clear DSPdescription
@@ -267,11 +276,18 @@ function test_dstable(testnum,option)
             tsc2 = dst2tsc(t1,5:16,{'Var2','Var3'});  %convert subset of table to tscollection
             hold on
             plot(tsc2.Var2);
-            dst = tsc2dst(tsc2);        %convert subset tsc back to dstable
+            dst = tsc2dst(tsc2,3:9,{'Var2'});         %convert subset tsc back to dstable
             plot(dst,'Var2','x')         
             hold off
             displayDSproperties(dst.DSproperties); 
-             
+            
+        case 10 %change dimensions to be variable specific NOT YET IMPLEMENTED
+            t1 = tstable();                 %dstable of timeseries data
+            t1.DSproperties = dsp_struct;   %assign properties to dstable
+            setDimensions2Variable(t1);     %set the dimensions to be variable specific
+            t1.Dimensions.Lat = [11,12,13];
+            t1.Dimensions.Long = [21,22,23];
+            
         case 99 %generate variables of different dimension
             s = rng; %control random number generator (does not need to be passed to fcn)
             var1 = set_variable(5)
@@ -282,10 +298,21 @@ function test_dstable(testnum,option)
     end    
 end
 %%
-function test_dstb_usage(testnum)
+function dm = test_dstb_usage(testnum)
     %test the components of the toolbox using a calling class
     switch testnum
-        case 1  %initialise a blank dstable
+        case 1  %
+            %initialise class that manages calls to models and data classes
+            dm = dstb_usage;
+            %run model twice and load two data sets
+            run_a_model(dm);
+%             load_data(dm);
+            run_a_model(dm);
+%             load_data(dm);
+            %plot results
+            plotCase(dm);
+            %display DSproperties of a selected Case
+            displayProps(dm);
     end
 end
 %%
@@ -294,7 +321,7 @@ end
 %--------------------------------------------------------------------------
 function dsp = dsp_struct
     %populate the DSproperties stuct as a struct array 
-    %use  cell arrays of row or column vectors
+    %uses cell arrays of row or column vectors (but not string arrays)
             dsp = struct('Variables',[],'Row',[],'Dimensions',[]);           
             dsp.Variables = struct(...
                 'Name',{'Var1','Var2','Var3'},...
@@ -318,11 +345,11 @@ end
 %%
 function dsp = dsp_cellstruct
     %populate the DSproperties stuct as a struct of cell arrays
-    %use  cell arrays of row or column vectors
+    %uses cell arrays of row or column vectors or string arrays
     dsp = struct('Variables',[],'Row',[],'Dimensions',[]);
     dsp.Variables.Name = {'Var1','Var2','Var3'};
     dsp.Variables.Description = {'Variable 1','Variable 2','Variable 3'};
-    dsp.Variables.Unit = {'m2','m3','m'};
+    dsp.Variables.Unit = ["m2","m3","m"];  
     dsp.Variables.Label = {'Area','Volume','Length'};
     dsp.Variables.QCflag = {'raw','-','model'};
     dsp.Row.Name = 'Time';

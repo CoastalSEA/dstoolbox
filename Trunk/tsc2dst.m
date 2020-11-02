@@ -1,4 +1,4 @@
-function dst = tsc2dst(tsc)
+function dst = tsc2dst(tsc,idxtime,idxvars)
 %
 %-------function help------------------------------------------------------
 % NAME
@@ -9,6 +9,9 @@ function dst = tsc2dst(tsc)
 %   dst = tsc2dst(tsc)
 % INPUTS
 %   tsc - timeseries or tscollection
+%   idxtime - index vector for the subselection of time
+%   idxvars - index vector for the subselection of variables, or the 
+%             variable names as a cell array of character vectors 
 % OUTPUT
 %   dst - dstable object
 % NOTES
@@ -28,26 +31,40 @@ function dst = tsc2dst(tsc)
     varnames = gettimeseriesnames(tsc); 
     
     nvar = length(varnames);
-    tsdata = cell(1,nvar);
-    for i=1:nvar
-        ts = tsc.(varnames{i});
-        tsdata{1,i} = ts.Data;
+    nrow = length(mdate);
+    if nargin<2
+        idxtime = 1:nrow;
+        idxvars = 1:nvar;
+    elseif nargin<3               
+        idxvars = 1:nvar;
+    elseif isempty(idxtime)
+        idxtime = 1:nrow;
+    end    
+    %
+    if ~isnumeric(idxvars) && ~islogical(idxvars)
+        idxvars = find(contains(varnames,idxvars));
+    end
+    %
+    mdate = mdate(idxtime);    %subsample time to selected range  
+    nsubvar = length(idxvars);
+    tsdata = cell(1,nsubvar);
+    for j=1:nsubvar
+        ts = tsc.(varnames{idxvars(j)});
+        tsdata{1,j} = ts.Data(idxtime);
     end
     
-    dst = dstable(tsdata{:},'RowNames',mdate,'VariableNames',varnames);
-    
-%     for i=2:length(varnames)
-%         ts = tsc.(varnames{i});
-%         varname = varnames{i};
-%         addvars(dst,ts.Data,'NewVariableNames',varname);        
-%         dst.add_dyn_prop(varname, [], false);
-%         dst.VariableRange.(varname) = getVariableRange(dst,varname);       
-%     end
+    dst = dstable(tsdata{:},'RowNames',mdate,...
+                                'VariableNames',varnames(idxvars));
     
     if ~isempty(tsc.TimeInfo.UserData) && ...
             isa(tsc.TimeInfo.UserData,'dsproperties')
+        dsp = tsc.TimeInfo.UserData;
+        if length(idxvars)~=nvar
+            idvars = setdiff(1:nvar,idxvars);
+            dsp.Variables(idvars) = [];
+        end
         %tsc must be derived from a dstable so pass dstable metadata 
         %back to new dstable
-        dst.DSproperties = tsc.TimeInfo.UserData;
+        dst.DSproperties = dsp;
     end
 end

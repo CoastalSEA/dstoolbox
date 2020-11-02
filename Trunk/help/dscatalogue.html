@@ -1,0 +1,168 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-02"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>dscatalogue</h1><!--introduction--><p>dscatalogue manages a catalogue of data sets</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#3">Description</a></li><li><a href="#4">Properties</a></li><li><a href="#8">dscatalogue methods</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dsc = dscatalogue;             <span class="comment">%creates an empty dscatalogue</span>
+</pre><h2 id="3">Description</h2><p>Maintains a catalogue of cases that can be a mix of data types (e.g. model and measured data) and created by different classes. Each record is given and unique case identifier (CaseID), which is distinct from the number (row) of the record (CaseRec).</p><h2 id="4">Properties</h2><p><b>Catalogue</b> holds a <a href="matlab:doc('table')">table</a> of the case definition. The Catalogue includes the following fields: <br> <i>CaseID</i> - unique identifier for each record <br> <i>CaseDescription</i> - data set specific record description <br> <i>CaseClass</i> - class of data set to be catalogued <br> <i>CaseType</i> - type of data set (e.g. keywords: model, data)</p><p>The Catalogue table fields can be accessed using standard table notation, e.g:</p><pre class="language-matlab">dst.Catalogue.CaseClass(rowidx)  <span class="comment">%rowidx is the index of the row(s) to be returned</span>
+</pre><h2 id="8">dscatalogue methods</h2><p>the dscatalogue methods allow cases to be added, removed and the case description to be edited</p><p><b>addCase</b> - add a case definition to the catalogue</p><pre class="language-matlab">recnum = addCase(dsc,caseclass,casetype,casename); <span class="comment">%casename is optional</span>
+</pre><p><b>removeCase</b> - select one or more records and delete records from catalogue</p><pre class="language-matlab">caserec = removeCase(dsc,caserec)'; <span class="comment">%returns list of deleted records (caserec)</span>
+                                    <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
+</pre><p><b>getCase</b> - return case for the caserec record</p><pre class="language-matlab">casedef = getCase(dsc,caserec);     <span class="comment">%casedef is a table of the selected record</span>
+                                    <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
+</pre><p><b>editDescription</b> - edit case description of the caserec record</p><pre class="language-matlab">[caserec,newdesc] = editDescription(dsc,caserec);   <span class="comment">%caserec is optional</span>
+                                    <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
+</pre><p><b>selectCase</b> - list dialogue box of the cases in the catalogue</p><pre class="language-matlab">[caserec,ok] = selectCase(dsc,Name,Value);
+</pre><p>Name, Value options are specified as comma-separated pairs and include the following options: <br> 'CaseClass', {'class'} - cell array of classes to include in the list <br> 'CaseType', {'type'} - cell array of types to include in the list <br> 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br> 'ListSize', [width,height] - defines the dimensions of the list dialogue <br> 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'</p><p><i>selectCase</i> outputs: <br> caserec - the record number of the selected case or cases <br> ok - The selection logical value indicates whether the user made a selection. If the user clicks OK, double-clicks a list item, or presses Return, then the ok return value is 1. If the user clicks Cancel, presses Esc, or clicks the close button (X) in the dialog box title bar, then the ok return value is 0.</p><p><b>caseRec</b> - find caserec using caseid</p><pre class="language-matlab">caserec = caseRec(dsc,caseid);
+</pre><p><b>caseID</b> - find caseid using caserec</p><pre class="language-matlab">caseid = caseID(dsc,caserec)
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% dscatalogue
+% dscatalogue manages a catalogue of data sets
+
+%% Syntax
+%%
+%   dsc = dscatalogue;             %creates an empty dscatalogue
+%
+
+%% Description
+% Maintains a catalogue of cases that can be a mix of data types (e.g.
+% model and measured data) and created by different classes. Each record is
+% given and unique case identifier (CaseID), which is distinct from the
+% number (row) of the record (CaseRec). 
+
+%% Properties
+% *Catalogue* holds a <matlab:doc('table') table> of the case definition.
+% The Catalogue includes the following fields: <br>
+% _CaseID_ - unique identifier for each record <br>  
+% _CaseDescription_ - data set specific record description <br>
+% _CaseClass_ - class of data set to be catalogued <br>
+% _CaseType_ - type of data set (e.g. keywords: model, data)
+%%
+% The Catalogue table fields can be accessed using standard table notation, e.g:
+%%
+%   dst.Catalogue.CaseClass(rowidx)  %rowidx is the index of the row(s) to be returned
+%   
+%%
+%% dscatalogue methods
+% the dscatalogue methods allow cases to be added, removed and the case
+% description to be edited
+
+%%
+% *addCase* - add a case definition to the catalogue
+%%
+%   recnum = addCase(dsc,caseclass,casetype,casename); %casename is optional
+
+%%
+% *removeCase* - select one or more records and delete records from catalogue 
+%%
+%   caserec = removeCase(dsc,caserec)'; %returns list of deleted records (caserec)
+%                                       %uses list dialogue selection if caserec is not supplied
+                                     
+%%
+% *getCase* - return case for the caserec record 
+%%
+%   casedef = getCase(dsc,caserec);     %casedef is a table of the selected record
+%                                       %uses list dialogue selection if caserec is not supplied
+
+%%
+% *editDescription* - edit case description of the caserec record
+%%
+%   [caserec,newdesc] = editDescription(dsc,caserec);   %caserec is optional 
+%                                       %uses list dialogue selection if caserec is not supplied
+
+%%
+% *selectCase* - list dialogue box of the cases in the catalogue
+%%
+%   [caserec,ok] = selectCase(dsc,Name,Value);
+%%
+% Name, Value options are specified as comma-separated pairs and include the following options: <br>
+% 'CaseClass', {'class'} - cell array of classes to include in the list <br>
+% 'CaseType', {'type'} - cell array of types to include in the list <br>
+% 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br>
+% 'ListSize', [width,height] - defines the dimensions of the list dialogue <br>
+% 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'
+%%
+% _selectCase_ outputs: <br>
+% caserec - the record number of the selected case or cases <br> 
+% ok - The selection logical value indicates whether the user made a 
+% selection. If the user clicks OK, double-clicks a list item, or presses 
+% Return, then the ok return value is 1. If the user clicks Cancel, presses 
+% Esc, or clicks the close button (X) in the dialog box title bar, then the 
+% ok return value is 0.
+
+%%
+% *caseRec* - find caserec using caseid
+%%
+%   caserec = caseRec(dsc,caseid);    
+
+%%
+% *caseID* - find caseid using caserec
+%%
+%   caseid = caseID(dsc,caserec)
+
+##### SOURCE END #####
+--></body></html>

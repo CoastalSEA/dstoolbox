@@ -7,8 +7,8 @@ classdef dsproperties < matlab.mixin.Copyable
 %   Class to manage the meta-data properties defined in dstable for
 %   variables, row and dimensions
 % NOTES
-%   Options to load data as nested struct of Variables, Row and Dimensions
-%   as a struct array or single struct of cell arrays when there are
+%   Options to load data as a nested struct of Variables, Row and Dimensions
+%   as a struct array, or single struct of cell arrays when there are
 %   multiple variables or dimensions. Variabels, Row and Dimensions can be
 %   added, removed and moved as with a table and the 'set' function
 %   includes an option to interactively edit each set of properties 
@@ -69,8 +69,9 @@ classdef dsproperties < matlab.mixin.Copyable
                 setDSpropsStruct(obj);
             end
         end  
-%%
-%-------set and get for class properties-----------------------------------
+%% ------------------------------------------------------------------------
+% Set and Get class properties and add, remove and move methods
+%--------------------------------------------------------------------------
         function set.DSPdescription(obj,dspdesc)
             if strcmp(dspdesc,'set')
                 existingdesc = obj.DSPdescription;
@@ -79,7 +80,9 @@ classdef dsproperties < matlab.mixin.Copyable
                 obj.DSPdescription = dspdesc;
             end
         end         
-%%
+%--------------------------------------------------------------------------
+%% Variables
+%--------------------------------------------------------------------------
         function set.Variables(obj,varprops)  
             %
             if isstruct(varprops)  
@@ -97,14 +100,14 @@ classdef dsproperties < matlab.mixin.Copyable
                 obj.Variables = setPropertyInput(obj,'Variables',varprops);
             end
         end              
-        %
+%%
         function rmVariables(obj,varnames)
             %varnames: character vector, cell array of character vectors,
             %string array, numeric array, logical array of the variable to
             %be removed
             clearDSproperty(obj,'Variables',varnames)
         end
-        %
+%%
         function addVariables(obj,varprops)
             %varprops is a Variables struct, cell array, or just the
             %name of the variable to be added
@@ -114,14 +117,16 @@ classdef dsproperties < matlab.mixin.Copyable
                 addPropertyInput(obj,'Variables',varprops);
             end
         end
-        %
+%%
         function moveVariable(obj,varname,position,location)
             %varname is character vector,string scalar,integer,logical array
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
             moveProperty(obj,'Variables',varname,position,location)
         end
- %%
+%--------------------------------------------------------------------------
+%% Row
+%--------------------------------------------------------------------------
         function set.Row(obj,rowprops)
             if isstruct(rowprops)
                 isvalid = checkPropertyStruct(obj,'Row',rowprops);
@@ -137,7 +142,9 @@ classdef dsproperties < matlab.mixin.Copyable
                 obj.Row = setPropertyInput(obj,'Row',rowprops);  
             end
         end             
-%%
+%--------------------------------------------------------------------------
+%% Dimenions
+%--------------------------------------------------------------------------
         function set.Dimensions(obj,dimprops)
             if isstruct(dimprops) 
                 isvalid = checkPropertyStruct(obj,'Dimensions',dimprops);
@@ -154,14 +161,14 @@ classdef dsproperties < matlab.mixin.Copyable
                 obj.Dimensions = setPropertyInput(obj,'Dimensions',dimprops);
             end
         end           
-        %
+%%
         function rmDimensions(obj,dimnames)
             %dimnames: character vector, cell array of character vectors,
             %string array, numeric array, logical array of the dimension to
             %be removed
             clearDSproperty(obj,'Dimensions',dimnames)
         end
-        %
+%%
         function addDimensions(obj,dimprops)
             %dimprops is a Dimensions struct, cell array, or just the
             %name of the dimension to be added
@@ -171,14 +178,16 @@ classdef dsproperties < matlab.mixin.Copyable
                 addPropertyInput(obj,'Dimensions',dimprops);
             end
         end
-        %
+%%
         function moveDimension(obj,varname,position,location)
             %varname is character vector,string scalar,integer,logical array
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
             moveProperty(obj,'Dimensions',varname,position,location)
         end
-%%
+%% --------------------------------------------------------------------------
+% dsproperties UI functions
+%--------------------------------------------------------------------------
         function setDSproperties(obj,dsprops,dsdesc)
             %interactive UI to define the inputs needed for DSproperties
             if nargin<3
@@ -216,6 +225,7 @@ classdef dsproperties < matlab.mixin.Copyable
                     obj.(subvars{i}) = setPropertyInput(obj,subvars{i},substruct);
                 end
             end
+            %
             if isempty(dsdesc)
                 obj.DSPdescription = 'set';
             else
@@ -255,7 +265,13 @@ classdef dsproperties < matlab.mixin.Copyable
             h_fig.Visible = 'on';
         end       
     end
-%%
+%% ------------------------------------------------------------------------
+% Methods to generate blank struct, set the inputs for any property, 
+% check struct is valid, UI for dsp description, id and name of the 
+% selected elements in the property struct array, clear, add and move
+% fields for element in the struct array of a property (variable, row,
+% dimension)
+%--------------------------------------------------------------------------
     methods (Access=private)
         function setDSpropsStruct(obj)
             fnames = {'Variables','Row','Dimensions'};
@@ -293,7 +309,7 @@ classdef dsproperties < matlab.mixin.Copyable
             if strcmp(propname,'Row')
                 numvars = 1;
             else
-                %get user to define number of variables or dimenions
+                %get user to define number of variables or dimensions
                 promptxt = sprintf('Number of %s:',propname);
                 default = {num2str(nexvars)};
                 numvars = inputdlg(promptxt,'DSproperties',1,default);
@@ -365,7 +381,7 @@ classdef dsproperties < matlab.mixin.Copyable
         end
 %%
         function dsp_desc = setDSPdescription(~,defaultxt)
-        %prompt user for name to use fo rthe dsproperties object
+        %prompt user for name to use fo the dsproperties object
             if nargin<2 || isempty(defaultxt)
                 defaultxt = {''};
             elseif char(defaultxt)
@@ -389,6 +405,8 @@ classdef dsproperties < matlab.mixin.Copyable
             %string array, numeric array, logical array
             % propname - dsproperties Property name to search on
             % invar - the var names or indices to be used
+            % selection - logical or numeric vector of selected elements
+            % msg - cell array of Name fields of the selected elements
             selection = []; msg = [];
             errmsg = sprintf('Could not find selected names in %s',propname);
             
