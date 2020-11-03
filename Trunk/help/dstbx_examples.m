@@ -4,17 +4,30 @@
 % dstb_DemoData class that inherits from the <matlab:doc('dscollection') dscollection> abstract class. <br>
 % Usage of the individual classes is provided in the test_dstoolbox
 % function.
+%%
+%   dm = dstb_usage;    %initialise class that manages calls to models and data classes
+%   run_a_model(dm);
+%   load_data(dm);
+%   plotCase(dm);       %plot some results for a selected Case
+%   displayProps(dm);   %display DSproperties for a selected Case
+%
 
-%% dstb_usage
-% An example of calling a ????
+%% dstb_usage class
+% A class to illustrate the combined use of data and model classes that use 
+% dstable and dsproperties, with a record for each data set held in
+% dscatalouge. An option to run dstb_usage is included in test_dstoolbox
 
-%% dstb_DemoData class
-% A class that implements a <matlab:doc('dscollection') dscollection> to
-% load data from a file and store it in a <matlab:doc('dstable') dstable>. 
-% This class uses a format file to define the dsproperties, read the input file 
-% format and load the data into a _dstable_.
+%% demoData class
+% A class to load data from a file and store it in a <matlab:doc('dstable') dstable>. 
+% The class includes a method to define the dsproperties, read the 
+% input file format and load the data into a _dstable_ and plot some output.
 
-%% test_dstoolbox
+%% demoModel class
+% A class to run a simple model (2D diffusion using hard code parameter settings)
+% The class includes a methods run the model and save the results, and plot
+% the model output
+
+%% test_dstoolbox function
 % The test_dstoolbox function can be used to experiment with the different
 % options available for the <matlab:doc('dstable') dstable>, 
 % <matlab:doc('dsproperties') dsproperties> and 
@@ -76,3 +89,8 @@
 % 3 - char <br>
 % 4 - string <br>
 % 5 - numeric
+%%
+% *dstb_usage* <br>
+% _casenum_ and _options_ input arguments not used <br>
+% Runs the model and loads data twice to create a catalogue of four data
+% sets. then calls plot and display functions for selected cases.

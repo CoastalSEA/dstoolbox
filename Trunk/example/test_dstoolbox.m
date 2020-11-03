@@ -31,7 +31,7 @@ function h = test_dstoolbox(classname,casenum,option)
         case 'dscollection'
             %interface needs to be implemented by a class
         case 'dstb_usage'    %example of using the dstoolbox
-            h = test_dstb_usage(casenum);
+            h = test_dstb_usage;
     end
 end
 %%
@@ -298,22 +298,20 @@ function test_dstable(testnum,option)
     end    
 end
 %%
-function dm = test_dstb_usage(testnum)
+function dm = test_dstb_usage()
     %test the components of the toolbox using a calling class
-    switch testnum
-        case 1  %
-            %initialise class that manages calls to models and data classes
-            dm = dstb_usage;
-            %run model twice and load two data sets
-            run_a_model(dm);
-%             load_data(dm);
-            run_a_model(dm);
-%             load_data(dm);
-            %plot results
-            plotCase(dm);
-            %display DSproperties of a selected Case
-            displayProps(dm);
-    end
+
+    %initialise class that manages calls to models and data classes
+    dm = dstb_usage;
+    %run model twice and load two data sets
+    run_a_model(dm);
+    load_data(dm);
+    run_a_model(dm);
+    load_data(dm);
+    %plot results
+    plotCase(dm);
+    %display DSproperties of a selected Case
+    displayProps(dm);
 end
 %%
 %--------------------------------------------------------------------------

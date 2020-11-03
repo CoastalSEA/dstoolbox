@@ -1,6 +1,6 @@
 classdef dscatalogue < handle
 %
-%-------class help------------------------------------------------------
+%-------class help---------------------------------------------------------
 % NAME
 %   dscatalogue.m
 % PURPOSE
@@ -147,7 +147,7 @@ classdef dscatalogue < handle
         function caseid = caseID(obj,caserec)
             %find caseid given caserec
             caseid = obj.Catalogue.CaseID(caserec);
-        end       
+        end        
     end
 %% ------------------------------------------------------------------------
 % functions to handle Record lists, editing, save and delete

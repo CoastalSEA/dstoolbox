@@ -27,7 +27,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         DataTable    %table with properties assigned using Dependent properties
     end
     
-    properties (Hidden)
+    properties (Hidden, SetAccess = private)
         RowType         %records the data type - used by RowNames set and get
         DimType         %records the data type - used by Dimensions set and get
         DimPropsType    %dimension properties assigned as table or variable
@@ -42,9 +42,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %dstables (e.g. dst.PropertyName)
         %Standard matlab(c) table properties
         
+        Description          %summary description of dstable
         TableRowName         %labels row column
         RowNames             %distinct non-empty values to define each row
-        Description          %summary description of dstable
         UserData             %free for user assignment        
         VariableNames        %name of each variable (checked for variable compliance)
         VariableDescriptions %text to describe each variable
@@ -167,13 +167,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end     
             
             %define dynamic properties and variable ranges
-            updateVarNames(obj)
-%             varnames = obj.VariableNames;
-%             for i=1:length(varnames)
-%                 varname = varnames{i};
-%                 obj.add_dyn_prop(varname, [], false);
-%                 obj.VariableRange.(varname) = getVariableRange(obj,varname);
-%             end            
+            updateVarNames(obj)          
         end 
 %%
         function add_dyn_prop(obj, prop, init_val, isReadOnly)
@@ -291,8 +285,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                                             'InputFormat',obj.RowFormat);
                     outrows.Format = obj.RowFormat;                    
                 case 'duration'
-                    outrows = duration(obj.DataTable.Properties.RowNames,...
-                                            'InputFormat',obj.RowFormat);
+                    outrows = str2duration(obj.DataTable.Properties.RowNames,...
+                                                           obj.RowFormat);
                     outrows.Format = obj.RowFormat;                    
                 case 'char'
                     outrows = obj.DataTable.Properties.RowNames;
@@ -952,7 +946,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     case 'datetime'
                         datetime(inputrow,'InputFormat',newfmt);                   
                     case 'duration'
-                        duration(inputrow,'InputFormat',newfmt);
+                        str2duration(inputrow,newfmt);
                 end
             catch
                 newfmt = oldfmt;
@@ -1013,8 +1007,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                                             obj.DimensionFormats{dimnum});
                     outdims.Format = obj.DimensionFormats{dimnum};
                 case 'duration'
-                    outdims = duration(source,'InputFormat',...
-                                            obj.DimensionFormats{dimnum});
+                    outdims = str2duration(source,obj.DimensionFormats{dimnum});
+%                     outdims = duration(source,'InputFormat',...
+%                                             obj.DimensionFormats{dimnum});
                     outdims.Format = obj.DimensionFormats{dimnum};
                 case 'char'
                     outdims = source;
@@ -1023,7 +1018,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 case 'numeric'
                     outdims = str2double(source);
                 otherwise
-%                     warndlg('Error in get.RowNames')
                     outdims = [];
             end
         end

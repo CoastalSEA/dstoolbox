@@ -26,7 +26,7 @@ function [ut,xy,t] = diffusion2Dmodel()
     x = 0:dx:Lx;
     y = 0:dy:Ly;
     xy = {x',y'};            %assign xyz coordinates
-    dt = 0.01;
+    dt = 0.5;
     nt = 100;
     t = 0:dt:dt*nt;          %assign time variable
     u = zeros(nx,ny);
@@ -38,7 +38,7 @@ function [ut,xy,t] = diffusion2Dmodel()
     UN = 0;
     BCoption = 1;             %selected boundary condition (1 or 2)  
     NumScheme = 1;            %selected numerical scheme (1 or 2)
-    PkSize = 0.5;
+    PkSize = 0.2;
     uPeak = 0.8;
 %%
     %Initial Conditions

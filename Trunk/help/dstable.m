@@ -127,7 +127,13 @@
 % and _n_ are the t, X, Y dimensions. If the X and Y dimensions vary with
 % time (e.g. sampling intervals in X or Y change with time) then the X and 
 % Y dimensionsshould be added as time dependent variables.
-%  
+%%
+% *Source* <br>
+% Description of data source, model used, etc
+%%
+% *MetaData* <br>
+% Additional user data, such as more detailed description of table, version
+% of model used to generate input, etc.
 
 %% dstable Metadata Properties
 % *Access Table Metadata Properties* <br>
@@ -174,6 +180,11 @@
 % If the array is not empty, then it must contain as many elements as there 
 % are variables. You can specify an individual empty character vector, or 
 % empty string, for a variable that does not have a label.  
+%
+% *VariabelRange* (read only) <br>
+% Set internally when variables are loaded or updated. Defines the minimum 
+% and maximum values of an array, or the first and last values if 
+% non-numeric. Value returned as a 2 element cell array.
 
 %% Row Metadata Properties
 % *RowDescription* <br>
@@ -193,6 +204,11 @@
 % Row format is specified as a <matlab:doc('datetime') datetime> or 
 % <matlab:doc('duration') duration> format string. 
 % This property can be an empty cell array, which is the default.
+%
+% *VariabelRange* (read only) <br>
+% Set internally when RowNames are loaded or updated. Defines the minimum 
+% and maximum values of an array, or the first and last values if 
+% non-numeric. Value returned as a 2 element cell array.
 
 %% Dimension Metadata Properties
 % *DimensionNames* <br>
@@ -234,6 +250,10 @@
 % You can specify an individual empty character vector or empty string for 
 % a variable that does not have a description.
 %
+% *VariabelRange* (read only) <br>
+% Set internally when Dimensions are loaded or updated. Defines the minimum 
+% and maximum values of an array, or the first and last values if 
+% non-numeric. Value returned as a 2 element cell array
 
 %% Custom Properties
 % These can be added to the _table_ held in the dst.DataTable property 
