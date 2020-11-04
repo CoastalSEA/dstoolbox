@@ -24,8 +24,7 @@
             image="HelpIcon.USER_GUIDE">dstoolbox Classes
             <tocitem target="dstable.html">dstable</tocitem>
             <tocitem target="dsproperties.html">dsproperties</tocitem>
-            <tocitem target="dscatalogue.html">dscatalogue</tocitem>
-            <tocitem target="dscollection.html">dscollection</tocitem>            
+            <tocitem target="dscatalogue.html">dscatalogue</tocitem>           
         </tocitem>
         <!-- Function reference next -->
         <!-- First item is page describing function categories, if any -->

@@ -200,7 +200,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 end
                 if isempty(val)
                     obj.DataTable = removevars(obj.DataTable,prop);
-%                     clearVariable(obj,prop);
+                    obj.VariableRange = rmfield(obj.VariableRange,prop);
                 else
                     obj.DataTable.(prop) = val;
                     obj.VariableRange.(prop) = getVariableRange(obj,prop);
@@ -263,18 +263,25 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 obj.DataTable.Properties.RowNames = inrows;
                 obj.RowType = 'string';
                 obj.DataTable.Properties.DimensionNames{1} = 'Names';
-            elseif isnumeric(inrows)      
+            elseif isnumeric(inrows) && ~isempty(inrows) 
                 if isrow(inrows), inrows = inrows'; end %make column vector
                 obj.DataTable.Properties.RowNames = cellstr(num2str(inrows));
                 obj.RowType = 'numeric';
                 obj.DataTable.Properties.DimensionNames{1} = 'Identifier';
-            else
+            elseif isempty(inrows)
+                obj.DataTable.Properties.RowNames = {};
+                obj.RowType = 'none';
+                obj.DataTable.Properties.DimensionNames{1} = 'None';
+                obj.RowRange = [];
+            else                
                 warndlg('Unknown data type for RowNames');
             end
             %add range limits
-            firstrec = obj.DataTable.Properties.RowNames{1};
-            lastrec = obj.DataTable.Properties.RowNames{end};
-            obj.RowRange = {firstrec,lastrec};         
+            if ~isempty(obj.DataTable.Properties.RowNames)
+                firstrec = obj.DataTable.Properties.RowNames{1};
+                lastrec = obj.DataTable.Properties.RowNames{end};
+                obj.RowRange = {firstrec,lastrec}; 
+            end
         end
 %%
         function outrows = get.RowNames(obj)
@@ -436,13 +443,15 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                         if isempty(oneval)
                             clearDimension(obj,i)                         
                         else
-                            [valdim,typedim,rangedim] = setDimensionType(obj,oneval);
-                            dimvals.(fname{i}) = valdim;
-                            dimrange.(fname{i}) = rangedim;
-                            dimtype.(fname{i}) = typedim;
+                            [dvals,drange,dtype,dformat] = ...
+                                            setDimensionType(obj,oneval,i);
+                            dimvals.(fname{i}) = dvals;
+                            dimrange.(fname{i}) = drange;
+                            dimtype.(fname{i}) = dtype;
+                            dimformat.(fname{i}) = dformat;
+                            
                         end
                     end 
-
                 end
             else
                 %array and no struct indexing so just a single dimension
@@ -450,7 +459,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 if isempty(vals)
                     clearDimension(obj,dimnum)
                 else
-                    [dimvals,dimtype,dimrange] = setDimensionType(obj,vals);   
+                    [dimvals,dimrange,dimtype,dimformat] = ...
+                                        setDimensionType(obj,vals,dimnum); 
                 end
             end
 
@@ -458,6 +468,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DataTable.Properties.CustomProperties.Dimensions = dimvals;
             obj.DimensionRange = dimrange; 
             obj.DimType = dimtype;
+            obj.DimensionFormats = struct2cell(dimformat)';
+            addDimensionPropFields(obj);
         end              
 %%
         function outdims = get.Dimensions(obj)
@@ -759,7 +771,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %overload plot function to plot variable against RowNames
             x = obj.RowNames;
             y = obj.(variable);
-            plot(x,y,varargin{:});
+            h = plot(x,y,varargin{:});
         end
 %% ------------------------------------------------------------------------   
 % Manipulate Dimensions - make dimensions apply to table or variable
@@ -925,17 +937,22 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end
         end        
 %% Row
-        function newfmt = checkRowFormat(obj,dsprops)
+        function newfmt = checkRowDimFormat(obj,dsprops,dimtype)
             %test to check that the new format works for the data in RowNames
-            oldfmt = obj.RowFormat;
-            newfmt = dsprops.Row.Format;
+            %or Dimension. dimtype is 'Row' or 'Dimensions'
+            if strcmp(dimtype,'Row')
+                oldfmt = obj.RowFormat;
+            else
+                oldfmt = obj.DimensionFormats;
+            end
+            newfmt = dsprops.(dimtype).Format;
             if isempty(newfmt)
                 newfmt = oldfmt;
                 return;
             end
             
             if ~isempty(oldfmt) && ~strcmp(oldfmt,newfmt)
-                promptxt = sprintf('Row format does not match existing row format\nSelect format to use');
+                promptxt = sprintf('Format does not match existing format\nSelect format to use');
                 newfmt = questdlg(promptxt,'Row format',...
                                 oldfmt,newfmt,oldfmt);
             end 
@@ -954,38 +971,54 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end
         end
 %% Dimensions
-        function [dimvals,dimtype,range] = setDimensionType(~,indims)
+        function [dvals,drange,dtype,dformat] = setDimensionType(obj,indims,idx)
             %check dimension type and return values as a char array
             % indims - input dimension array
-            % dimvals - char array of values in indims
-            % dimtype - variable type used for indims
+            % idx - index of dimension
+            % dim.vals - char array of values in indims
+            % dim.type - variable type used for indims
+            % dim.format - char array of format for datetime and duration
             % range - min/max or start/end values
             if isrow(indims), indims = indims'; end %make column vector
             idrange = [1,length(indims)];           %default index for range
+            dformat = [];
             if isdatetime(indims)
-                dimvals = cellstr(indims);
-                dimtype = 'datetime';                
+                dvals = cellstr(indims);
+                dtype = 'datetime';  
+                dformat = addDimsFormat(obj,indims,idx);
             elseif isduration(indims)
-                dimvals = cellstr(indims);
-                dimtype = 'duration';                
+                dvals = cellstr(indims);
+                dtype = 'duration';      
+                dformat = addDimsFormat(obj,indims,idx);
             elseif iscellstr(indims) || ischar(indims)             
-                dimvals = indims;
-                dimtype = 'char';
+                dvals = indims;
+                dtype = 'char';
             elseif isstring(indims) 
-                dimvals = indims;
-                dimtype = 'string';
+                dvals = indims;
+                dtype = 'string';
             elseif isnumeric(indims)                      
-                dimvals = cellstr(num2str(indims));
-                dimtype = 'numeric';
+                dvals = cellstr(num2str(indims));
+                dtype = 'numeric';
                 [~,imin] = min(indims);
                 [~,imax] = max(indims);
                 idrange = [imin,imax];  %index for range
             else
-%                 warndlg('Unknown data type for RowNames');
-                dimvals = []; dimtype = []; range = [];
+                dvals = []; dtype = []; drange = [];
                 return;
             end
-            range = dimvals(idrange)';
+            drange = dvals(idrange)';
+        end
+%%
+        function dformat = addDimsFormat(obj,indims,idx)
+            %add DimensionFormats to cell array (can be more than one dimension)
+            % indims - dimension data set
+            % idx - dimension being checked
+            if length(obj.DimensionFormats)>1
+                obj.DimensionFormats{1,idx} = indims.Format;
+                dformat = obj.DimensionFormats;
+            else
+                dformat = indims.Format;
+            end
         end
 %%
         function outdims = getDimensionType(obj,source,dimname)
@@ -1008,8 +1041,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     outdims.Format = obj.DimensionFormats{dimnum};
                 case 'duration'
                     outdims = str2duration(source,obj.DimensionFormats{dimnum});
-%                     outdims = duration(source,'InputFormat',...
-%                                             obj.DimensionFormats{dimnum});
                     outdims.Format = obj.DimensionFormats{dimnum};
                 case 'char'
                     outdims = source;
@@ -1022,15 +1053,37 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end
         end
 %%
+        function addDimensionPropFields(obj)
+            %check that Dimension metadata properties have cell arrays that
+            %are the same length as the number of Dimensions
+            ndim = length(obj.DimensionNames);
+            obj.DimensionDescriptions = checkProperty(obj.DimensionDescriptions,ndim);
+            obj.DimensionUnits = checkProperty(obj.DimensionUnits,ndim);
+            obj.DimensionLabels = checkProperty(obj.DimensionLabels,ndim);
+            %DimensionFormats is set when checking in setDimensionType
+            
+            function paddedprop = checkProperty(prop,ndim)
+                nfields = length(prop);
+                if nfields<ndim
+                    nadd=ndim-nfields;
+                    paddedprop(nfields+1:nfields+nadd) = repmat({''},1,nadd);
+                else
+                    paddedprop = prop;
+                end
+            end           
+        end
+%%
         function clearDimension(obj,dimnum)
             %remove the metadata for a Dimension if deleted (set = [])
-            obj.DimensionNames(dimnum) = [];
-            obj.DimType(dimnum) = [];
+            dimname = obj.DimensionNames(dimnum);
+            obj.DimensionNames(dimnum) = [];            
             obj.DimensionDescriptions(dimnum) = [];
             obj.DimensionUnits(dimnum) = [];       
             obj.DimensionLabels(dimnum) = [];       
             obj.DimensionFormats(dimnum) = [];
-            obj.DimensionRange(dimnum) = [];
+            %struct variables
+            obj.DimType = rmfield(obj.DimType,dimname);
+            obj.DimensionRange = rmfield(obj.DimensionRange,dimname);
         end 
 %%
         function index = getDimensionIndices(~,dstDimVals,inVals)
@@ -1120,9 +1173,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                             if strcmp(propname,'RowFormat')
                                 if strcmp(obj.RowType,'datetime') || ...
                                             strcmp(obj.RowType,'duration')                        
-                                    newfmt = checkRowFormat(obj,dsprops);
+                                   dsprops.(dspnames{i}).(fnames{j}) = ...
+                                       checkRowDimFormat(obj,dsprops,dspnames{i});
                                 end                                                                                              
-                                dsprops.(dspnames{i}).(fnames{j}) = newfmt;
                             end
                             obj.(propname) = dsprops.(dspnames{i}).(fnames{j}); 
                         else
@@ -1132,6 +1185,13 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                             elseif strcmp(propname,'VariableNames')
                                 obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
                                 updateVarNames(obj)
+                            elseif strcmp(propname,'DimensionFormats')
+                                if strcmp(obj.DimType,'datetime') || ...
+                                            strcmp(obj.DimType,'duration')                        
+                                   dsprops.(dspnames{i}).(fnames{j}) = ...
+                                      checkRowDimFormat(obj,dsprops,dspnames{i});
+                                end 
+                                obj.(propname) = dsprops.(dspnames{i}).(fnames{j});
                             else
                                 obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
                             end

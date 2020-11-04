@@ -68,7 +68,7 @@
 % and distinct. Dimension names must be valid MATLAB identifiers. 
 %
 % *dsProps* <br>
-% a struct or a <matlab:doc('gdsproperties') dsproperties> object defining
+% a struct for a <matlab:doc('dsproperties') dsproperties> object defining
 % the metadata for the Variables, Row and Dimensions of the _table_.
 %
 
@@ -119,14 +119,24 @@
 % They allow multi-dimensional variables (e.g an [x, y, z, t] dataset) to be
 % indexed using any of the dimensions (see section on *Indexing Methods*).
 %%
-% The default is one set of _Dimensions_ applicable to all variables in the table. 
+% The _Dimensions_ are applicable to all variables in the table (i.e. they
+% are not variable specific). <br>
 %
 % Dimensions must also apply to all row values of a variable. For example
 % if Rows are assigned as the time dimension, with two further dimensions
 % for X and Y, the variable will be an (_k_ x _m_ x _n_) array, where _k_, _m_,
 % and _n_ are the t, X, Y dimensions. If the X and Y dimensions vary with
 % time (e.g. sampling intervals in X or Y change with time) then the X and 
-% Y dimensionsshould be added as time dependent variables.
+% Y dimensions should be added as time dependent variables.
+%%
+% <html>
+% <table border=1><tr><td>Limitation - the dimensions are not variable 
+% specific and the dimension vectors are not checked for compatibility 
+% with any of the variable arrays. However, by adding multiple dimensions, 
+% different dimensions can be used in conjunction with different variables.
+% </td></tr></table>
+% </html>
+
 %%
 % *Source* <br>
 % Description of data source, model used, etc
@@ -165,6 +175,20 @@
 % These are the same as for <matlab:doc('table') table> with the addition
 % of VariableLabels and VariableQCflags.
 %%
+% *VariableNames* <br>
+% Variable Names, specified as a cell array of character vectors or 
+% a string array This property can be an empty cell array, which is the 
+% default.
+%
+% *VariableDescriptions* <br>
+% Variable descriptions, specified as a cell array of character vectors or 
+% a string array This property can be an empty cell array, which is the 
+% default. 
+%
+% *VariableUnits* <br>
+% Row units, specified as a cell array of character vectors or a string 
+% array. This property can be an empty cell array, which is the default.
+%
 % *VariableLabels* <br>
 % Variable labels, specified as a cell array of character vectors, or 
 % a string array. This property can be an empty cell array, which is the default. 
@@ -175,7 +199,7 @@
 % used to label several variables of the same type (e.g. 'Velocity').
 %
 % *VariableQCflags* <br>
-% VAriable quality control flags, specified as a cell array of character vectors, or 
+% Variable quality control flags, specified as a cell array of character vectors, or 
 % a string array. This property can be an empty cell array, which is the default. 
 % If the array is not empty, then it must contain as many elements as there 
 % are variables. You can specify an individual empty character vector, or 
@@ -184,11 +208,22 @@
 % *VariabelRange* (read only) <br>
 % Set internally when variables are loaded or updated. Defines the minimum 
 % and maximum values of an array, or the first and last values if 
-% non-numeric. Value returned as a 2 element cell array.
+% non-numeric. Value returned as a 2 element cell array. If there are
+% mutliple variables, the property returns a struct with the fields of the
+% VariableNames.
 
 %% Row Metadata Properties
+% *TableRowName*
+% The name assigned to the variable dimension in the rows column can be
+% specified as a character vector or string. This property maps to the
+% first value of the DimensionNames cell array of the DataTable property.
+% When loading metadata properties using a <matlab:doc('dsproperties') dsproperties> 
+% object, the Row.Name field is assigned to TableRowName. Hence, 
+% dst.TableRowNames is equivalent to
+% dst.DataTable.Properties.DimensionNames{1}.
+%
 % *RowDescription* <br>
-% Row descriptions, specified as a cell array of character vectors or 
+% Row description, specified as a cell array of character vectors or 
 % a string array This property can be an empty cell array, which is the 
 % default.
 %
@@ -205,10 +240,11 @@
 % <matlab:doc('duration') duration> format string. 
 % This property can be an empty cell array, which is the default.
 %
-% *VariabelRange* (read only) <br>
+% *RowRange* (read only) <br>
 % Set internally when RowNames are loaded or updated. Defines the minimum 
 % and maximum values of an array, or the first and last values if 
-% non-numeric. Value returned as a 2 element cell array.
+% non-numeric. Value returned as a 2 element cell array. 
+
 
 %% Dimension Metadata Properties
 % *DimensionNames* <br>
@@ -250,10 +286,12 @@
 % You can specify an individual empty character vector or empty string for 
 % a variable that does not have a description.
 %
-% *VariabelRange* (read only) <br>
+% *DimensionRange* (read only) <br>
 % Set internally when Dimensions are loaded or updated. Defines the minimum 
 % and maximum values of an array, or the first and last values if 
-% non-numeric. Value returned as a 2 element cell array
+% non-numeric. Values returned as a 2 element cell array. If there are
+% mutliple dimensions, the property returns a struct with the fields of the
+% DimensionNames.
 
 %% Custom Properties
 % These can be added to the _table_ held in the dst.DataTable property 

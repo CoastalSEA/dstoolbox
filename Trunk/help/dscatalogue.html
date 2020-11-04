@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-02"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
+      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-04"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -76,7 +76,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </pre><p><b>editDescription</b> - edit case description of the caserec record</p><pre class="language-matlab">[caserec,newdesc] = editDescription(dsc,caserec);   <span class="comment">%caserec is optional</span>
                                     <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
 </pre><p><b>selectCase</b> - list dialogue box of the cases in the catalogue</p><pre class="language-matlab">[caserec,ok] = selectCase(dsc,Name,Value);
-</pre><p>Name, Value options are specified as comma-separated pairs and include the following options: <br> 'CaseClass', {'class'} - cell array of classes to include in the list <br> 'CaseType', {'type'} - cell array of types to include in the list <br> 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br> 'ListSize', [width,height] - defines the dimensions of the list dialogue <br> 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'</p><p><i>selectCase</i> outputs: <br> caserec - the record number of the selected case or cases <br> ok - The selection logical value indicates whether the user made a selection. If the user clicks OK, double-clicks a list item, or presses Return, then the ok return value is 1. If the user clicks Cancel, presses Esc, or clicks the close button (X) in the dialog box title bar, then the ok return value is 0.</p><p><b>caseRec</b> - find caserec using caseid</p><pre class="language-matlab">caserec = caseRec(dsc,caseid);
+</pre><p>Name, Value pairs are specified as comma-separated pairs and include the following options: <br> 'CaseClass', {'class'} - cell array of classes to include in the list <br> 'CaseType', {'type'} - cell array of types to include in the list <br> 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br> 'ListSize', [width,height] - defines the dimensions of the list dialogue <br> 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'</p><p><i>selectCase</i> outputs: <br> caserec - the record number of the selected case or cases <br> ok - The selection logical value indicates whether the user made a selection. If the user clicks OK, double-clicks a list item, or presses Return, then the ok return value is 1. If the user clicks Cancel, presses Esc, or clicks the close button (X) in the dialog box title bar, then the ok return value is 0.</p><p><b>caseRec</b> - find caserec using caseid</p><pre class="language-matlab">caserec = caseRec(dsc,caseid);
 </pre><p><b>caseID</b> - find caseid using caserec</p><pre class="language-matlab">caseid = caseID(dsc,caserec)
 </pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
@@ -139,7 +139,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %%
 %   [caserec,ok] = selectCase(dsc,Name,Value);
 %%
-% Name, Value options are specified as comma-separated pairs and include the following options: <br>
+% Name, Value pairs are specified as comma-separated pairs and include the following options: <br>
 % 'CaseClass', {'class'} - cell array of classes to include in the list <br>
 % 'CaseType', {'type'} - cell array of types to include in the list <br>
 % 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br>

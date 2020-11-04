@@ -62,7 +62,8 @@ classdef demoData < handle
             u10 = dst.Speed10min;      
             dir = dst.Dir10min;
             %metatdata for model and run case description
-            titletext = sprintf('%s\nfile: %s',dst.Description,dst.Source);
+            filename = regexp(dst.Source,'\\','split');
+            titletext = sprintf('%s\nfile: %s',dst.Description,filename{end});
             
             %generate plot            
             yyaxis left

@@ -258,7 +258,7 @@ classdef dsproperties < matlab.mixin.Copyable
             end
             h_tab.SelectedTab = ht(1);
             rowheight = tablepos(2,4);
-            width = tablepos(1,3)*1.06;
+            width = max(tablepos(:,3))+rowheight/2;
             height = max(tablepos(:,4))+3*rowheight; %this needs refining based on max rowlength
             h_fig.Position(3) = width;
             h_fig.Position(4) = height;            
