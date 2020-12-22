@@ -35,41 +35,47 @@ function h = test_dstoolbox(classname,casenum,option)
     end
 end
 %%
+%--------------------------------------------------------------------------
+%   Tests for dscatalogue
+%--------------------------------------------------------------------------
 function test_dscatalogue()
     %test set, get edit and delete functions
-    dsCases = dscatalogue;
+    dsCat = dscatalogue;
     
     fprintf('Loading dscatalogue with records\n')
     %daaCase returns the record number in the Catalogue property of dscatalogue
-    recnum1 = addCase(dsCases,'TestClass','model');  
-    recnum2 = addCase(dsCases,'TestClass','model');
-    recnum3 = addCase(dsCases,'DifferentClass','data');
-    recnum4 = addCase(dsCases,'DifferentClass','data');
-    recnum5 = addCase(dsCases,'DifferentClass','data');
+    recnum1 = addRecord(dsCat,'TestClass','model');  
+    recnum2 = addRecord(dsCat,'TestClass','model');
+    recnum3 = addRecord(dsCat,'DifferentClass','data');
+    recnum4 = addRecord(dsCat,'DifferentClass','data');
+    recnum5 = addRecord(dsCat,'DifferentClass','data');
     
     %access selected cases
-    casedef = getCase(dsCases,recnum2);
+    casedef = getRecord(dsCat,recnum2);
     fprintf('Display definition for case no.2\n')
     display(casedef)
     fprintf('Display definition for case no.4 using caseid\n')
-    casedef = getCase(dsCases,dsCases.caseRec(4));
+    casedef = getRecord(dsCat,dsCat.caseRec(4));
     display(casedef)
     
     %edit the description of a case
-    [caserec,newdesc] = editDescription(dsCases,recnum3);
+    [caserec,newdesc] = editRecord(dsCat,recnum3);
     fprintf('Edited Record %g: to read: %s\n',caserec,newdesc{1})
     
     %select from the TestClass subset
-    [caserec,~] = selectCase(dsCases,'PromptText','Select case:',...
+    [caserec,~] = selectCase(dsCat,'PromptText','Select case:',...
                      'CaseClass','TestClass','ListSize',[250,200]);
     fprintf('Selected TestCLass record %g\n',caserec)
     
-    removeCase(dsCases,[2,4]);
-    removeCase(dsCases);  %prompts to select from list    
+    removeRecord(dsCat,[2,4]);
+    removeRecord(dsCat);  %prompts to select from list    
     fprintf('Display catalogue table after deleting records\n')
-    display(dsCases.Catalogue)
+    display(dsCat.Catalogue)
 end
 %%
+%--------------------------------------------------------------------------
+%   Tests for dsproperties
+%--------------------------------------------------------------------------
 function test_dsproperties(testnum)
     %test set, edit, delete and display options
     switch testnum
@@ -165,6 +171,9 @@ function test_dsproperties(testnum)
     end
 end
 %%
+%--------------------------------------------------------------------------
+%   Tests for dstable
+%--------------------------------------------------------------------------
 function test_dstable(testnum,option)
     %test initialisation, setting, accessing, editing and deleting dstable
     switch testnum
@@ -298,6 +307,9 @@ function test_dstable(testnum,option)
     end    
 end
 %%
+%--------------------------------------------------------------------------
+%   Tests for dstb_usage
+%--------------------------------------------------------------------------
 function dm = test_dstb_usage()
     %test the components of the toolbox using a calling class
 

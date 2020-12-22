@@ -32,7 +32,7 @@ classdef dscatalogue < handle
 %% ------------------------------------------------------------------------
 % functions to add, get and remove Cases
 %--------------------------------------------------------------------------
-        function recnum =addCase(obj,caseclass,casetype,casename)
+        function recnum =addRecord(obj,caseclass,casetype,casename)
             %add a Case record to the catalogue   
             % caseclass - class of data set to be catalogued
             % casetype  - type of data set (e.g. keywords: model, data)
@@ -42,22 +42,22 @@ classdef dscatalogue < handle
             end  
 
             SupressPrompts = false;
-            [recnum,caseid,casedesc] = addRecord(obj,SupressPrompts,casename);
+            [recnum,caseid,casedesc] = newRecord(obj,SupressPrompts,casename);
             newrec = {caseid,casedesc,caseclass,casetype};
             obj.Catalogue = [obj.Catalogue;newrec];            
         end
 %%        
-        function casedef = getCase(obj,caserec)
-            %find case record using caserec
+        function casedef = getRecord(obj,caserec)
+            %find Case record using caserec
             %caserec - index in current Catalogue
             %returns a table with the definition for the selected record
             casedef = obj.Catalogue(caserec,:);
         end    
 %%
-        function caserec = removeCase(obj,caserec)
-            %select one or more records and delete records from catalogue 
+        function caserec = removeRecord(obj,caserec)
+            %select one or more Case records and delete records from catalogue 
             if nargin<2 || isempty(caserec)
-                [caserec,ok] = selectCase(obj,'PromptText','Select case:',...
+                [caserec,ok] = selectCase(obj,'PromptText','Select case to remove:',...
                               'ListSize',[250,200],'SelectionMode','multiple');
                 if ok<1, return; end 
             end
@@ -65,21 +65,25 @@ classdef dscatalogue < handle
             obj.Catalogue(caserec,:) = [];
         end   
 %%      
-        function [caserec,newdesc] = editDescription(obj,caserec)
-            %edit case description of the caserec record
+        function [caserec,newdesc] = editRecord(obj,caserec)
+            %edit Case description of the caserec record
             if nargin<2 ||  isempty(caserec)
-                [caserec,ok] = selectCase(obj,'PromptText','Select case:',...
+                [caserec,ok] = selectCase(obj,'PromptText','Select case to edit:',...
                                                 'ListSize',[250,200]);
                 if ok<1, return; end
             end
             %now allow user to edit existing description            
-            intext = obj.Catalogue.CaseDescription(caserec);
-            promptxt = 'Edit case description';
-            dlgtxt = 'Edit Case';
+            cid = obj.Catalogue.CaseID(caserec);
+%             promptxt = sprintf('Edit record for case %d',cid);
+            promptxt = {'Description:','Class:','Type:'};
+            dlgtxt = sprintf('Edit Case %d',cid);
+            intext = obj.Catalogue{caserec,2:end};
             dlgopt.Resize = 'on';
             newdesc = inputdlg(promptxt,dlgtxt,1,intext,dlgopt);  
             if isempty(newdesc), return; end
-            obj.Catalogue.CaseDescription(caserec) = newdesc;
+            obj.Catalogue.CaseDescription(caserec) = newdesc{1};
+            obj.Catalogue.CaseClass(caserec) = newdesc{2};
+            obj.Catalogue.CaseType(caserec) = newdesc{3};
         end
 %%
        function [caserec,ok] = selectCase(obj,varargin)  %was ScenarioList
@@ -153,13 +157,13 @@ classdef dscatalogue < handle
 % functions to handle Record lists, editing, save and delete
 %--------------------------------------------------------------------------    
     methods (Access = private)  
-        function [recnum,caseid,casedesc] = addRecord(obj,SupressPrompts,casename)
+        function [recnum,caseid,casedesc] = newRecord(obj,SupressPrompts,casename)
             %add a Case and get user to provide a description
             % SupressPrompts is a logical flag to supress UI call if true
             % casename is a cell character vector to be used as casedesc
             % recnum is the number of the record in the current list
             % caseid is the unique id for the record
-            % casedesc is the user or default case desctiption
+            % casedesc is the user or default case description
             recnum = height(obj.Catalogue)+1; %number of cases
             if isempty(obj.Catalogue)
                 caseid = 1;
@@ -167,12 +171,11 @@ classdef dscatalogue < handle
                 CaseID = obj.Catalogue.CaseID;                
                 caseid =max(CaseID)+1;   %next case id number-can be different
             end                          %to nrec if cases have been deleted
-%             obj.CaseID(recnum) = caseid; 
             %
             if nargin<3
                 casename = {''};
             elseif any(strcmp(obj.Catalogue.CaseDescription,casename))
-                nval = sum(strcmp(obj.Catalogue.CaseDescription,casename));
+                nval = sum(contains(obj.Catalogue.CaseDescription,casename));
                 casename = {sprintf('%s_%d',casename{1},nval)};
             end
             %

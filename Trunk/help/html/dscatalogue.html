@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-04"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
+      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-10"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -69,8 +69,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
   </style></head><body><div class="content"><h1>dscatalogue</h1><!--introduction--><p>dscatalogue manages a catalogue of data sets</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#3">Description</a></li><li><a href="#4">Properties</a></li><li><a href="#8">dscatalogue methods</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dsc = dscatalogue;             <span class="comment">%creates an empty dscatalogue</span>
 </pre><h2 id="3">Description</h2><p>Maintains a catalogue of cases that can be a mix of data types (e.g. model and measured data) and created by different classes. Each record is given and unique case identifier (CaseID), which is distinct from the number (row) of the record (CaseRec).</p><h2 id="4">Properties</h2><p><b>Catalogue</b> holds a <a href="matlab:doc('table')">table</a> of the case definition. The Catalogue includes the following fields: <br> <i>CaseID</i> - unique identifier for each record <br> <i>CaseDescription</i> - data set specific record description <br> <i>CaseClass</i> - class of data set to be catalogued <br> <i>CaseType</i> - type of data set (e.g. keywords: model, data)</p><p>The Catalogue table fields can be accessed using standard table notation, e.g:</p><pre class="language-matlab">dst.Catalogue.CaseClass(rowidx)  <span class="comment">%rowidx is the index of the row(s) to be returned</span>
 </pre><h2 id="8">dscatalogue methods</h2><p>the dscatalogue methods allow cases to be added, removed and the case description to be edited</p><p><b>addCase</b> - add a case definition to the catalogue</p><pre class="language-matlab">recnum = addCase(dsc,caseclass,casetype,casename); <span class="comment">%casename is optional</span>
-</pre><p><b>removeCase</b> - select one or more records and delete records from catalogue</p><pre class="language-matlab">caserec = removeCase(dsc,caserec)'; <span class="comment">%returns list of deleted records (caserec)</span>
-                                    <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
+</pre><p><b>removeCase</b> - select one or more records and delete records from catalogue</p><pre class="language-matlab">caserec = removeCase(dsc,caserec); <span class="comment">%returns list of deleted records (caserec)</span>
+                                   <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
+dsc.Catalogue(caserec,:) = [];     <span class="comment">%alternative for use without selection UI</span>
 </pre><p><b>getCase</b> - return case for the caserec record</p><pre class="language-matlab">casedef = getCase(dsc,caserec);     <span class="comment">%casedef is a table of the selected record</span>
                                     <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
 </pre><p><b>editDescription</b> - edit case description of the caserec record</p><pre class="language-matlab">[caserec,newdesc] = editDescription(dsc,caserec);   <span class="comment">%caserec is optional</span>
@@ -119,9 +120,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %%
 % *removeCase* - select one or more records and delete records from catalogue 
 %%
-%   caserec = removeCase(dsc,caserec)'; %returns list of deleted records (caserec)
-%                                       %uses list dialogue selection if caserec is not supplied
-                                     
+%   caserec = removeCase(dsc,caserec); %returns list of deleted records (caserec)
+%                                      %uses list dialogue selection if caserec is not supplied
+%   dsc.Catalogue(caserec,:) = [];     %alternative for use without selection UI  
+  
 %%
 % *getCase* - return case for the caserec record 
 %%

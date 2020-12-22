@@ -7,7 +7,7 @@ classdef demoData < handle
 %   Class to illustrate importing a data set, adding the results to dstable
 %   and a record in a dscatlogue with a method to plot the output
 % USAGE
-%   obj = demoData.loadData(catobj) %where is a handle to a dscatalogue
+%   obj = demoData.loadData(catobj) %where catobj is a handle to a dscatalogue
 % SEE ALSO
 %   uses dstable and dscatalogue
 %

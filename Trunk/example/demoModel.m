@@ -7,7 +7,7 @@ classdef demoModel < handle
 %   Class to illustrate running a model, adding the results to dstable and
 %   a record in a dscatlogue with a method to plot the output
 % USAGE
-%   obj = demoModel.runModel(catobj) %where is a handle to a dscatalogue
+%   obj = demoModel.runModel(catobj) %where catobj is a handle to a dscatalogue
 % SEE ALSO
 %   uses diffusion2Dmodel.m based on code by Suraj Shanka, (c) 2012,
 %   (fileexchange/diffusion-in-1d-and-2d), and dstable and dscatalogue

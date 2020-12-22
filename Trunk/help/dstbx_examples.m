@@ -1,7 +1,7 @@
 %% dstoolbox examples
 % The construct illustrated in the introduction of the <matlab:doc('dstoolbox') dstoolbox>
 % is illustrated using the calling function dstb_usage.m and the
-% dstb_DemoData class that inherits from the <matlab:doc('dscollection') dscollection> abstract class. <br>
+% demoData and demoModel classes <br>
 % Usage of the individual classes is provided in the test_dstoolbox
 % function.
 %%
@@ -19,12 +19,12 @@
 
 %% demoData class
 % A class to load data from a file and store it in a <matlab:doc('dstable') dstable>. 
-% The class includes a method to define the dsproperties, read the 
-% input file format and load the data into a _dstable_ and plot some output.
+% The class includes methods to define the dsproperties, read the 
+% input file format, load the data into a _dstable_ and plot some output.
 
 %% demoModel class
 % A class to run a simple model (2D diffusion using hard code parameter settings)
-% The class includes a methods run the model and save the results, and plot
+% The class includes methods to run the model, save the results, and plot
 % the model output
 
 %% test_dstoolbox function

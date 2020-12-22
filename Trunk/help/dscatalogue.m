@@ -30,18 +30,19 @@
 % description to be edited
 
 %%
-% *addCase* - add a case definition to the catalogue
+% *addRecord* - add a case definition to the catalogue
 %%
 %   recnum = addCase(dsc,caseclass,casetype,casename); %casename is optional
 
 %%
-% *removeCase* - select one or more records and delete records from catalogue 
+% *removeRecord* - select one or more records and delete records from catalogue 
 %%
-%   caserec = removeCase(dsc,caserec)'; %returns list of deleted records (caserec)
-%                                       %uses list dialogue selection if caserec is not supplied
-                                     
+%   caserec = removeCase(dsc,caserec); %returns list of deleted records (caserec)
+%                                      %uses list dialogue selection if caserec is not supplied
+%   dsc.Catalogue(caserec,:) = [];     %alternative for use without selection UI  
+  
 %%
-% *getCase* - return case for the caserec record 
+% *getRecord* - return case for the caserec record 
 %%
 %   casedef = getCase(dsc,caserec);     %casedef is a table of the selected record
 %                                       %uses list dialogue selection if caserec is not supplied
