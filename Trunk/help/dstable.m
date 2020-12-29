@@ -2,7 +2,7 @@
 % A dstable object is a collection of one or more datasets with one
 % or more common dimension vectors. A dstable can contain different variable
 % types, have row indexing of different types, and access multi-dimensional  
-% arrays with dimension indexing
+% arrays with dimension indexing.
 %
 %% Syntax
 %
@@ -137,6 +137,9 @@
 % </td></tr></table>
 % </html>
 
+%%
+% *LastModified* <br>
+% Date when variables or dimensions of the _dstable_ were created or last modified
 %%
 % *Source* <br>
 % Description of data source, model used, etc
@@ -370,9 +373,13 @@
 %   tsc = dst2tsc(dst,idxtime,idxvars)    %converts a dstable object to a tscollection object
 %   dst = tsc2dst(tsc,idxtime,idxvars)    %converts a tscollection to a dstable object
 %%
-% idxtime - index vector for the subselection of time <br>
-% idxvars - index vector for the subselection of variables, or the variable
+% * idxtime - index vector for the subselection of time, or the row names
+% as cell array of character vectors or datatime array
+% * idxvars - index vector for the subselection of variables, or the variable
 % names as a cell array of character vectors  
+%%
+% The call to dst2tsc can also use any of the syntax formats used by
+% getDSTable (see below).
 %%
 % When creating tscollection the DSproperties of the dstable are passed and
 % stored in tsc.TimeInfo.UserData. If a tscollection has DSproperties defined,
@@ -384,40 +391,73 @@
 % dimensions.
 
 %%
-% Using the _table_, T = dst.DataTable, the syntax to extract rows 
-% and variables is the same as summarised in 
-% <matlab:doc('access-data-in-a-table') Access Data in a Table>.
+% *Using the _table_, T = dst.DataTable* <br>
+% The syntax to extract rows and variables from the table is the same as 
+% summarised in <matlab:doc('access-data-in-a-table') Access Data in a Table>.
 %
 % To access a subset of values using the dimension indices the syntax can
 % be any of the following:
 
 %%  
-%   extracted_data = T.DataTable{rows,vars}(dim1,dim2,...,dimN)
-%   extracted_data = T.var(dim1,dim2,...,dimN)
-%   extracted_data = T.(varindex)(dim1,dim2,...,dimN)
-%   extracted_data = T.var(rows)(dim1,dim2,...,dimN)
+%   T = dst.DataTable      %extract table to use any of the following:
+%   extracted_data = T{rows,vars}(:,idd1,idd2,..iddN)
+%   extracted_data = T.varname(rows,idd1,idd2,..iddN)
+%   extracted_data = T.(vars)(rows,idd1,idd2,..iddN)
 %%
-% where rows, vars, dim1,...dimN are indices specified as a colon, 
-% numeric indices, or logical expressions.  dim1 is the row dimension and
-% can either be set to : or a subselection of the array returned wnen rows are
-% included in the call.
+% where rows, vars, idd1,...iddN are indices for the Rows, Variables and 
+% Dimensions, respecitvely. <br>
 %%
-% Using a dstable there is also the option to use the dimension values 
+% * vars can be specified as a character vector, colon, numeric indices, 
+% or logical expression. varname is the variable name without quotation
+% marks. 
+% * idr and idd* can be colon, numeric indices, or logical expression. 
+% * The number of dimensions indices included must match the number of
+% dimensions of the table variable (excluding the row dimension).
+%%
+% The Dimension indices can also be input using idd = {idd1,idd2,...iddN)
+% as follows:
+
+%%
+%   extracted_data = T.varname(rows,idd{:}) 
+
+%%
+% *Using indices with a _dstable_* <br>
+% Using a _dstable_ the data can be retrieved based on Rows, Variables and 
+% Dimensions, using one of three functions depending on the type of output required.
+
+%%
+%   newdst = getDSTable(dst,__);      %returns a dstable with the selected data and updated metadata      
+%   newtable = getDataTable(dst,__);  %returns a table with the selected data  
+%   newdataset = getData(dst,__);     %returns a cell array of the selected data
+
+%%
+%  When using indices the syntax requires indices for rows, variables and
+%  dimensions in that order. Use [] or ':' to select the full range of
+%  values(colon is specified in quote marks).
+%%
+%   newdst = getDSTable(dst,idr,idv)                    %selects variables defined by idr and idv
+%   newdst = getDSTable(dst,idr,idv,idd1,idd2,..iddN);  %where the variables have N dimensions
+%   newdst = getDSTable(dst,idr,idv,idd)                %where idd = {idd1,idd2,..iddN}
+
+%%
+% The same syntax can be used with getDataTable and getTable
+%%
+% *Using dimension values with a _dstable_* <br>
+% Using a _dstable_ there is also the option to use the dimension values 
 % (including rows) to access data in the table. The syntax is as follows:
 
 %%
-%   newT = getData(dst,'Name','Value'); 
-%   newdst = getDStable(dst,'Name','Value')
+%   newdst = getDSTable(dst,'Name','Value')
+%   newtable = getDataTable(dst,'Name','Value'); 
+%   newdataset = getData(dst,'Name','Value');
 %%
 % where the 'Name', 'Value' pairs can be any of the following combinations:
 %%
-% 'VariableNames', varnames - where varnames is a subset of the variable names to be used, 
-% specified as a cell array of character vectors, or a string array.  
-%%
-% 'RowNames', rowames - where rownames is a subset of the rows to be used, specified in the
+% * 'RowNames', rownames - where rownames is a subset of the rows to be used, specified in the
 % format used for RowNames
-%%
-% 'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be
+% * 'VariableNames', varnames - where varnames is a subset of the variable names to be used, 
+% specified as a cell array of character vectors, or a string array.  
+% * 'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be
 % used, specified in the format used for the dimension.
 
 %% See Also

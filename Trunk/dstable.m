@@ -85,15 +85,14 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                              
         %Additional metadata
         
-        Source     %source of dst - model name or input file name
-        MetaData   %detailed description of dstable (e.g. how derived)
+        LastModified          %date table created or modified
+        Source                %source of dst - model name or input file name
+        MetaData              %detailed description of dstable (eg how derived)
     end
     
     properties (Transient)
         %a dsproperties object is used to define metadata for a dstable
-        
-        DSproperties = dsproperties   %to define call setDSproperties in class constructor
-%         dspstruct = dsproperties      %empty DSP struct (defines fieldnames))
+        DSproperties = dsproperties
     end
    
 %% CONTENTS
@@ -135,7 +134,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 startprops = 5;
             elseif ~isempty(idr) || ~isempty(idv) || ~isempty(idd) || ~isempty(idp)
                 %either RowNames, VariableNames, DimensionNamed or 
-                %DSpropertieshave been defined
+                %DSproperties have been defined
                 startprops = min([idr,idv,idd,idp]);
                 %check that at least one variable has been included
                 if startprops<2
@@ -205,6 +204,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     obj.DataTable.(prop) = val;
                     obj.VariableRange.(prop) = getVariableRange(obj,prop);
                 end
+                obj.LastModified = datetime('now');
             end
             %
             function val = get_method(obj)
@@ -281,6 +281,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 firstrec = obj.DataTable.Properties.RowNames{1};
                 lastrec = obj.DataTable.Properties.RowNames{end};
                 obj.RowRange = {firstrec,lastrec}; 
+                obj.LastModified = datetime('now');
             end
         end
 %%
@@ -470,6 +471,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DimType = dimtype;
             obj.DimensionFormats = struct2cell(dimformat)';
             addDimensionPropFields(obj);
+            obj.LastModified = datetime('now');
         end              
 %%
         function outdims = get.Dimensions(obj)
@@ -533,6 +535,14 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %% ------------------------------------------------------------------------
 % Additional dstable Properties - Metadata
 %--------------------------------------------------------------------------
+        function set.LastModified(obj,setdate)
+            obj.DataTable.Properties.CustomProperties.LastModified = setdate;
+        end        
+        %
+        function dateset = get.LastModified(obj)
+            dateset = obj.DataTable.Properties.CustomProperties.LastModified;
+        end
+%%
         function set.Source(obj,sourcename)
             obj.DataTable.Properties.CustomProperties.Source = sourcename;
         end        
@@ -567,113 +577,48 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %% ------------------------------------------------------------------------   
 % Subsample dstable using dimensions
 %-------------------------------------------------------------------------- 
-        function newdst = getDStable(obj,varargin)
+        function newdst = getDSTable(obj,varargin)
             %extract data from a dstable using the dimension data
-            %and return a dstable based on the selected dimension 
+            %and return a 'dstable' based on the selected dimension 
             %values. Update dimensions and preserve metadata
             newdst = copy(obj);
-            datatable = getDataTable(obj,varargin{:});
+            [idr,idv,idd] = getInputIndices(obj,varargin{:});
+            datatable = getDataUsingIndices(obj,idv,idr,idd);
             newdst.DataTable = datatable;  
             %if varargin includes 'Dimensions' amend arrays
-            vars = varargin(1:2:end);
-            idx = find(contains(vars,'Dimensions'));
-            idv = idx*2-1;
-            if ~isempty(idx)
-                for i=1:length(idv) 
-                    parts = split(varargin{idv(i)},'.');
-                    newdst.(parts{1}).(parts{2}) = varargin{idv(i)+1};
+            if ischar(varargin{1})                
+                %dimension values defined by input vector
+                %only updates the dimensions included in the input
+                vars = varargin(1:2:end);
+                idx = find(contains(vars,'Dimensions'));            
+                if ~isempty(idx)
+                    idv = idx*2-1;
+                    for i=1:length(idv) 
+                        parts = split(varargin{idv(i)},'.');
+                        newdst.(parts{1}).(parts{2}) = varargin{idv(i)+1};
+                    end
+                end
+            elseif length(varargin)>2
+                %dimensions defined by index to existing values
+                dimnames = newdst.DimensionNames;
+                for i=1:length(idd)
+                    oldims = newdst.Dimensions.(dimnames{i});
+                    newdst.Dimensions.(dimnames{i}) = oldims(idd{i});
                 end
             end
         end
 %%
         function datatable = getDataTable(obj,varargin)
-            %extract data from a dstable using the dimension data
-            %and return a 'table' based on the selected dimension values        
-            nvarargin = length(varargin);    
-            %initialise cell arrays
-            propnames = cell(nvarargin/2,1); %input property list
-            ids = propnames;                 %index of Dimensions field names
-            ds = ids;                        %property values in DataTable            
-            in = ids;                        %requested values for input property 
-            index = ids;                     %indices for input values
-            dimfields = obj.DimensionNames;
-            %unpack the input variables, varargin
-            for j=1:2:nvarargin  
-                k = ceil(j/2);                         %variable count
-                propnames{k} = varargin{j};            %property name
-                if contains(propnames{k},'.')          %struct variable                    
-                    parts = split(propnames{k},'.');
-                    propnames{k} = parts{1};           %property name only
-                    ids{k} = find(strcmp(dimfields,parts{2})); %index to Dimensions field name
-                    ds{k} = obj.(parts{1}).(parts{2}); %values in DataTable
-                else
-                    ds{k} = obj.(varargin{j});         %values in DataTable
-                end
-                in{k} = varargin{j+1};                 %input selection
-                if strcmp(propnames{k},'RowNames') && ...
-                              isdatetime(in{k}) || isduration(in{k})
-                    %if datetime or duration force match rows format
-                    in{k}.Format = obj.RowFormat;
-                elseif isdatetime(in{k}) || isduration(in{k})
-                    %if datetime or duration force match dimensions format
-                    idx = strcmp(parts{2},obj.DimensionNames);
-                    in{k}.Format = obj.DimensionFormats{idx};
-                end
-                %convert input selection to indices of values in DataTable
-                index{k} = getDimensionIndices(obj,ds{k},in{k});                
-            end 
-            
-            %extract indices for rows, variables and dimensions
-            %index of rows
-            idx = strcmp(propnames,'RowNames');
-            if any(idx)
-                idr = index{idx};
-            else
-                idr = 1:length(obj.RowNames);
-            end            
-            %index of variables
-            idx = strcmp(propnames,'VariableNames');
-            if any(idx)
-                idv = index{idx};
-            else
-                idv = 1:length(obj.VariableNames);
-            end  
-            %index of dimensions
-            idx = find(strcmp(propnames,'Dimensions'));
-            numdims = length(dimfields);
-            idd = cell(1,numdims);
-            for j=1:numdims                
-                if any(idx)==j
-                    %indices for each dimension used in call
-                    idd{j} = index{idx(j)};
-                else
-                    %dimension not used in call - return all
-                    idd{j} = 1:length(obj.Dimensions.(dimfields{j}));    
-                end
-            end
-            %
-            datatable = obj.DataTable(idr,idv);     %dstable table
-            %assume that dims are in order x,y,z etc and that
-            %the variable should have at least as many dimensions as the
-            %number of dimension defined for the DataTable            
-            for k=1:length(idv)         %for each selected variable
-                varname = datatable.Properties.VariableNames{k};
-                data = datatable{:,k};  %extract variable data from table
-                lenold = size(data,2);
-                if ndims(data)==numdims
-                    %subsample valid data set
-                    data = extractIndexDimensions(obj,data,idd);
-                end
-                lennew = size(data,2);
-                if lennew<lenold
-                    %need to split variable in table and rebuild
-                    datatable = splitvars(datatable,varname);
-                    datatable = removevars(datatable,(lennew+1:lenold));
-                    datatable = mergevars(datatable,(1:lennew));                    
-                end
-                datatable{:,k} = data;  %assign sub-sampled data to table
-            end  
-            
+            %extract data from a dstable using the row,var,dim values or
+            %indices and return a 'table' based on the selected values        
+            [idr,idv,idd] = getInputIndices(obj,varargin{:});
+            datatable = getDataUsingIndices(obj,idv,idr,idd);
+        end
+%%
+        function dataset = getData(obj,varargin)
+            %returns a cell array containing an array for each variable
+            [idr,idv,idd] = getInputIndices(obj,varargin{:});
+            [~,dataset] = getDataUsingIndices(obj,idv,idr,idd);
         end
 %% ------------------------------------------------------------------------   
 % Manipulate Variables - add, remove, move, variable range, horzcat,
@@ -845,47 +790,40 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %% ------------------------------------------------------------------------
 % Other functions
 %--------------------------------------------------------------------------  
-        function tsc = dst2tsc(obj,idxrows,idxvars)
+        function tsc = dst2tsc(obj,varargin)
             %convert dstable object to a tscollection if dstable has more than one
             %variable and a timeseries if only one variable
             % idxtime - index vector for the subselection of time
             % idxvars - index vector for the subselection of variables, or the 
             %           variable names as a cell array of character vectors 
+            if nargin>1
+                obj = getDSTable(obj,varargin{:});
+            end
+            
             T = obj.DataTable;
-            nvar = width(T);
-            nrow = height(T);
-            if nargin<2
-                idxrows = 1:nrow;
-                idxvars = 1:nvar;
-            elseif nargin<3               
-                idxvars = 1:nvar;
-            elseif isempty(idxrows)
-                idxrows = 1:nrow;
-            end
-            %
-            if ~isnumeric(idxvars) && ~islogical(idxvars)
-                idxvars = find(contains(obj.VariableNames,idxvars));
-            end
-            %
-            T = T(idxrows,:);             %subsample table to selected rows
-            tsTime = obj.DataTable.Properties.RowNames(idxrows);
+            tsTime = obj.RowNames;
             if isa(tsTime,'duration')
-                tsTime = datetime(sprintf('01-Jan-%d 00:00:00',0))+tsTime;                        
-                tsTime = cellstr(tsTime);  
+                tsTime = datetime(sprintf('01-Jan-%d 00:00:00',0))+tsTime; 
             end
+            tsTime = cellstr(tsTime);  
             %
             tsc = tscollection(tsTime);
-            for j=1:length(idxvars)               
-                tsobj = timeseries(T{:,idxvars(j)},tsTime);                
-                tsobj.Name = obj.VariableNames{idxvars(j)};
+            for j=1:width(T)               
+                tsobj = timeseries(T{:,j},tsTime);                
+                tsobj.Name =obj.VariableNames{j};
                 tsobj.QualityInfo.Code = [0 1];
                 tsobj.QualityInfo.Description = {'good' 'bad'};
                 tsc = addts(tsc,tsobj);
             end
             tsc.Name = obj.Description;
-            newdsp = copy(obj.DSproperties);
-            newdsp.Variables = newdsp.Variables(idxvars);
-            tsc.TimeInfo.UserData = newdsp;
+            tsc.TimeInfo.UserData = copy(obj.DSproperties);
+        end
+%%
+        function fields = allfieldnames(obj)
+            %return cell array of all field names in order
+            %{variables,row,dimensions}
+            fields = horzcat(obj.VariableNames,obj.TableRowName,...
+                                                    obj.DimensionNames);
         end
     end 
 %% ------------------------------------------------------------------------
@@ -906,8 +844,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %additional dimension properties
             setDimensions2Table(obj)
             %additional metadata properties
-            addCustomProperties(obj,{'Source','MetaData'},...
-                                                {'table','table'});   
+            addCustomProperties(obj,{'LastModified','Source','MetaData'},...
+                                                {'table','table','table'});   
         end        
 %% Variables
         function updateVarNames(obj)
@@ -958,7 +896,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end 
 
             try
-                inputrow = obj.DataTable.Properties.RowNames{1};
+                inputrow = obj.DataTable.Properties.RowNames{1}; %returns char
                 switch obj.RowType
                     case 'datetime'
                         datetime(inputrow,'InputFormat',newfmt);                   
@@ -1086,33 +1024,121 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DimensionRange = rmfield(obj.DimensionRange,dimname);
         end 
 %%
-        function index = getDimensionIndices(~,dstDimVals,inVals)
-            %find the indices of the selected values of a dimension
-            % dstDimVals - reference values for index
-            % inVals - values requested 
-            %intersect does not work with datetime (despite inclusion in
-            %manual)
-            if isdatetime(inVals)
-                dstDimVals = cellstr(dstDimVals);
-                inVals = cellstr(inVals);
-            end
-            [~,index,~] = intersect(dstDimVals,inVals,'stable');
-        end        
+        function [datatable,datacell] = getDataUsingIndices(obj,idv,idr,idd)
+            %extract data from a table using variable, row and dimension
+            %indices
+            % idv - numerical or logical indices for variables
+            % idr - numerical or logical indices for rows
+            % idd - cell array fo numerical or logical indices for each
+            %       dimension
+            datatable = obj.DataTable(idr,idv);     %dstable table
+            %assume that dims are in order x,y,z etc and that
+            %the variable has at least as many dimensions as the
+            %number of dimensions defined for the DataTable  
+            numvar = length(idv);
+            datacell = cell(1,numvar);
+            for k=1:numvar             %for each selected variable
+                data = datatable.(k);  %extract variable data from table
+                data = data(:,idd{:}); %subsample data set
+                datatable.(k) = data;  %assign sub-sampled data to table
+                datacell{1,k} = data;
+            end           
+        end
 %%
-        function outdata = extractIndexDimensions(~,data,ind)              
-            %extract the dimensions based on the selected values
-            %handles 3 dimensions in addition to rows 
-            % data - source array of data
-            % ind  - cell array of index values
-            switch length(ind)
-                case 1
-                    outdata = data(:,ind{1});
-                case 2
-                    outdata = data(:,ind{1},ind{2});
-                case 3
-                    outdata = data(:,ind{1},ind{2},ind{3});
-            end                
-        end  
+        function [idr,idv,idd] = getInputIndices(obj,varargin)
+            %parse input to define row, variable and dimension indices
+            %Note numeric values for row or dimensions can only be input using the
+            %full syntax of Name,Value, other formats are assumed to be indices
+            idr = []; idv = []; idd = {};
+            [~,cdim,vsze] = getVariableDimensions(obj,1);
+            if ischar(varargin{1})  %unpack Name,Value input
+                inputvargs = getDimensionInput(obj,cdim,varargin{:});
+            else                     %unpack array of 1,2, or 3 index vectors
+                inputvargs = getIndexInput(obj,cdim,varargin{:});
+            end   
+            if isempty(inputvargs), return; end
+
+            %now assign indices to any unassigned row,var,dim indices
+            nvar = width(obj.DataTable);  %number of variables
+            nrow = vsze(1);               %number of rows
+            ndim = vsze(2:end);           %length of each dimension
+
+            if isempty(inputvargs{1})     %asign row indices
+                idr = 1:nrow;
+            else
+                idr = inputvargs{1};
+                %when input is a datatime 
+                if isa(idr,'datetime')
+                    idr = cellstr(idr);
+                end
+            end
+
+            if isempty(inputvargs{2})     %aasign variable indices
+                idv = 1:nvar;
+            else
+                idv = inputvargs{2};   
+            end
+
+            idd = inputvargs{3};
+            if isempty(idd)               %aasign dimension indices
+                idd = {1};
+            else
+                for j=1:length(idd)
+                    if isempty(idd{j})
+                        idd{j} = 1:ndim(j);
+                    end
+                end
+            end
+        end
+%%
+        function newvargin = getDimensionInput(obj,cdim,varargin)
+            %unpack input provided in dimension format and return as indices
+            idr = []; idv = []; idd = cell(1,cdim);
+            narg = length(varargin);
+            for i=1:2:narg
+                if strcmp(varargin{i},'RowNames')
+                    idr = find(ismember(obj.RowNames,varargin{i+1},'rows'));  
+                    if isdatetime(idr) || isduration(idr)
+                        %if input is datetime or duration force match to rows format
+                        idr.Format = obj.RowFormat;
+                    end
+                elseif strcmp(varargin{i},'VariableNames')
+                    idv = find(ismember(obj.VariableNames,varargin{i+1}));  
+                elseif contains(varargin{i},'Dimensions')
+                    parts = split(varargin{i},'.');
+                    idx = ismember(obj.DimensionNames,parts{2}); %index to Dimensions field name
+                    dimvals = obj.Dimensions.(parts{2});
+                    idd{idx} = find(ismember(dimvals,varargin{i+1})); 
+                    if isdatetime(idd{idx}) || isduration(idd{idx})
+                        %if input is datetime or duration force match to rows format
+                        idd{idx}.Format = obj.DimensionFormats{idx};
+                    end
+                else
+                    warndlg(sprintf('Unknown input type: %s',varargin{i}))
+                    newvargin = {};
+                    return;
+                end
+            end
+            newvargin = {idr,idv,idd};
+        end
+%%
+        function newvargin = getIndexInput(~,cdim,varargin)
+            %unpack input provided in index format
+            narg = length(varargin);
+            if narg<3
+                newvargin = cell(1,3);
+                newvargin(1:narg) = varargin;
+            elseif narg==3 && length(varargin{3})==cdim
+                %dimension indices with a cell for each dimension
+                newvargin = varargin;
+            elseif narg-2==cdim 
+                %dimension indices specified individually
+                newvargin = [varargin{1:2},varargin(3:end)];
+            else
+                warndlg('Invalid number of indices specified')
+                newvargin = {};
+            end  
+        end
 %% dsproperties       
         function dsp = setgetDSprops(obj,dsprops)
             %set or get the dstable properties 
@@ -1127,7 +1153,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             else
                 isget = false;
             end
-            
+            dsp = [];
             dspnames = {'Variables','Row','Dimensions'};           
             for i=1:3
                 isrow = strcmp(dspnames{i},'Row');
@@ -1152,55 +1178,66 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     end
                     %
                     if isget
-                        if isempty(obj.(propname))  %dstable property
-                            %pad empty fields to the number of variables
-                            if contains(propname,'Names')
-                                %no variables/row/dimension names defined
-                            	nvar = 1;
-                            elseif ischar(dsp.(dspnames{i}).Name)
-                                %just a single variable/row/dimension
-                                nvar = 1;
-                            else
-                                %multiple variables/row/dimension
-                                nvar = length(dsp.(dspnames{i}).Name);
-                            end
-                            dsp.(dspnames{i}).(fnames{j}) = repmat({''},1,nvar);
-                        else
-                            dsp.(dspnames{i}).(fnames{j}) = obj.(propname);
-                        end
+                        dsp = geta_DSprop(obj,dsp,dspnames{i},fnames{j},...
+                                                          propname);
                     else
-                        if isrow %handle row fields to avoid nesting cells
-                            if strcmp(propname,'RowFormat')
-                                if strcmp(obj.RowType,'datetime') || ...
-                                            strcmp(obj.RowType,'duration')                        
-                                   dsprops.(dspnames{i}).(fnames{j}) = ...
-                                       checkRowDimFormat(obj,dsprops,dspnames{i});
-                                end                                                                                              
-                            end
-                            obj.(propname) = dsprops.(dspnames{i}).(fnames{j}); 
-                        else
-                            propvalues = dsprops.(dspnames{i}).(fnames{j});
-                            if iscell(propvalues) && isempty(propvalues{1})
-                                obj.(propname) = {''};
-                            elseif strcmp(propname,'VariableNames')
-                                obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
-                                updateVarNames(obj)
-                            elseif strcmp(propname,'DimensionFormats')
-                                if strcmp(obj.DimType,'datetime') || ...
-                                            strcmp(obj.DimType,'duration')                        
-                                   dsprops.(dspnames{i}).(fnames{j}) = ...
-                                      checkRowDimFormat(obj,dsprops,dspnames{i});
-                                end 
-                                obj.(propname) = dsprops.(dspnames{i}).(fnames{j});
-                            else
-                                obj.(propname) = {dsprops.(dspnames{i}).(fnames{j})};
-                            end
-                        end
+                        seta_DSprop(obj,dsprops,dspnames{i},fnames{j},...
+                                                          propname,isrow);
                     end
                 end
             end            
         end
-
+%%
+        function dsp = geta_DSprop(obj,dsp,dspname,fname,propname)
+            %check propname format and add propname value to dsp field
+            if isempty(obj.(propname))  %dstable property
+                %pad empty fields to the number of variables
+                if contains(propname,'Names')
+                    %no variables/row/dimension names defined
+                    nvar = 1;
+                elseif ischar(dsp.(dspname).Name)
+                    %just a single variable/row/dimension
+                    nvar = 1;
+                else
+                    %multiple variables/row/dimension
+                    nvar = length(dsp.(dspname).Name);
+                end
+                dsp.(dspname).(fname) = repmat({''},1,nvar);
+            else
+                dsp.(dspname).(fname) = obj.(propname);
+            end   
+        end
+%%
+        function seta_DSprop(obj,dsprops,dspname,fname,propname,isrow)
+            %extract value from dsprops and assign to propame of obj
+            if isrow %handle row fields to avoid nesting cells
+                if strcmp(propname,'RowFormat')
+                    if strcmp(obj.RowType,'datetime') || ...
+                                strcmp(obj.RowType,'duration')                        
+                       dsprops.(dspname).(fname) = ...
+                           checkRowDimFormat(obj,dsprops,dspname);
+                    end                                                                                              
+                end
+                obj.(propname) = dsprops.(dspname).(fname); 
+            else
+                propvalues = dsprops.(dspname).(fname);
+                if iscell(propvalues) && isempty(propvalues{1})
+                    obj.(propname) = {''};
+                elseif strcmp(propname,'VariableNames')
+                    obj.(propname) = {dsprops.(dspname).(fname)};
+                    updateVarNames(obj)
+                elseif strcmp(propname,'DimensionFormats')
+                    if strcmp(obj.DimType,'datetime') || ...
+                                strcmp(obj.DimType,'duration')                        
+                       dsprops.(dspname).(fname) = ...
+                          checkRowDimFormat(obj,dsprops,dspname);
+                    end 
+                    obj.(propname) = {dsprops.(dspname).(fname)};
+                else
+                    obj.(propname) = {dsprops.(dspname).(fname)};
+                end
+            end            
+        end
 %%
         function dsdesc = nullDescription(obj)
             %set default description in no table description defined

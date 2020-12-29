@@ -18,7 +18,7 @@ classdef dscollection < handle
 %--------------------------------------------------------------------------
 %       
     properties  
-        Data        %holds dat. This can be multiple dstables, or a mix of 
+        Data        %holds data. This can be multiple dstables, or a mix of 
                     %tables and other data types. The data are indexed using
                     %MetaData.
         RunProps     %instance of runproperties class with details of data used
@@ -31,7 +31,7 @@ classdef dscollection < handle
     end
     
     properties (Hidden, SetAccess = private)
-        ClassIndex   %index of class instance  
+        CaseIndex   %case index assigned when class instance is loaded
     end
 
 %%
@@ -132,6 +132,18 @@ classdef dscollection < handle
 % function dsc = get.Collection(obj)
 %     
 % end
+
+%%
+        function setRunProps(obj,mobj)
+            %assign the run properties needed for a model or the file name for
+            %imported data sets
+            classname = metaclass(obj).Name;
+            minp = mobj.ModelInputs.(classname);
+            for i=1:length(minp)
+                obj.RunProps.(minp{i}) = mobj.Inputs.(minp{i});
+            end
+        end
+%%
         function setDataRecord(obj,muicat,dataset,datatype)
             %assign data to class Data property and update catalogue
             classname = metaclass(obj).Name;
@@ -139,7 +151,7 @@ classdef dscollection < handle
             %add the run to the catalogue and update mui.Cases.DataSets
             caserec = addRecord(muicat,classname,datatype);
             casedef = getRecord(muicat,caserec);
-            obj.ClassIndex = casedef.CaseID;
+            obj.CaseIndex = casedef.CaseID;
             obj.Data.Description = casedef.CaseDescription;
             if isempty(muicat.DataSets) || ~isfield(muicat.DataSets,classname) ||...
                     isempty(muicat.DataSets.(classname))
@@ -149,9 +161,15 @@ classdef dscollection < handle
             end
             muicat.DataSets.(classname)(idrec) = obj;
         end
-
-
-
+        
+        
+        
+        function classrec = getClassIndex(obj,caseid)
+            %find the record id of an instance in a class array using the
+            %CaseIindex
+            classname = metaclass(obj).Name;
+            
+        end
 
 
 

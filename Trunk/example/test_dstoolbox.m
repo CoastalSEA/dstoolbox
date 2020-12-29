@@ -262,30 +262,37 @@ function test_dstable(testnum,option)
             t1.DataTable                              %display
             displayDSproperties(t1.DSproperties);     
             
-        case 8 %access data using dimensions
+        case 8 %access dstable using getDataTable and getDStable with dimensions
             t1 = dummytable(option);
             t1.DSproperties = dsp_struct; %assign DSproperties struct
             dim1 = t1.Dimensions.Dim1;
             dim2 = t1.Dimensions.Dim2;
             dim3 = t1.RowNames;
             subrow = dim3(2:3);
-            subvar = {'Var2'};
+            subvar = {'Var2','Var3'};
             subdimx = dim1(2:3);
-            subdimy = dim2(1:4);
+            subdimy = dim2(2:2:6);
             datatable = getDataTable(t1,'RowNames',subrow,'VariableNames',subvar,...
-                       'Dimensions.Dim1',subdimx,'Dimensions.Dim2',subdimy);
-            newdst = getDStable(t1,'RowNames',subrow,'VariableNames',subvar,...
+                       'Dimensions.Dim2',subdimy);
+            newdst = getDSTable(t1,'RowNames',subrow,'VariableNames',subvar,...
                        'Dimensions.Dim1',subdimx,'Dimensions.Dim2',subdimy);            
+            displayDSproperties(newdst.DSproperties);
   
         case 9 %convert dstable to tscollection and back
             t1 = tstable();             %dstable of timeseries data
             t1.DSproperties = dsp_struct;   %assign properties to dstable
             tsc1 = dst2tsc(t1);         %convert to full table to tscollection
             figure; plot(tsc1.Var2);
-            tsc2 = dst2tsc(t1,5:16,{'Var2','Var3'});  %convert subset of table to tscollection
+            %syntax dst2tsc(obj, times or time_index, variables or variable_index)
+            times = cellstr(t1.RowNames(5:16));  %can be cell of strings
+%             times = t1.RowNames(5:16);             %can be datetime
+            tsc2 = dst2tsc(t1,times,{'Var2','Var3'});  %convert subset of table to tscollection
             hold on
             plot(tsc2.Var2);
-            dst = tsc2dst(tsc2,3:9,{'Var2'});         %convert subset tsc back to dstable
+            %syntax tsc2dst(obj, times or time_index, variables or variable_index)
+%             times2 = 3:9;
+            times2 = times(3:9);
+            dst = tsc2dst(tsc2,times2,1);         %convert subset tsc back to dstable
             plot(dst,'Var2','x')         
             hold off
             displayDSproperties(dst.DSproperties); 
@@ -297,13 +304,57 @@ function test_dstable(testnum,option)
             t1.Dimensions.Lat = [11,12,13];
             t1.Dimensions.Long = [21,22,23];
             
+        case 11  %different ways of accessing data to get table or data array
+            t1 = dummytable(option);
+            t1.DSproperties = dsp_struct; %assign DSproperties struct
+            
+            dim1 = t1.Dimensions.Dim1;
+            idd1 = 1:length(dim1);
+            dim2 = t1.Dimensions.Dim2;            
+            idd2 = 1:length(dim2);
+            idd = {idd1,idd2};
+            
+            dimr = t1.RowNames;
+            idr= 1:length(dimr);
+            
+            dimv = t1.VariableNames;
+            idv = 1:length(dimv);
+            
+            %extract data using index syntax
+            newdst = getDSTable(t1,idr(2:3),':',{idd1,idd2(3:4)});
+            datatable = getDataTable(t1,idr(2:3),idv(2),{[],idd2(3:4)});
+            vars = getData(t1,idr(1:5),[],idd);
+            
+            %extract data using dimension values syntax
+            newDST = getDSTable(t1,'RowNames',dimr(2:3),...
+                      'VariableNames',dimv(2),'Dimensions.Dim2',dim2(3:4));
+            dataTbl = getDataTable(t1,'RowNames',dimr(2:3),...
+                      'VariableNames',dimv(2),'Dimensions.Dim2',dim2(3:4));            
+            varData = getData(t1,'RowNames',dimr(1:5),...
+                                            'Dimensions.Dim2',dim2(3:4));            
+            %check that results are the same
+            acheck = varData{1}-vars{1}(:,:,3:4); disp(acheck)
+            
+            %extract data from table
+            T = t1.DataTable;
+            newT = T(idr(2:3),idv(2));   %returns subtable
+            Tdat1 = T{idr(2:3),idv(2)}(:,idd1,idd2(3:4));  %returns data set
+            Tdat2 = T{idr(2:3),'Var2'}(:,idd{:});          %equivalent syntax
+            Tdat3 = T.Var2(2:3,idd{:});
+            %in the above row and variable can be indices or values, but
+            %dimension can only be indices. if using idd it must have a
+            %cell for every dimension, which can be empty to select all
+            %check that results are the same
+            acheck = varData{2}(2:3,:,:)-Tdat1; disp(acheck)
+            %Tdat1-Tdat2(:,:,3:4)
+            
         case 99 %generate variables of different dimension
             s = rng; %control random number generator (does not need to be passed to fcn)
-            var1 = set_variable(5)
+            var1 = set_variable(5); disp(var1)
             rng(s);
-            var2 = set_variable(1,2)
+            var2 = set_variable(1,2); disp(var2)
             rng(s);
-            var3 = set_variable(2,3,3)
+            var3 = set_variable(2,3,3); disp(var3)
     end    
 end
 %%
@@ -344,7 +395,7 @@ function dsp = dsp_struct
                 'Description',{'Row Description'},...
                 'Unit',{'time'},...
                 'Label',{'s'},...
-                'Format',{'dd-MM-yyyy'});            
+                'Format',{'dd-MMM-uuuu HH:mm:ss'});            
             dsp.Dimensions = struct(...
                 'Name',{'Dim1';'Dim2'},...
                 'Description',{'Distance 1';'Distance 2'},...
@@ -366,7 +417,7 @@ function dsp = dsp_cellstruct
     dsp.Row.Description = 'Row Description';
     dsp.Row.Unit = 'time';
     dsp.Row.Label = 's';
-    dsp.Row.Format = 'dd-MM-yyyy';
+    dsp.Row.Format = 'dd-MMM-yyyy HH:mm:ss';
     dsp.Dimensions.Name = {'Dim1';'Dim2'};
     dsp.Dimensions.Description = {'Distance 1';'Distance 2'};
     dsp.Dimensions.Unit = {'m';'m'};

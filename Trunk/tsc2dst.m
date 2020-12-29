@@ -39,10 +39,14 @@ function dst = tsc2dst(tsc,idxtime,idxvars)
         idxvars = 1:nvar;
     elseif isempty(idxtime)
         idxtime = 1:nrow;
-    end    
+    end   
     %
+    if ~isnumeric(idxtime) && ~islogical(idxtime)        
+       idxtime = find(ismember(mdate,idxtime,'rows'));
+    end        
+    %    
     if ~isnumeric(idxvars) && ~islogical(idxvars)
-        idxvars = find(contains(varnames,idxvars));
+        idxvars = find(ismember(varnames,idxvars));
     end
     %
     mdate = mdate(idxtime);    %subsample time to selected range  

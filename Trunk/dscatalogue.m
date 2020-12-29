@@ -68,7 +68,7 @@ classdef dscatalogue < handle
         function [caserec,newdesc] = editRecord(obj,caserec)
             %edit Case description of the caserec record
             if nargin<2 ||  isempty(caserec)
-                [caserec,ok] = selectCase(obj,'PromptText','Select case to edit:',...
+                [caserec,ok] = selectRecord(obj,'PromptText','Select case to edit:',...
                                                 'ListSize',[250,200]);
                 if ok<1, return; end
             end
@@ -86,8 +86,8 @@ classdef dscatalogue < handle
             obj.Catalogue.CaseType(caserec) = newdesc{3};
         end
 %%
-       function [caserec,ok] = selectCase(obj,varargin)  %was ScenarioList
-            %generate a list dialogue box of the cases available
+       function [caserec,ok] = selectRecord(obj,varargin)  %was ScenarioList
+            %generate a list dialogue box of the case records available
             % varargin - options for subselection from full catalogue
             %  'CaseClass' - cell array of classes to select
             %  'CaseType'  - cell array of data types to select
@@ -95,7 +95,7 @@ classdef dscatalogue < handle
             %  'ListSize;  - size of dialogue figure, default is [100,200]
             %  'SelectionMode' - 'single' (default) or 'multiple' selections allowed
             % returns caserec - the selected record number(s) and the 
-            % ok flag. ok = 
+            % ok flag. ok = 0 user cancelled when using list selection
             
             caserec = []; ok = 0; idc = []; idt = [];
             if isempty(obj.Catalogue), noCases(obj); return; end
