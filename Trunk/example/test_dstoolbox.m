@@ -11,8 +11,10 @@ function h = test_dstoolbox(classname,casenum,option)
 % INPUT
 %   classsname - name of dstoolbox class function to be tested
 %   testnum - number of test to run
-%   option  - selects format for dimesnion when calling set_dimension in
-%             dstable (single value or vector depending on case)
+%   option  - selects format for dimension when calling set_dimension in
+%             dstable - single value or vector depending on case:
+%             for vector v(1)=row type, v(2)=dim1 type, v(3)=dim2 type
+%             see function set_dimension for list of cases
 % OUTPUT
 %   See in-code comments for details of test and in-code outputs.
 %
@@ -472,6 +474,10 @@ function dimensions = set_dimension(idx,idim,offset)
             else
                 dimensions = [];
             end
+        case 7  %categorical
+            dimensions = categorical(get_text(idim));
+        case 8  %ordinal 
+            dimensions =  categorical(get_text(idim),'Ordinal',true);
     end
     %
         function yrdate = getdate(idim,offset)
@@ -531,8 +537,3 @@ function tt = tstable()
                       'VariableNames',varnames);
     tt.Description = 'TS Table';     
 end
-%%
-% function tsdsp = ts_dsp()
-%     %create a dsproperties obj for timeseries data
-%     
-% end

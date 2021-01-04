@@ -385,6 +385,32 @@
 % stored in tsc.TimeInfo.UserData. If a tscollection has DSproperties defined,
 % these are restored when a dstable object is created from a tscollection object.
 % 
+%%
+% The following functions can be used to get the attributes of a _dstable_
+% variable, such as a list of the variable, row and dimension name or description, or the
+% data range of a particular attribute
+%%
+% *getVarAttributes* find the name and description of a varaible and the
+% associated row/dimension attributes
+%
+%   [names,desc,idv] = getVarAttributes(dst,idv)
+%%
+% * idv -  index to variable, which can be character vector, string,
+% numerical or logical
+% * names - the names of the attributes assigned in the _ddstable_ in the
+% order variable, row, dimensions
+% * dessc - the descriptions of the attribures in the same order
+% * idv - numerical index of selected variable
+
+%%
+% *getVarAttRange* finds the range of the selected variable attribute
+%
+%   range = getVarAttRange(dst,list,selected)
+%%
+% * list - cell array of attribute descriptions to select from, or a
+% numeric index value of the variable
+% * selected - the character vector or string of the attibute to use
+% * range - the start and end or min/max values of the selected attribute
 
 %% dstable Indexing Methods
 % Data held in a dstable can be accessed by rows, variables and/or

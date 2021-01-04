@@ -11,7 +11,7 @@ classdef dscollection < handle
 %   functionality for classes that import different types of data or models
 %   that need to store outputs in a consistent and documented format
 % SEE ALSO
-%   see test_dstoolbox.m for examples of usage
+%   see test_muitoolbox.m for examples of usage
 %
 % Author: Ian Townend
 % CoastalSEA (c)Sep 2020
@@ -164,12 +164,12 @@ classdef dscollection < handle
         
         
         
-        function classrec = getClassIndex(obj,caseid)
-            %find the record id of an instance in a class array using the
-            %CaseIindex
-            classname = metaclass(obj).Name;
-            
-        end
+%         function classrec = getClassIndex(obj,caseid)
+%             %find the record id of an instance in a class array using the
+%             %CaseIindex
+%             classname = metaclass(obj).Name;
+%             
+%         end
 
 
 
