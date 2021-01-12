@@ -6,8 +6,8 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dstable</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-04"><meta name="DC.source" content="dstable.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      --><title>dstable</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-08"><meta name="DC.source" content="dstable.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -66,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>dstable</h1><!--introduction--><p>A dstable object is a collection of one or more datasets with one or more common dimension vectors. A dstable can contain different variable types, have row indexing of different types, and access multi-dimensional arrays with dimension indexing</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#5">Description</a></li><li><a href="#10">Input arguments</a></li><li><a href="#12">Assign and access Variables and Dimensions</a></li><li><a href="#14">Assign and access Metadata Properties</a></li><li><a href="#21">dstable Properties</a></li><li><a href="#27">dstable Metadata Properties</a></li><li><a href="#31">table Metadata Properties</a></li><li><a href="#32">Variable Metadata Properties</a></li><li><a href="#34">Row Metadata Properties</a></li><li><a href="#35">Dimension Metadata Properties</a></li><li><a href="#36">Custom Properties</a></li><li><a href="#43">dstable methods</a></li><li><a href="#61">dstable Indexing Methods</a></li><li><a href="#71">See Also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dst = dstable(var1,<span class="keyword">...</span><span class="comment">,varN)</span>
+  </style></head><body><div class="content"><h1>dstable</h1><!--introduction--><p>A dstable object is a collection of one or more datasets with one or more common dimension vectors. A dstable can contain different variable types, have row indexing of different types, and access multi-dimensional arrays with dimension indexing.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#5">Description</a></li><li><a href="#10">Input arguments</a></li><li><a href="#12">Assign and access Variables and Dimensions</a></li><li><a href="#14">Assign and access Metadata Properties</a></li><li><a href="#21">dstable Properties</a></li><li><a href="#28">dstable Metadata Properties</a></li><li><a href="#32">table Metadata Properties</a></li><li><a href="#33">Variable Metadata Properties</a></li><li><a href="#35">Row Metadata Properties</a></li><li><a href="#36">Dimension Metadata Properties</a></li><li><a href="#37">Custom Properties</a></li><li><a href="#44">dstable methods</a></li><li><a href="#68">dstable Indexing Methods</a></li><li><a href="#84">See Also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dst = dstable(var1,<span class="keyword">...</span><span class="comment">,varN)</span>
 dst = dstable(<span class="string">'Size'</span>,sz,<span class="string">'VariableTypes'</span>,varTypes)
 dst = dstable(___,<span class="string">'VariableNames'</span>,varNames)
 dst = dstable(___,<span class="string">'RowNames'</span>,rowNames)
@@ -97,42 +98,11 @@ specific and the dimension vectors are not checked for compatibility
 with any of the variable arrays. However, by adding multiple dimensions,
 different dimensions can be used in conjunction with different variables.
 </td></tr></table>
-</p><p><b>Source</b> <br> Description of data source, model used, etc</p><p><b>MetaData</b> <br> Additional user data, such as more detailed description of table, version of model used to generate input, etc.</p><h2 id="27">dstable Metadata Properties</h2><p><b>Access Table Metadata Properties</b> <br> A dstable contains metadata properties that describe the table, its variables and the 'dimensions' in the Row and Dimensions properties.</p><p>Access these properties using the syntax <i>dstableName</i>. <i>PropertyName</i> , where <i>PropertyName</i> is the name of a property. For example, you can access the names of the variables in dstable, dst, using the syntax dst.VariableNames, or using the table syntax T.Properties.VariableNames (where T = dst.DataTable).</p><p>You can return a summary of all the metadata properties using the syntax <i>dstableName</i> or <i>tableName</i>.Properties.</p><p>dstable provides direct access to metadata because the table is assigned to the DataTable property (necessary because it cannot be a Superclass). In contrast tables access metadata through the Properties property, allowing the table data to be accessed directly using dot syntax. For example, if table T has a variable named Var1, then you can access the variable as an array using the syntax T.Var1. For a dstable the equivalent syntax would be dst.Var1, or dst.DataTable.Var1.</p><h2 id="31">table Metadata Properties</h2><p>These are the same as for <a href="matlab:doc('table')">table</a> with the exception of <i>RowNames</i> (see <b>Input Arguments</b> above).</p><h2 id="32">Variable Metadata Properties</h2><p>These are the same as for <a href="matlab:doc('table')">table</a> with the addition of VariableLabels and VariableQCflags.</p><p><b>VariableNames</b> <br> Variable Names, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p><pre class="codeinput"><span class="comment">% *VariableDescriptions* &lt;br&gt;</span>
-<span class="comment">% Variable descriptions, specified as a cell array of character vectors or</span>
-<span class="comment">% a string array This property can be an empty cell array, which is the</span>
-<span class="comment">% default.</span>
-<span class="comment">%</span>
-<span class="comment">% *VariableUnits* &lt;br&gt;</span>
-<span class="comment">% Row units, specified as a cell array of character vectors or a string</span>
-<span class="comment">% array. This property can be an empty cell array, which is the default.</span>
-<span class="comment">%</span>
-<span class="comment">% *VariableLabels* &lt;br&gt;</span>
-<span class="comment">% Variable labels, specified as a cell array of character vectors, or</span>
-<span class="comment">% a string array. This property can be an empty cell array, which is the default.</span>
-<span class="comment">% If the array is not empty, then it must contain as many elements as there</span>
-<span class="comment">% are variables. You can specify an individual empty character vector, or</span>
-<span class="comment">% empty string, for a variable that does not have a label. These are</span>
-<span class="comment">% typicaly used to provide a more generic short desctiption that might be</span>
-<span class="comment">% used to label several variables of the same type (e.g. 'Velocity').</span>
-<span class="comment">%</span>
-<span class="comment">% *VariableQCflags* &lt;br&gt;</span>
-<span class="comment">% Variable quality control flags, specified as a cell array of character vectors, or</span>
-<span class="comment">% a string array. This property can be an empty cell array, which is the default.</span>
-<span class="comment">% If the array is not empty, then it must contain as many elements as there</span>
-<span class="comment">% are variables. You can specify an individual empty character vector, or</span>
-<span class="comment">% empty string, for a variable that does not have a label.</span>
-<span class="comment">%</span>
-<span class="comment">% *VariabelRange* (read only) &lt;br&gt;</span>
-<span class="comment">% Set internally when variables are loaded or updated. Defines the minimum</span>
-<span class="comment">% and maximum values of an array, or the first and last values if</span>
-<span class="comment">% non-numeric. Value returned as a 2 element cell array. If there are</span>
-<span class="comment">% mutliple variables, the property returns a struct with the fields of the</span>
-<span class="comment">% VariableNames.</span>
-</pre><h2 id="34">Row Metadata Properties</h2><p><b>TableRowName</b> The name assigned to the variable dimension in the rows column can be specified as a character vector or string. This property maps to the first value of the DimensionNames cell array of the DataTable property. When loading metadata properties using a <a href="matlab:doc('dsproperties')">dsproperties</a> object, the Row.Name field is assigned to TableRowName. Hence, dst.TableRowNames is equivalent to dst.DataTable.Properties.DimensionNames{1}.</p><p><b>RowDescription</b> <br> Row description, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p><p><b>RowUnit</b> <br> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p><p><b>RowLabel</b> <br> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p><p><b>RowFormat</b> <br> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default.</p><p><b>RowRange</b> (read only) <br> Set internally when RowNames are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array.</p><h2 id="35">Dimension Metadata Properties</h2><p><b>DimensionNames</b> <br> Dimension names, specified as a cell array of character vectors or a string array, whose elements are nonempty and distinct. Variable names must be valid MATLAB identifiers. You can determine valid variable names using the function <a href="matlab:doc('isvarname')">isvarname</a> . MATLAB removes any leading or trailingwhitespace from the variable names. The number of names must equal the number of dimensions defined. However Dimensions can be added using dot indexing with a DimensionField name, as explained below.</p><p><b>DimensionDescriptions</b> <br> Dimension descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionUnits</b> <br> Dimension units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionLabels</b> <br> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionFormats</b> <br> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionRange</b> (read only) <br> Set internally when Dimensions are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Values returned as a 2 element cell array. If there are mutliple dimensions, the property returns a struct with the fields of the DimensionNames.</p><h2 id="36">Custom Properties</h2><p>These can be added to the <i>table</i> held in the dst.DataTable property as detailed in <a href="matlab:doc('table')">table</a>.</p><p>In a dstable a number of properties are added to the CustomPoperties object by default. These are detailed in the sections below.</p><p>To add or remove Custom Properties in a dstable use the following two functions:</p><pre class="language-matlab">dst = addCustomProperties(dst,<span class="string">'propertyName'</span>,<span class="string">'propertyType'</span>); <span class="comment">%to add a property</span>
+</p><p><b>LastModified</b> <br> Date when variables or dimensions of the <i>dstable</i> were created or last modified</p><p><b>Source</b> <br> Description of data source, model used, etc</p><p><b>MetaData</b> <br> Additional user data, such as more detailed description of table, version of model used to generate input, etc.</p><h2 id="28">dstable Metadata Properties</h2><p><b>Access Table Metadata Properties</b> <br> A dstable contains metadata properties that describe the table, its variables and the 'dimensions' in the Row and Dimensions properties.</p><p>Access these properties using the syntax <i>dstableName</i>. <i>PropertyName</i> , where <i>PropertyName</i> is the name of a property. For example, you can access the names of the variables in dstable, dst, using the syntax dst.VariableNames, or using the table syntax T.Properties.VariableNames (where T = dst.DataTable).</p><p>You can return a summary of all the metadata properties using the syntax <i>dstableName</i> or <i>tableName</i>.Properties.</p><p>dstable provides direct access to metadata because the table is assigned to the DataTable property (necessary because it cannot be a Superclass). In contrast tables access metadata through the Properties property, allowing the table data to be accessed directly using dot syntax. For example, if table T has a variable named Var1, then you can access the variable as an array using the syntax T.Var1. For a dstable the equivalent syntax would be dst.Var1, or dst.DataTable.Var1.</p><h2 id="32">table Metadata Properties</h2><p>These are the same as for <a href="matlab:doc('table')">table</a> with the exception of <i>RowNames</i> (see <b>Input Arguments</b> above).</p><h2 id="33">Variable Metadata Properties</h2><p>These are the same as for <a href="matlab:doc('table')">table</a> with the addition of VariableLabels and VariableQCflags.</p><p><b>VariableNames</b> <br> Variable Names, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p><p><b>VariableDescriptions</b> <br> Variable descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p><p><b>VariableUnits</b> <br> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p><p><b>VariableLabels</b> <br> Variable labels, specified as a cell array of character vectors, or a string array. This property can be an empty cell array, which is the default. If the array is not empty, then it must contain as many elements as there are variables. You can specify an individual empty character vector, or empty string, for a variable that does not have a label. These are typicaly used to provide a more generic short desctiption that might be used to label several variables of the same type (e.g. 'Velocity').</p><p><b>VariableQCflags</b> <br> Variable quality control flags, specified as a cell array of character vectors, or a string array. This property can be an empty cell array, which is the default. If the array is not empty, then it must contain as many elements as there are variables. You can specify an individual empty character vector, or empty string, for a variable that does not have a label.</p><p><b>VariabelRange</b> (read only) <br> Set internally when variables are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array. If there are mutliple variables, the property returns a struct with the fields of the VariableNames.</p><h2 id="35">Row Metadata Properties</h2><p><b>TableRowName</b> The name assigned to the variable dimension in the rows column can be specified as a character vector or string. This property maps to the first value of the DimensionNames cell array of the DataTable property. When loading metadata properties using a <a href="matlab:doc('dsproperties')">dsproperties</a> object, the Row.Name field is assigned to TableRowName. Hence, dst.TableRowNames is equivalent to dst.DataTable.Properties.DimensionNames{1}.</p><p><b>RowDescription</b> <br> Row description, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p><p><b>RowUnit</b> <br> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p><p><b>RowLabel</b> <br> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p><p><b>RowFormat</b> <br> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default.</p><p><b>RowRange</b> (read only) <br> Set internally when RowNames are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array.</p><h2 id="36">Dimension Metadata Properties</h2><p><b>DimensionNames</b> <br> Dimension names, specified as a cell array of character vectors or a string array, whose elements are nonempty and distinct. Variable names must be valid MATLAB identifiers. You can determine valid variable names using the function <a href="matlab:doc('isvarname')">isvarname</a> . MATLAB removes any leading or trailingwhitespace from the variable names. The number of names must equal the number of dimensions defined. However Dimensions can be added using dot indexing with a DimensionField name, as explained below.</p><p><b>DimensionDescriptions</b> <br> Dimension descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionUnits</b> <br> Dimension units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionLabels</b> <br> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionFormats</b> <br> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p><p><b>DimensionRange</b> (read only) <br> Set internally when Dimensions are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Values returned as a 2 element cell array. If there are mutliple dimensions, the property returns a struct with the fields of the DimensionNames.</p><h2 id="37">Custom Properties</h2><p>These can be added to the <i>table</i> held in the dst.DataTable property as detailed in <a href="matlab:doc('table')">table</a>.</p><p>In a dstable a number of properties are added to the CustomPoperties object by default. These are detailed in the sections below.</p><p>To add or remove Custom Properties in a dstable use the following two functions:</p><pre class="language-matlab">dst = addCustomProperties(dst,<span class="string">'propertyName'</span>,<span class="string">'propertyType'</span>); <span class="comment">%to add a property</span>
 dst = rmCustomProperties(dst,<span class="string">'propertyName'</span>);                 <span class="comment">%to remove a property</span>
 </pre><p>These incoke the <i>table</i> equivalents of addprop and rmprop - see <a href="matlab:doc('addprop')">addprop</a> and <a href="matlab:doc('rmprop')">rmprop</a>.</p><p>To add or remove dynamic properties on a dstable use:</p><pre class="language-matlab">p = addprop(dst, propertyName);  <span class="comment">%adds property and returns meta.DynamicProperty object</span>
 rmprop(obj,propertyName);        <span class="comment">%removes propertyName from the dstable</span>
-</pre><h2 id="43">dstable methods</h2><p>Methods that can be used for a table can be used on T = dst.DataTable.</p><p>A subset of these methods have specific implementations for a <i>dstable</i> that ensures that the properties defining Variable, Row and Dimension meta-data are preserved. These functions are as follows:</p><p><b>addvars</b> syntax is the same as <a href="matlab:doc('addvars')">addvars</a>. Updates metadata properties for new variable</p><pre class="language-matlab">addvars(dst, varargin)
+</pre><h2 id="44">dstable methods</h2><p>Methods that can be used for a table can be used on T = dst.DataTable.</p><p>A subset of these methods have specific implementations for a <i>dstable</i> that ensures that the properties defining Variable, Row and Dimension meta-data are preserved. These functions are as follows:</p><p><b>addvars</b> syntax is the same as <a href="matlab:doc('addvars')">addvars</a>. Updates metadata properties for new variable</p><pre class="language-matlab">addvars(dst, varargin)
 </pre><p><b>removevars</b> syntax is the same as <a href="matlab:doc('removevars')">removevars</a></p><pre class="language-matlab">dst2 = removevars(dst,<span class="string">'varNames'</span>)
 </pre><p><b>movevars</b> syntax is the same as <a href="matlab:doc('movevars')">movevars</a>. varName is the variable to be moved, position is 'Before' or 'After' and location is the name of the reference variable to use for the move.</p><pre class="language-matlab">movevars(dst,<span class="string">'varName'</span>,<span class="string">'position'</span>,<span class="untermstring">'location)</span>
 </pre><p><b>vercat</b> vertically concatenates the two dstables, variable names must match and RowNames in the two dstables must be unique. Sorts new table into ascending order, and updates RowRange property</p><pre class="language-matlab">dst3 = vertcat(dst1, dst2)
@@ -141,19 +111,31 @@ rmprop(obj,propertyName);        <span class="comment">%removes propertyName fro
 </pre><p>The following functions are specific to a <i>dstable</i>.</p><p><b>sortrows</b> sort table into ascending order of RowNames</p><pre class="language-matlab">sortrows(dst)                         <span class="comment">%sort table into ascending order of RowNames</span>
 </pre><p><b>dst2tsc</b> and <b>tsc2dst</b> convert between dstable and tscollection objects (see <a href="matlab:doc('dst2tsc')">dst2tsc</a> and <a href="matlab:doc('tsc2dst')">tsc2dst</a> for further details).</p><pre class="language-matlab">tsc = dst2tsc(dst,idxtime,idxvars)    <span class="comment">%converts a dstable object to a tscollection object</span>
 dst = tsc2dst(tsc,idxtime,idxvars)    <span class="comment">%converts a tscollection to a dstable object</span>
-</pre><p>idxtime - index vector for the subselection of time <br> idxvars - index vector for the subselection of variables, or the variable names as a cell array of character vectors</p><p>When creating tscollection the DSproperties of the dstable are passed and stored in tsc.TimeInfo.UserData. If a tscollection has DSproperties defined, these are restored when a dstable object is created from a tscollection object.</p><h2 id="61">dstable Indexing Methods</h2><p>Data held in a dstable can be accessed by rows, variables and/or dimensions.</p><p>Using the <i>table</i>, T = dst.DataTable, the syntax to extract rows and variables is the same as summarised in <a href="matlab:doc('access-data-in-a-table')">Access Data in a Table</a>.</p><p>To access a subset of values using the dimension indices the syntax can be any of the following:</p><pre class="language-matlab">extracted_data = T.DataTable{rows,vars}(dim1,dim2,<span class="keyword">...</span><span class="comment">,dimN)</span>
-extracted_data = T.var(dim1,dim2,<span class="keyword">...</span><span class="comment">,dimN)</span>
-extracted_data = T.(varindex)(dim1,dim2,<span class="keyword">...</span><span class="comment">,dimN)</span>
-extracted_data = T.var(rows)(dim1,dim2,<span class="keyword">...</span><span class="comment">,dimN)</span>
-</pre><p>where rows, vars, dim1,...dimN are indices specified as a colon, numeric indices, or logical expressions.  dim1 is the row dimension and can either be set to : or a subselection of the array returned wnen rows are included in the call.</p><p>Using a dstable there is also the option to use the dimension values (including rows) to access data in the table. The syntax is as follows:</p><pre class="language-matlab">newT = getData(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>);
-newdst = getDStable(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>)
-</pre><p>where the 'Name', 'Value' pairs can be any of the following combinations:</p><p>'VariableNames', varnames - where varnames is a subset of the variable names to be used, specified as a cell array of character vectors, or a string array.</p><p>'RowNames', rowames - where rownames is a subset of the rows to be used, specified in the format used for RowNames</p><p>'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be used, specified in the format used for the dimension.</p><h2 id="71">See Also</h2><p><a href="matlab:doc('dsproperties')">dsproperties</a>, <a href="matlab:doc('dscatalogue')">dscatalogue</a>, <a href="matlab:doc('dscollection')">dscollection</a>, <a href="matlab:doc('dstoolbox')">dstoolbox</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+</pre><div><ul><li>idxtime - index vector for the subselection of time, or the row names as cell array of character vectors or datatime array</li><li>idxvars - index vector for the subselection of variables, or the variable names as a cell array of character vectors</li></ul></div><p>The call to dst2tsc can also use any of the syntax formats used by getDSTable (see below).</p><p>When creating tscollection the DSproperties of the dstable are passed and stored in tsc.TimeInfo.UserData. If a tscollection has DSproperties defined, these are restored when a dstable object is created from a tscollection object.</p><p>The following functions can be used to get the attributes of a <i>dstable</i> variable, such as a list of the variable, row and dimension name or description, or the data range of a particular attribute</p><p><b>getVarAttributes</b> find the name and description of a varaible and the associated row/dimension attributes</p><pre class="language-matlab">[names,desc,idv] = getVarAttributes(dst,idv)
+</pre><div><ul><li>idv -  index to variable, which can be character vector, string, numerical or logical</li><li>names - the names of the attributes assigned in the <i>ddstable</i> in the order variable, row, dimensions</li><li>dessc - the descriptions of the attribures in the same order</li><li>idv - numerical index of selected variable</li></ul></div><p><b>getVarAttRange</b> finds the range of the selected variable attribute</p><pre class="language-matlab">range = getVarAttRange(dst,list,selected)
+</pre><div><ul><li>list - cell array of attribute descriptions to select from, or a numeric index value of the variable</li><li>selected - the character vector or string of the attibute to use</li><li>range - the start and end or min/max values of the selected attribute</li></ul></div><h2 id="68">dstable Indexing Methods</h2><p>Data held in a dstable can be accessed by rows, variables and/or dimensions.</p><p><b>Using the <i>table</i>, T = dst.DataTable</b> <br> The syntax to extract rows and variables from the table is the same as summarised in <a href="matlab:doc('access-data-in-a-table')">Access Data in a Table</a>.</p><p>To access a subset of values using the dimension indices the syntax can be any of the following:</p><pre class="language-matlab">T = dst.DataTable      <span class="comment">%extract table to use any of the following:</span>
+extracted_data = T{rows,vars}(:,idd1,idd2,..iddN)
+extracted_data = T.varname(rows,idd1,idd2,..iddN)
+extracted_data = T.(vars)(rows,idd1,idd2,..iddN)
+</pre><p>where rows, vars, idd1,...iddN are indices for the Rows, Variables and Dimensions, respecitvely. <br></p><div><ul><li>vars can be specified as a character vector, colon, numeric indices, or logical expression. varname is the variable name without quotation marks.</li><li>idr and idd* can be colon, numeric indices, or logical expression.</li><li>The number of dimensions indices included must match the number of dimensions of the table variable (excluding the row dimension).</li></ul></div><p>The Dimension indices can also be input using idd = {idd1,idd2,...iddN) as follows:</p><pre class="language-matlab">extracted_data = T.varname(rows,idd{:})
+</pre><p><b>Using indices with a <i>dstable</i></b> <br> Using a <i>dstable</i> the data can be retrieved based on Rows, Variables and Dimensions, using one of three functions depending on the type of output required.</p><pre class="language-matlab">newdst = getDSTable(dst,__);      <span class="comment">%returns a dstable with the selected data and updated metadata</span>
+newtable = getDataTable(dst,__);  <span class="comment">%returns a table with the selected data</span>
+newdataset = getData(dst,__);     <span class="comment">%returns a cell array of the selected data</span>
+</pre><pre>When using indices the syntax requires indices for rows, variables and
+dimensions in that order. Use [] or ':' to select the full range of
+values(colon is specified in quote marks).</pre><pre class="language-matlab">newdst = getDSTable(dst,idr,idv)                    <span class="comment">%selects variables defined by idr and idv</span>
+newdst = getDSTable(dst,idr,idv,idd1,idd2,..iddN);  <span class="comment">%where the variables have N dimensions</span>
+newdst = getDSTable(dst,idr,idv,idd)                <span class="comment">%where idd = {idd1,idd2,..iddN}</span>
+</pre><p>The same syntax can be used with getDataTable and getTable</p><p><b>Using dimension values with a <i>dstable</i></b> <br> Using a <i>dstable</i> there is also the option to use the dimension values (including rows) to access data in the table. The syntax is as follows:</p><pre class="language-matlab">newdst = getDSTable(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>)
+newtable = getDataTable(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>);
+newdataset = getData(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>);
+</pre><p>where the 'Name', 'Value' pairs can be any of the following combinations:</p><div><ul><li>'RowNames', rownames - where rownames is a subset of the rows to be used, specified in the format used for RowNames</li><li>'VariableNames', varnames - where varnames is a subset of the variable names to be used, specified as a cell array of character vectors, or a string array.</li><li>'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be used, specified in the format used for the dimension.</li></ul></div><h2 id="84">See Also</h2><p><a href="matlab:doc('dsproperties')">dsproperties</a>, <a href="matlab:doc('dscatalogue')">dscatalogue</a>, <a href="matlab:doc('dscollection')">dscollection</a>, <a href="matlab:doc('dstoolbox')">dstoolbox</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% dstable
 % A dstable object is a collection of one or more datasets with one
 % or more common dimension vectors. A dstable can contain different variable
 % types, have row indexing of different types, and access multi-dimensional  
-% arrays with dimension indexing
+% arrays with dimension indexing.
 %
 %% Syntax
 %
@@ -289,6 +271,9 @@ newdst = getDStable(dst,<span class="string">'Name'</span>,<span class="string">
 % </html>
 
 %%
+% *LastModified* <br>
+% Date when variables or dimensions of the _dstable_ were created or last modified
+%%
 % *Source* <br>
 % Description of data source, model used, etc
 %%
@@ -330,7 +315,7 @@ newdst = getDStable(dst,<span class="string">'Name'</span>,<span class="string">
 % Variable Names, specified as a cell array of character vectors or 
 % a string array This property can be an empty cell array, which is the 
 % default.
-
+%
 % *VariableDescriptions* <br>
 % Variable descriptions, specified as a cell array of character vectors or 
 % a string array This property can be an empty cell array, which is the 
@@ -521,54 +506,117 @@ newdst = getDStable(dst,<span class="string">'Name'</span>,<span class="string">
 %   tsc = dst2tsc(dst,idxtime,idxvars)    %converts a dstable object to a tscollection object
 %   dst = tsc2dst(tsc,idxtime,idxvars)    %converts a tscollection to a dstable object
 %%
-% idxtime - index vector for the subselection of time <br>
-% idxvars - index vector for the subselection of variables, or the variable
+% * idxtime - index vector for the subselection of time, or the row names
+% as cell array of character vectors or datatime array
+% * idxvars - index vector for the subselection of variables, or the variable
 % names as a cell array of character vectors  
+%%
+% The call to dst2tsc can also use any of the syntax formats used by
+% getDSTable (see below).
 %%
 % When creating tscollection the DSproperties of the dstable are passed and
 % stored in tsc.TimeInfo.UserData. If a tscollection has DSproperties defined,
 % these are restored when a dstable object is created from a tscollection object.
 % 
+%%
+% The following functions can be used to get the attributes of a _dstable_
+% variable, such as a list of the variable, row and dimension name or description, or the
+% data range of a particular attribute
+%%
+% *getVarAttributes* find the name and description of a varaible and the
+% associated row/dimension attributes
+%
+%   [names,desc,idv] = getVarAttributes(dst,idv)
+%%
+% * idv -  index to variable, which can be character vector, string,
+% numerical or logical
+% * names - the names of the attributes assigned in the _ddstable_ in the
+% order variable, row, dimensions
+% * dessc - the descriptions of the attribures in the same order
+% * idv - numerical index of selected variable
+
+%%
+% *getVarAttRange* finds the range of the selected variable attribute
+%
+%   range = getVarAttRange(dst,list,selected)
+%%
+% * list - cell array of attribute descriptions to select from, or a
+% numeric index value of the variable
+% * selected - the character vector or string of the attibute to use
+% * range - the start and end or min/max values of the selected attribute
 
 %% dstable Indexing Methods
 % Data held in a dstable can be accessed by rows, variables and/or
 % dimensions.
 
 %%
-% Using the _table_, T = dst.DataTable, the syntax to extract rows 
-% and variables is the same as summarised in 
-% <matlab:doc('access-data-in-a-table') Access Data in a Table>.
+% *Using the _table_, T = dst.DataTable* <br>
+% The syntax to extract rows and variables from the table is the same as 
+% summarised in <matlab:doc('access-data-in-a-table') Access Data in a Table>.
 %
 % To access a subset of values using the dimension indices the syntax can
 % be any of the following:
 
 %%  
-%   extracted_data = T.DataTable{rows,vars}(dim1,dim2,...,dimN)
-%   extracted_data = T.var(dim1,dim2,...,dimN)
-%   extracted_data = T.(varindex)(dim1,dim2,...,dimN)
-%   extracted_data = T.var(rows)(dim1,dim2,...,dimN)
+%   T = dst.DataTable      %extract table to use any of the following:
+%   extracted_data = T{rows,vars}(:,idd1,idd2,..iddN)
+%   extracted_data = T.varname(rows,idd1,idd2,..iddN)
+%   extracted_data = T.(vars)(rows,idd1,idd2,..iddN)
 %%
-% where rows, vars, dim1,...dimN are indices specified as a colon, 
-% numeric indices, or logical expressions.  dim1 is the row dimension and
-% can either be set to : or a subselection of the array returned wnen rows are
-% included in the call.
+% where rows, vars, idd1,...iddN are indices for the Rows, Variables and 
+% Dimensions, respecitvely. <br>
 %%
-% Using a dstable there is also the option to use the dimension values 
+% * vars can be specified as a character vector, colon, numeric indices, 
+% or logical expression. varname is the variable name without quotation
+% marks. 
+% * idr and idd* can be colon, numeric indices, or logical expression. 
+% * The number of dimensions indices included must match the number of
+% dimensions of the table variable (excluding the row dimension).
+%%
+% The Dimension indices can also be input using idd = {idd1,idd2,...iddN)
+% as follows:
+
+%%
+%   extracted_data = T.varname(rows,idd{:}) 
+
+%%
+% *Using indices with a _dstable_* <br>
+% Using a _dstable_ the data can be retrieved based on Rows, Variables and 
+% Dimensions, using one of three functions depending on the type of output required.
+
+%%
+%   newdst = getDSTable(dst,__);      %returns a dstable with the selected data and updated metadata      
+%   newtable = getDataTable(dst,__);  %returns a table with the selected data  
+%   newdataset = getData(dst,__);     %returns a cell array of the selected data
+
+%%
+%  When using indices the syntax requires indices for rows, variables and
+%  dimensions in that order. Use [] or ':' to select the full range of
+%  values(colon is specified in quote marks).
+%%
+%   newdst = getDSTable(dst,idr,idv)                    %selects variables defined by idr and idv
+%   newdst = getDSTable(dst,idr,idv,idd1,idd2,..iddN);  %where the variables have N dimensions
+%   newdst = getDSTable(dst,idr,idv,idd)                %where idd = {idd1,idd2,..iddN}
+
+%%
+% The same syntax can be used with getDataTable and getTable
+%%
+% *Using dimension values with a _dstable_* <br>
+% Using a _dstable_ there is also the option to use the dimension values 
 % (including rows) to access data in the table. The syntax is as follows:
 
 %%
-%   newT = getData(dst,'Name','Value'); 
-%   newdst = getDStable(dst,'Name','Value')
+%   newdst = getDSTable(dst,'Name','Value')
+%   newtable = getDataTable(dst,'Name','Value'); 
+%   newdataset = getData(dst,'Name','Value');
 %%
 % where the 'Name', 'Value' pairs can be any of the following combinations:
 %%
-% 'VariableNames', varnames - where varnames is a subset of the variable names to be used, 
-% specified as a cell array of character vectors, or a string array.  
-%%
-% 'RowNames', rowames - where rownames is a subset of the rows to be used, specified in the
+% * 'RowNames', rownames - where rownames is a subset of the rows to be used, specified in the
 % format used for RowNames
-%%
-% 'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be
+% * 'VariableNames', varnames - where varnames is a subset of the variable names to be used, 
+% specified as a cell array of character vectors, or a string array.  
+% * 'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be
 % used, specified in the format used for the dimension.
 
 %% See Also

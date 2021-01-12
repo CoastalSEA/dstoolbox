@@ -323,9 +323,9 @@ function test_dstable(testnum,option)
             idv = 1:length(dimv);
             
             %extract data using index syntax
-            newdst = getDSTable(t1,idr(2:3),':',{idd1,idd2(3:4)});
-            datatable = getDataTable(t1,idr(2:3),idv(2),{[],idd2(3:4)});
-            vars = getData(t1,idr(1:5),[],idd);
+            newdst = getDSTable(t1,idr(2:3),':',{idd1,idd2(3:4)});       %returns a dstable
+            datatable = getDataTable(t1,idr(2:3),idv(2),{[],idd2(3:4)}); %returns a table
+            vars = getData(t1,idr(1:5),[],idd);                          %returns a cell array of variable arrays
             
             %extract data using dimension values syntax
             newDST = getDSTable(t1,'RowNames',dimr(2:3),...

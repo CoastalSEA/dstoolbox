@@ -233,37 +233,59 @@ classdef dsproperties < matlab.mixin.Copyable
             end
         end
 %%
+% CODE SUPERSEDED BY DEVELOPMENT OF tabtablefigure
+%         function displayDSproperties(obj)
+%             %display the current definitions as a table
+%             h_fig = figure('Name','DSproperties','Tag','TableFig',...
+%                        'NextPlot','add','MenuBar','none',...
+%                        'Visible','off');
+%             h_tab = uitabgroup(h_fig,'Tag','GuiTabs');  
+%             h_tab.Position = [0 0 1 0.96];
+%             
+%             ht(1) = uitab(h_tab,'Title',' Variables ','Tag','Variables');
+%             ht(2) = uitab(h_tab,'Title','  Row  ','Tag','Row');
+%             ht(3) = uitab(h_tab,'Title',' Dimensions ','Tag','Dimensions');
+%             %
+%             subvars = {'Variables','Row','Dimensions'};
+%             tablepos = zeros(3,4);
+%             for i=1:3
+%                 substruct = obj.(subvars{i});
+%                 atable = struct2table(substruct,'AsArray',true);
+%                 promptxt = sprintf('Current definition of DSproperties for %s',obj.DSPdescription);
+%                 h_tab.SelectedTab = ht(i);
+%                 tablefigure(h_fig,promptxt,atable);
+%                 apos = findobj(ht(i),'Tag','TableFig_panel');
+%                 tablepos(i,:) = apos.Position;
+%             end
+%             h_tab.SelectedTab = ht(1);
+%             rowheight = tablepos(2,4);
+%             width = max(tablepos(:,3))+rowheight/2;
+%             height = max(tablepos(:,4))+3*rowheight; %this needs refining based on max rowlength
+%             h_fig.Position(3) = width;
+%             h_fig.Position(4) = height;            
+%             h_fig.Visible = 'on';
+%         end   
+%%
         function displayDSproperties(obj)
-            %display the current definitions as a table
-            h_fig = figure('Name','DSproperties','Tag','TableFig',...
-                       'NextPlot','add','MenuBar','none',...
-                       'Visible','off');
-            h_tab = uitabgroup(h_fig,'Tag','GuiTabs');  
-            h_tab.Position = [0 0 1 0.96];
+            tabnames = {'Variables','Row','Dimensions'};
+            tabtxt = sprintf('Current definition of DSproperties for %s',obj.DSPdescription);
             
-            ht(1) = uitab(h_tab,'Title',' Variables ','Tag','Variables');
-            ht(2) = uitab(h_tab,'Title','  Row  ','Tag','Row');
-            ht(3) = uitab(h_tab,'Title',' Dimensions ','Tag','Dimensions');
-            %
-            subvars = {'Variables','Row','Dimensions'};
-            tablepos = zeros(3,4);
-            for i=1:3
-                substruct = obj.(subvars{i});
-                atable = struct2table(substruct,'AsArray',true);
-                promptxt = sprintf('Current definition of DSproperties for %s',obj.DSPdescription);
-                h_tab.SelectedTab = ht(i);
-                tablefigure(h_fig,promptxt,atable);
-                apos = findobj(ht(i),'Tag','TableFig_panel');
-                tablepos(i,:) = apos.Position;
-            end
-            h_tab.SelectedTab = ht(1);
-            rowheight = tablepos(2,4);
-            width = max(tablepos(:,3))+rowheight/2;
-            height = max(tablepos(:,4))+3*rowheight; %this needs refining based on max rowlength
-            h_fig.Position(3) = width;
-            h_fig.Position(4) = height;            
+            %generate tables to be displayed
+            ntables = length(tabnames);
+            tables = cell(ntables,1);
+            tabtxts = cell(ntables,1);
+            for i=1:ntables
+                substruct = obj.(tabnames{i});
+                tables{i,1} = struct2table(substruct,'AsArray',true);
+                %output summary to tablefigure
+                tabtxts{i,1} = tabtxt;
+            end            
+            
+            h_fig = tabtablefigure('DSproperties',tabnames,tabtxts,tables);
+            %adjust position on screen            
+            h_fig.Position(1)=  h_fig.Position(3)*3/2; 
             h_fig.Visible = 'on';
-        end       
+        end
     end
 %% ------------------------------------------------------------------------
 % Methods to generate blank struct, set the inputs for any property, 

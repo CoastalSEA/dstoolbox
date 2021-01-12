@@ -362,6 +362,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %
         function labels = get.VariableLabels(obj)
             labels = obj.DataTable.Properties.CustomProperties.VariableLabels;
+%             if isempty(labels)
+%                 labels =getLabels(obj,'Variable');
+%             end
         end       
 %%
         function set.VariableQCflags(obj,qcflag)
@@ -396,6 +399,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %
         function label = get.RowLabel(obj)
             label = obj.DataTable.Properties.CustomProperties.RowLabel;
+%             if isempty(label)
+%                 label =getLabels(obj,'Row');
+%             end
         end   
  %%
         function set.RowFormat(obj,format)
@@ -519,6 +525,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %
         function labels = get.DimensionLabels(obj)
             labels = obj.DataTable.Properties.CustomProperties.DimensionLabels;
+%             if isempty(labels)
+%                 labels =getLabels(obj,'Dimension');
+%             end
         end        
 %%
         function set.DimensionFormats(obj,formats)
@@ -624,7 +633,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             if ~isnumeric(idv)
                 idv = strcmp(obj.VariableNames,idv);
             end
+            %return names (including RowNames) so that property can be
+            %called using obj.(names{i})
             names = [obj.VariableNames(idv),{'RowNames'},obj.DimensionNames(:)'];
+            %return desctiptions for use in UIs etc
             desc = [obj.VariableDescriptions(idv),{obj.RowDescription},...
                                         obj.DimensionDescriptions(:)'];
         end
@@ -856,6 +868,28 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %{variables,row,dimensions}
             fields = horzcat(obj.VariableNames,obj.TableRowName,...
                                                     obj.DimensionNames);
+        end
+%%
+        function labels = getLabels(obj,fieldname)
+            %try to construct a label from desctiption and unit fields
+            f1 = sprintf('%sLabel',fieldname);
+            f2 = sprintf('%sDescription',fieldname);
+            f3 = sprintf('%sUnit',fieldname);
+            if ~strcmp(fieldname,'Row')
+                f1 = [f1,'s']; f2 = [f2,'s']; f3 = [f3,'s'];
+            end
+            
+            labels = obj.(f1);  
+            desc = obj.(f2);
+            unit = obj.(f3);
+            if ~iscell(labels), labels = {labels}; end
+            if ~iscell(desc), desc = {desc}; end
+            if ~iscell(unit), unit = {unit}; end
+            for i=1:length(labels)                
+                if isempty(labels{i})                    
+                    labels{i} = sprintf('%s %s',desc{i},unit{i});
+                end
+            end
         end
     end 
 %% ------------------------------------------------------------------------
