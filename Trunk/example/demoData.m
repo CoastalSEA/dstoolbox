@@ -79,11 +79,11 @@ classdef demoData < handle
     methods (Access = private)
         function [data,header,filename] = readInputData(~)
             %read wind data (read format is file specific).
-            [fname,path,~] = getFiles('FileType','*.txt');
+            [fname,path,~] = getfiles('FileType','*.txt');
             filename = [path fname];
             dataSpec = '%d %d %s %s %s %s'; 
             nhead = 1;     %number of header lines
-            [header,data] = readInputFile(filename,nhead,dataSpec);
+            [header,data] = readinputfile(filename,nhead,dataSpec);
         end     
 %%        
         function [varData,myDatetime] = getData(~,data,dsp)

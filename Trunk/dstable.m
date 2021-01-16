@@ -133,7 +133,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 obj.DataTable = table('Size',varargin{3},'VariableTypes',varargin{4});
                 startprops = 5;
             elseif ~isempty(idr) || ~isempty(idv) || ~isempty(idd) || ~isempty(idp)
-                %either RowNames, VariableNames, DimensionNamed or 
+                %either RowNames, VariableNames, DimensionNames or 
                 %DSproperties have been defined
                 startprops = min([idr,idv,idd,idp]);
                 %check that at least one variable has been included
@@ -247,7 +247,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             if isempty(obj.DataTable)
                 warndlg('Add variables to table before adding RowNames');
                 return;
-            elseif ~isunique(obj,inrows)
+            elseif ~isunique(inrows)
                 warndlg('Values used for RowNames must be unique');
                 return;
             end
@@ -266,7 +266,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 end
             end
             
-            %assign DimsnionNames{1} as one of the following based on type
+            %assign Row DimensionNames{1} as one of following based on type
             %  'Time','Names','Order','Category','Identifier','Rows','None'            
             if isdatetime(inrows) || isduration(inrows)
                 dimname = 'Time';
@@ -426,12 +426,12 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %
             if isstruct(vals)
                 %vals uses struct indexing so more than one dimension              
-                fname = fieldnames(vals);  %fields usedin vals struct
+                fname = fieldnames(vals);  %fields used in vals struct
                 dimnum = length(fname);    %number of fields == dimensions
                 for i=1:dimnum
                     %vals is a struct with data in the defined input format. 
                     oneval = vals.(fname{i});
-                    if ~isunique(obj,oneval)                        
+                    if ~isunique(oneval)                        
                         msg1 = 'Values for Dimension';
                         msg2 = 'were not set';
                         msg3 = 'Dimension values must be unique';
@@ -448,7 +448,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                             dimrange.(fname{i}) = drange;
                             dimtype.(fname{i}) = dtype;
                             dimformat.(fname{i}) = dformat;
-                            
+                            dimnames.(fname{i}) = fname{i};
                         end
                     end 
                 end
@@ -459,7 +459,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     clearDimension(obj,dimnum)
                 else
                     [dimvals,dimrange,dimtype,dimformat] = ...
-                                        setDimensionType(obj,vals,dimnum); 
+                                        setDimensionType(obj,vals,dimnum);
+                    dimnames = {'Dim1'};               
                 end
             end
 
@@ -468,6 +469,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DimensionRange = dimrange; 
             obj.DimType = dimtype;
             obj.DimensionFormats = struct2cell(dimformat)';
+            obj.DimensionNames = struct2cell(dimnames)';
             addDimensionPropFields(obj);
             obj.LastModified = datetime('now');
         end              
@@ -636,9 +638,13 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %return names (including RowNames) so that property can be
             %called using obj.(names{i})
             names = [obj.VariableNames(idv),{'RowNames'},obj.DimensionNames(:)'];
-            %return desctiptions for use in UIs etc
+            %return descriptions for use in UIs etc
             desc = [obj.VariableDescriptions(idv),{obj.RowDescription},...
                                         obj.DimensionDescriptions(:)'];
+            %always at least one variable and row but may not be dimensions
+            if isempty(names{3})
+                names = names(1:2); desc = desc(1:2);
+            end
         end
 %%
         function range = getVarAttRange(obj,list,selected)
@@ -806,16 +812,44 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %--------------------------------------------------------------------------
         function set.DSproperties(obj,dsprops)
             %assign the data in dsprops to the dstable properties
-            if isa(dsprops,'dsproperties')            
-                %check that number of variables matches table
-                isvalid = width(obj.DataTable)==length(dsprops.Variables);
-            elseif isa(dsprops,'struct')
+            errtxt = 'Error in DSproperties. Unable to assign dsproperties';
+            if isa(dsprops,'struct')
                 dsprops = dsproperties(dsprops,nullDescription(obj));
-                %check that number of variables matches table
-                isvalid = width(obj.DataTable)==length(dsprops.Variables);
-            else
+                if ~isempty(dsprops.errmsg)
+                    warndlg(sprintf('%s\n%s',errtxt,dsprops.errmsg))
+                    return;
+                end
+            elseif ~isa(dsprops,'dsproperties')
                 warndlg('Unrecognised input format')
                 return;
+            end
+            %check that number of variables matches table
+            isvalid = width(obj.DataTable)==length(dsprops.Variables);
+            
+            %check that the first variable has dimensions that match the
+            %dimension properties and if not warn user
+            [~,cdim,~] = getvariabledimensions(obj,1);
+            dspdim = length({dsprops.Dimensions(:).Name});
+            if dspdim==1 && isempty(dsprops.Dimensions.Name)
+                %the Dimensions struct is empty
+            elseif cdim~=dspdim
+                txt1 = sprintf('The first variable has %d dimensions and %d property dimensions are defined',cdim,dspdim);
+                txt2 = 'Select option:';
+                qtext = sprintf('%s\n%s',txt1,txt2);
+                answer = questdlg(qtext,'Dimensions',...
+                    'Include all','Set to Variable size','Abort','Set to Variable size');
+                switch answer
+                    case 'Set to Variable size'
+                        if cdim<dspdim
+                            dsprops.Dimensions = dsprops.Dimensions(1:cdim);
+                        else
+                            txt2 = 'Not enough Dimension names defined';
+                            warndlg(sprintf('%s\n%s',errtxt,txt2))
+                            return;
+                        end
+                    case 'Abort'
+                        return;
+                end
             end
             %
             if isvalid
@@ -989,7 +1023,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             [dvals,dtype] = var2str(indims);
             
             if isdatetime(indims) || isduration(indims)
-                if length(obj.DimensionFormats)>1
+                if length(obj.DimensionFormats)>1                 
                     obj.DimensionFormats{1,idx} = indims.Format;
                     dformat = obj.DimensionFormats;
                 else
@@ -1078,7 +1112,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %Note numeric values for row or dimensions can only be input using the
             %full syntax of Name,Value, other formats are assumed to be indices
             idr = []; idv = []; idd = {};
-            [~,cdim,vsze] = getVariableDimensions(obj,1);
+            [~,cdim,vsze] = getvariabledimensions(obj,1);
             if ischar(varargin{1})  %unpack Name,Value input
                 inputvargs = getDimensionInput(obj,cdim,varargin{:});
             else                     %unpack array of 1,2, or 3 index vectors
@@ -1290,15 +1324,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             rownames1 = table1.Properties.RowNames;
             rownames2 = table2.Properties.RowNames;
             chx.isrow = ismember(rownames1,rownames2);
-        end
-%%
-        function answer = isunique(~,usevals)
-            %check that all values in usevals are unique
-            if isdatetime(usevals) || isduration(usevals)
-                usevals = cellstr(usevals);
-            end
-            [~,idx,idy] = unique(usevals,'stable');
-            answer = numel(idx)==numel(idy);
         end
     end
 end

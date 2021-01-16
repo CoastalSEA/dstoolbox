@@ -45,6 +45,10 @@ classdef dsproperties < matlab.mixin.Copyable
         % Unit  - units for the defined co-ordinates
         % Label - axis labels for use with XYZ data  
         % Format - data format to use when saving the dimension
+        errmsg        %holds an error message
+                      %1) if struct supplied is invalid
+                      %2) if variable or dimension names & descriptions are
+                      %   not unique
     end
     
     properties (Hidden, Access=private)
@@ -87,10 +91,9 @@ classdef dsproperties < matlab.mixin.Copyable
             %
             if isstruct(varprops)  
                 isvalid = checkPropertyStruct(obj,'Variables',varprops);
-                if isvalid
+                isoknames = checkPropertyNames(obj,'Variables',varprops);
+                if isvalid && isoknames
                     obj.Variables = varprops;
-                else
-                    warndlg('Invlaid Variables struct. Properties not loaded')
                 end
             elseif isempty(varprops)  %request to clear all properties
                 idrec = 1:length(obj.Variables);
@@ -133,7 +136,7 @@ classdef dsproperties < matlab.mixin.Copyable
                 if isvalid
                     obj.Row = rowprops;
                 else
-                    warndlg('Invlaid Row struct. Properties not loaded')                    
+                    warndlg('Invalid Row struct. Properties not loaded')                    
                 end 
             elseif isempty(rowprops)  %request to clear all properties
                 clearDSproperty(obj,'Row',obj.Row.Name);
@@ -143,15 +146,14 @@ classdef dsproperties < matlab.mixin.Copyable
             end
         end             
 %--------------------------------------------------------------------------
-%% Dimenions
+%% Dimensions
 %--------------------------------------------------------------------------
         function set.Dimensions(obj,dimprops)
             if isstruct(dimprops) 
                 isvalid = checkPropertyStruct(obj,'Dimensions',dimprops);
-                if isvalid
+                isoknames = checkPropertyNames(obj,'Dimensions',dimprops);
+                if isvalid && isoknames
                     obj.Dimensions = dimprops;
-                else
-                    warndlg('Invlaid Dimensions struct. Properties not loaded')
                 end
             elseif isempty(dimprops)  %request to clear all properties
                 idrec = 1:length(obj.Dimensions);
@@ -393,13 +395,30 @@ classdef dsproperties < matlab.mixin.Copyable
 %%
         function isvalid = checkPropertyStruct(obj,propname,varprops)
             %check that property structure is valid
-            objfnames = obj.dsPropFields.(propname)';
-            inpfnames = fieldnames(varprops);
+            objfnames = obj.dsPropFields.(propname)'; %required struct fieldnames
+            inpfnames = fieldnames(varprops);         %input struct fieldnames
             if length(objfnames)==length(inpfnames)
                 isvalid = all(strcmp(objfnames,inpfnames));  
             else
                 isvalid = false;
+                errtxt = sprintf('Invalid %s in struct in dsproperties',propname);
+                obj.errmsg = errtxt;
             end                  
+        end
+%%
+        function isnd = checkPropertyNames(obj,propname,varprops)
+            %check that property names and descriptions are unique
+            isnd = true;
+            varnames = {varprops(:).Name};
+            if ~isempty(varnames) && length(varnames)>1
+                isnames = isunique(varnames);
+                isdesc = isunique({varprops(:).Description});
+                isnd = isnames & isdesc;
+                if ~isnd
+                    errtxt = sprintf('%s names are not unique in dsproperties',propname);
+                    obj.errmsg = errtxt;
+                end
+            end
         end
 %%
         function dsp_desc = setDSPdescription(~,defaultxt)
@@ -410,7 +429,7 @@ classdef dsproperties < matlab.mixin.Copyable
                 defaultxt = {defaultxt};
             end
             Prompt = {'DSproperty description'};
-            Title = 'DSpropertyt';
+            Title = 'DSproperty';
             NumLines = 1;
             %use updated properties to call inpudlg and return new values
             answer=inputdlg(Prompt,Title,NumLines,defaultxt);
@@ -430,7 +449,7 @@ classdef dsproperties < matlab.mixin.Copyable
             % selection - logical or numeric vector of selected elements
             % msg - cell array of Name fields of the selected elements
             selection = []; msg = [];
-            errmsg = sprintf('Could not find selected names in %s',propname);
+            errtxt = sprintf('Could not find selected names in %s',propname);
             
             P = obj.(propname); 
             varnames = arrayfun(@(x) x.Name,P,'UniformOutput',false);
@@ -438,12 +457,12 @@ classdef dsproperties < matlab.mixin.Copyable
                 return;
             elseif ischar(invar) || iscell(invar) || isstring(invar)
                 if isempty(varnames{1})
-                    warndlg(errmsg)                    
+                    warndlg(errtxt)                    
                     return;
                 end
                 selection = ismember(varnames,invar); %true if A found in B
                 if ~any(selection)                    
-                    warndlg(errmsg)
+                    warndlg(errtxt)
                 end
             else
                 selection = invar;  %input is numeric or logical
@@ -465,7 +484,7 @@ classdef dsproperties < matlab.mixin.Copyable
             end
             %
             if ~isempty(msg)
-                getDialog(sprintf('Successfully removed %s\n',string(msg)))
+                getdialog(sprintf('Successfully removed %s\n',string(msg)))
             end
         end
 %%
