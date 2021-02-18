@@ -296,9 +296,13 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         function outrows = get.RowNames(obj)
             %get RowNames and return values in original format
             outdata = obj.DataTable.Properties.RowNames;
-            type = obj.RowType;
-            format = obj.RowFormat;
-            outrows = str2var(outdata,type,format,true);
+            if isempty(outdata)
+                outrows = [];
+            else
+                type = obj.RowType;
+                format = obj.RowFormat;
+                outrows = str2var(outdata,type,format,true);
+            end
         end
 %%        
         function set.Description(obj,desc)
@@ -639,17 +643,23 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %called using obj.(names{i})
             names = [obj.VariableNames(idv),{'RowNames'},obj.DimensionNames(:)'];
             %return descriptions for use in UIs etc
-            desc = [obj.VariableDescriptions(idv),{obj.RowDescription},...
+%             desc = [obj.VariableDescriptions(idv),{obj.RowDescription},...
+%                                         obj.DimensionDescriptions(:)'];
+            desc = [obj.VariableDescriptions(idv),obj.RowDescription,...
                                         obj.DimensionDescriptions(:)'];
-            %always at least one variable and row but may not be dimensions
-            if isempty(names{3})
+            %should always be at least one variable and rows, or one dimension
+            %remove unused "dimensions"  
+            nrow = height(obj.DataTable);
+            if nrow==1                                 %single row
+                names = names([1,3]); desc = desc([1,3]);
+            elseif isempty(names{3})                   %no dimensions
                 names = names(1:2); desc = desc(1:2);
             end
         end
 %%
         function range = getVarAttRange(obj,list,selected)
             %return the range of the selected variable attribute
-            % list - list of attributes or variable index
+            % list - list of attributes or variable index (idvar)
             % selected - attibute to be used
             % range - min/max or start/end values for selected attribute
             if isnumeric(list)
@@ -662,9 +672,21 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     varname = obj.VariableNames{idvar};
                     range = obj.VariableRange.(varname);
                 case list{2}
-                    range = obj.RowRange;
+                    if height(obj.DataTable)>1
+                        range = obj.RowRange;
+                    else
+                        dimname = obj.DimensionNames{1};
+                        range = obj.DimensionRange.(dimname);
+                    end
                 otherwise
-                    idd = strcmp(list(3:end),selected);
+                    %ensure offset is correct
+                    if height(obj.DataTable)>1, nr=3; else, nr=2; end 
+                    idd = strcmp(list(nr:end),selected);
+%                     if height(obj.DataTable)>1   
+%                         idd = strcmp(list(3:end),selected);
+%                     else  
+%                         idd = strcmp(list(2:end),selected);
+%                     end
                     dimname = obj.DimensionNames{idd};
                     range = obj.DimensionRange.(dimname);
             end            
