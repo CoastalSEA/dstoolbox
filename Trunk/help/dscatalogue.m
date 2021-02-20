@@ -32,31 +32,31 @@
 %%
 % *addRecord* - add a case definition to the catalogue
 %%
-%   recnum = addCase(dsc,caseclass,casetype,casename); %casename is optional
+%   recnum = addRecord(dsc,caseclass,casetype,casedesc); %casedesc is optional
+
+%%
+% *getRecord* - return case for the caserec record 
+%%
+%   casedef = getRecord(dsc,caserec);    %casedef is a table of the selected record
+
 
 %%
 % *removeRecord* - select one or more records and delete records from catalogue 
 %%
-%   caserec = removeCase(dsc,caserec); %returns list of deleted records (caserec)
-%                                      %uses list dialogue selection if caserec is not supplied
-%   dsc.Catalogue(caserec,:) = [];     %alternative for use without selection UI  
+%   caserec = removeRecord(dsc,caserec); %returns list of deleted records (caserec)
+%                                        %uses list dialogue selection if caserec is not supplied
+%   dsc.Catalogue(caserec,:) = [];       %alternative for use without selection UI  
   
 %%
-% *getRecord* - return case for the caserec record 
+% *editRecord* - edit case description of the caserec record
 %%
-%   casedef = getCase(dsc,caserec);     %casedef is a table of the selected record
-%                                       %uses list dialogue selection if caserec is not supplied
+%   [caserec,newdesc] = editRecord(dsc,caserec); %caserec is optional 
+%                                                %uses list dialogue selection if caserec is not supplied
 
 %%
-% *editDescription* - edit case description of the caserec record
+% *selectRecord* - list dialogue box of the cases in the catalogue
 %%
-%   [caserec,newdesc] = editDescription(dsc,caserec);   %caserec is optional 
-%                                       %uses list dialogue selection if caserec is not supplied
-
-%%
-% *selectCase* - list dialogue box of the cases in the catalogue
-%%
-%   [caserec,ok] = selectCase(dsc,Name,Value);
+%   [caserec,ok] = selectRecord(dsc,Name,Value);
 %%
 % Name, Value pairs are specified as comma-separated pairs and include the following options: <br>
 % 'CaseClass', {'class'} - cell array of classes to include in the list <br>
@@ -65,13 +65,21 @@
 % 'ListSize', [width,height] - defines the dimensions of the list dialogue <br>
 % 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'
 %%
-% _selectCase_ outputs: <br>
+% _selectRecord_ outputs: <br>
 % caserec - the record number of the selected case or cases <br> 
 % ok - The selection logical value indicates whether the user made a 
 % selection. If the user clicks OK, double-clicks a list item, or presses 
 % Return, then the ok return value is 1. If the user clicks Cancel, presses 
 % Esc, or clicks the close button (X) in the dialog box title bar, then the 
 % ok return value is 0.
+
+%%
+% *selectRecordOptions* - select which classes or types of data to use to select records
+%%
+%   selection = selectRecordOptions(dsc,optionlist,promptext);
+%%
+% optionlist - unique values in the dscatalogue CaseClass or CaseType
+% promptext - text used as a prompt 
 
 %%
 % *caseRec* - find caserec using caseid

@@ -32,17 +32,17 @@ classdef dscatalogue < handle
 %% ------------------------------------------------------------------------
 % functions to add, get and remove Cases
 %--------------------------------------------------------------------------
-        function recnum =addRecord(obj,caseclass,casetype,casename)
+        function recnum =addRecord(obj,caseclass,casetype,casedesc)
             %add a Case record to the catalogue   
             % caseclass - class of data set to be catalogued
             % casetype  - type of data set (e.g. keywords: model, data)
-            % casename  - description of case (optional)
+            % casedesc  - description of case (optional)
             if nargin<4
-                casename = {''};
+                casedesc = {''};
             end  
 
             SupressPrompts = false;
-            [recnum,caseid,casedesc] = newRecord(obj,SupressPrompts,casename);
+            [recnum,caseid,casedesc] = newRecord(obj,SupressPrompts,casedesc);
             newrec = {caseid,casedesc,caseclass,casetype};
             obj.Catalogue = [obj.Catalogue;newrec];            
         end
@@ -57,7 +57,7 @@ classdef dscatalogue < handle
         function caserec = removeRecord(obj,caserec)
             %select one or more Case records and delete records from catalogue 
             if nargin<2 || isempty(caserec)
-                [caserec,ok] = selectCase(obj,'PromptText','Select case to remove:',...
+                [caserec,ok] = selectRecord(obj,'PromptText','Select case to remove:',...
                               'ListSize',[250,200],'SelectionMode','multiple');
                 if ok<1, return; end 
             end
@@ -74,7 +74,6 @@ classdef dscatalogue < handle
             end
             %now allow user to edit existing description            
             cid = obj.Catalogue.CaseID(caserec);
-%             promptxt = sprintf('Edit record for case %d',cid);
             promptxt = {'Description:','Class:','Type:'};
             dlgtxt = sprintf('Edit Case %d',cid);
             intext = obj.Catalogue{caserec,2:end};
@@ -116,25 +115,30 @@ classdef dscatalogue < handle
             caseclass = obj.Catalogue.CaseClass;
             casetype = obj.Catalogue.CaseType;
             
-            if ~isempty(v.CaseClass)
+            if ~isempty(v.CaseClass)   %only use selected classes
                 idc = find(strcmp(v.CaseClass,caseclass));
             end
             %
-            if ~isempty(v.CaseType)
+            if ~isempty(v.CaseType)    %only use selected data types
                 idt = find(strcmp(v.CaseType,casetype));
             end
             
-            idx = union(idc,idt);
-            if ~isempty(idx)
+            idx = union(idc,idt);      
+            if ~isempty(idx)           %get the combined list of cases 
                 caselist = caselist(idx);
             end
-            if isempty(caselist), return; end
             
-            [subrecnum,ok] = listdlg('Name','Case List', ...
-                'ListSize',v.ListSize,...
-                'PromptString',v.PromptText, ...
-                'SelectionMode',v.SelectionMode, ...
-                'ListString',caselist);
+            if isempty(caselist)       %if more than one case prompt user
+                return;                %to make selection
+            elseif length(caselist)==1
+                subrecnum = 1; ok = 1;
+            else
+                [subrecnum,ok] = listdlg('Name','Case List', ...
+                                     'ListSize',v.ListSize,...
+                                     'PromptString',v.PromptText, ...
+                                     'SelectionMode',v.SelectionMode, ...
+                                     'ListString',caselist);
+            end
             
             if ~isempty(subrecnum) && ~isempty(idx)                
                 caserec = idx(subrecnum);
@@ -142,6 +146,30 @@ classdef dscatalogue < handle
                 caserec = subrecnum;
             end
        end
+%%
+        function selection = selectRecordOptions(~,oplist,promptxt)
+            %select classes or types of data to use to select records
+            % oplist - unique values in the dscatalogue CaseClass or CaseType
+            % promtxt - text to use to prompt user
+            if length(oplist)>1
+                %add All option and use button or list to get user to choose
+                oplist = [oplist,'All'];
+                if length(oplist)<4
+                    selection = questdlg(promptxt,'Record Selection',...
+                        oplist,'All');
+                else
+                    [sel,ok] = listdlg('ListString',oplist);
+                    if ok<1
+                        selection = 'All';
+                    else
+                        selection = oplist{sel};
+                    end
+                end
+            else
+                selection = 'All';
+            end
+            if strcmp(selection,'All'), selection = []; end
+        end
 %%
         function caserec = caseRec(obj,caseid)
             %find caserec given caseid

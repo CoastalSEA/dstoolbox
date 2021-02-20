@@ -65,7 +65,7 @@ function test_dscatalogue()
     fprintf('Edited Record %g: to read: %s\n',caserec,newdesc{1})
     
     %select from the TestClass subset
-    [caserec,~] = selectCase(dsCat,'PromptText','Select case:',...
+    [caserec,~] = selectRecord(dsCat,'PromptText','Select case:',...
                      'CaseClass','TestClass','ListSize',[250,200]);
     fprintf('Selected TestCLass record %g\n',caserec)
     
