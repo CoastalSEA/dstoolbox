@@ -32,7 +32,7 @@ classdef dscatalogue < handle
 %% ------------------------------------------------------------------------
 % functions to add, get and remove Cases
 %--------------------------------------------------------------------------
-        function recnum =addRecord(obj,caseclass,casetype,casedesc)
+        function recnum = addRecord(obj,caseclass,casetype,casedesc)
             %add a Case record to the catalogue   
             % caseclass - class of data set to be catalogued
             % casetype  - type of data set (e.g. keywords: model, data)
@@ -51,6 +51,11 @@ classdef dscatalogue < handle
             %find Case record using caserec
             %caserec - index in current Catalogue
             %returns a table with the definition for the selected record
+            if nargin<2 || isempty(caserec)
+                [caserec,ok] = selectRecord(obj,'PromptText','Select case to remove:',...
+                              'ListSize',[250,200],'SelectionMode','multiple');
+                if ok<1, return; end 
+            end
             casedef = obj.Catalogue(caserec,:);
         end    
 %%
@@ -153,12 +158,16 @@ classdef dscatalogue < handle
             % promtxt - text to use to prompt user
             if length(oplist)>1
                 %add All option and use button or list to get user to choose
-                oplist = [oplist,'All'];
+                oplist = [convertStringsToChars(oplist);'All'];
                 if length(oplist)<4
                     selection = questdlg(promptxt,'Record Selection',...
-                        oplist,'All');
+                        oplist{:},'All');
                 else
-                    [sel,ok] = listdlg('ListString',oplist);
+                    [sel,ok] = listdlg('Name','Record Selection', ...
+                                       'ListSize',[200,100],...
+                                       'PromptString',promptxt, ...
+                                       'SelectionMode','multiple', ...
+                                       'ListString',oplist);
                     if ok<1
                         selection = 'All';
                     else
@@ -218,7 +227,7 @@ classdef dscatalogue < handle
             else
                 casedesc = answer{1};
             end
-        end           
+        end   
 %%
         function noCases(~)
             warndlg('No cases available');

@@ -37,8 +37,8 @@
 %%
 % *getRecord* - return case for the caserec record 
 %%
-%   casedef = getRecord(dsc,caserec);    %casedef is a table of the selected record
-
+%   casedef = getRecord(dsc,caserec);    %casedef is a table of the selected record (caserec)
+%                                        %uses list dialogue selection if caserec is not supplied
 
 %%
 % *removeRecord* - select one or more records and delete records from catalogue 
@@ -80,6 +80,10 @@
 %%
 % optionlist - unique values in the dscatalogue CaseClass or CaseType
 % promptext - text used as a prompt 
+%%
+% _selectRecordOption_ can be used in conjunction with _selectRecord_ to
+% subselect from the list of records. This can be useful with large
+% datasets that contain several classes and/or data types.
 
 %%
 % *caseRec* - find caserec using caseid
