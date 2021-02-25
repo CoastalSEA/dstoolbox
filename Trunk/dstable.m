@@ -22,8 +22,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %     
     properties
         %Extend default table properties to include dimensions and
-        %additional metadata as defined by dsproperties class
-        
+        %additional metadata as defined by dsproperties class        
         DataTable    %table with properties assigned using Dependent properties
     end
     
@@ -40,8 +39,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %properties defined in tablename.Properties.PropertyName are
         %defined as Dependent to provide short syntax access for
         %dstables (e.g. dst.PropertyName)
-        %Standard matlab(c) table properties
         
+        %Standard matlab(c) table properties        
         Description          %summary description of dstable
         TableRowName         %labels row column
         RowNames             %distinct non-empty values to define each row
@@ -49,9 +48,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         VariableNames        %name of each variable (checked for variable compliance)
         VariableDescriptions %text to describe each variable
         VariableUnits        %units used for each variable          
-        CustomProperties     %object for table or variable metadata 
-        %Additional dstable properties
+        CustomProperties     %object for table or variable metadata
         
+        %Additional dstable properties        
         Dimensions %struct for each dimension included, with fieldnames 
                    % defined in DimensionNames
                    %use addCustomProperties to make Dimensions Table, or
@@ -63,28 +62,24 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %the axis with a common label. For example:
         %   variables: Vel1, Vel2, Vel2 all labelled 'Velocity (m/s)'
         
-        %Additional Variable metatdata
-        
+        %Additional Variable metatdata        
         VariableLabels        %labels for generic outputs
         VariableQCflags       %flag to indicate any quality control of data 
         
-        %Additional Row metadata
-        
+        %Additional Row metadata        
         RowDescription        %text to describe row usage
         RowUnit               %unit used for row data (if used)
         RowLabel              %label for generic outputs
         RowFormat             %datetime or duration format (if used)         
         
-        %Dimensions propety metatdata
-        
+        %Dimensions propety metatdata        
         DimensionNames        %name of each dimenions (distinct from property in table)      
         DimensionDescriptions %text to describe each dimension
         DimensionUnits        %units used for each dimension
         DimensionLabels       %labels for generic outputs
         DimensionFormats      %datetime or duration format (if used) 
                              
-        %Additional metadata
-        
+        %Additional metadata        
         LastModified          %date table created or modified
         Source                %source of dst - model name or input file name
         MetaData              %detailed description of dstable (eg how derived)
@@ -98,11 +93,14 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %% CONTENTS
 %   constructor methods
 %   dstable property Set and Get methods
-%   dstable functions getDStable, getDataTable, addvars, removevars,  
-%       movevars, horzcat, vertcat, plot
-%       get and set DSproperties, setDimensions2Table, setDimensions2Variable
-%       dst2tsc
-    
+%   dstable functions:
+%       getDStable, getDataTable, getData, 
+%       getVarAttributes, getVarAttRange, selectAttribute, updateRange
+%       addvars, removevars,    
+%       movevars, horzcat, vertcat, sortrows, mergerows, plot
+%       setDimensions2Table, setDimensions2Variable, rmprop
+%       get and set DSproperties, dst2tsc, allfieldnames
+
     methods
         function obj = dstable(varargin)  
             %constructor for the dstable class
@@ -189,7 +187,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 
             % create dynamic property
             p = addprop(obj, prop);   %p is a meta.DynamicProperty object 
-            %p.Transient = true;
+            p.Transient = true;       %ensures dynamic properties update
 
             % set initial value if present
             obj.(prop) = init_val;
@@ -270,10 +268,12 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %  'Time','Names','Order','Category','Identifier','Rows','None'            
             if isdatetime(inrows) || isduration(inrows)
                 dimname = 'Time';
-            elseif isordinal(inrows)
-                dimname = 'Order';
             elseif iscategorical(inrows)
-                dimname = 'Category';
+                if isordinal(inrows)
+                    dimname = 'Order';
+                else
+                    dimname = 'Category';
+                end
             elseif strcmp(rtype,'unknown')
                 dimname = 'Rows';
             elseif ~isempty(rowstr)
@@ -366,9 +366,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %
         function labels = get.VariableLabels(obj)
             labels = obj.DataTable.Properties.CustomProperties.VariableLabels;
-%             if isempty(labels)
-%                 labels =getLabels(obj,'Variable');
-%             end
         end       
 %%
         function set.VariableQCflags(obj,qcflag)
@@ -403,9 +400,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %
         function label = get.RowLabel(obj)
             label = obj.DataTable.Properties.CustomProperties.RowLabel;
-%             if isempty(label)
-%                 label =getLabels(obj,'Row');
-%             end
         end   
  %%
         function set.RowFormat(obj,format)
@@ -531,9 +525,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
         %
         function labels = get.DimensionLabels(obj)
             labels = obj.DataTable.Properties.CustomProperties.DimensionLabels;
-%             if isempty(labels)
-%                 labels =getLabels(obj,'Dimension');
-%             end
         end        
 %%
         function set.DimensionFormats(obj,formats)
@@ -596,6 +587,11 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             [idr,idv,idd] = getInputIndices(obj,varargin{:});
             datatable = getDataUsingIndices(obj,idv,idr,idd);
             newdst.DataTable = datatable;  
+            %if height of table has changed update Row range
+            if height(datatable)~=height(obj.DataTable)
+                inrows = newdst.RowNames;
+                newdst.RowRange = {inrows(1),inrows(end)};                 
+            end
             %if varargin includes 'Dimensions' amend arrays
             if ischar(varargin{1})                
                 %dimension values defined by input vector
@@ -617,6 +613,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     newdst.Dimensions.(dimnames{i}) = oldims(idd{i});
                 end
             end
+            newdst.LastModified = datetime('now');
         end
 %%
         function datatable = getDataTable(obj,varargin)
@@ -632,10 +629,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             [~,dataset] = getDataUsingIndices(obj,idv,idr,idd);
         end
 %%
-        function [names,desc,idv] = getVarAttributes(obj,idv)
-            %find the names and descriptions of a selected variable and
+        function [names,desc,label,idv] = getVarAttributes(obj,idv)
+            %find the names, descriptions  and labels of a selected variable 
             %its row and dimensions. Also returns idv as numeric index value
-            % idv - numeric index or a variable name
+            % idv - numeric index, or a variable name
             if ~isnumeric(idv)
                 idv = strcmp(obj.VariableNames,idv);
             end
@@ -647,13 +644,16 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %                                         obj.DimensionDescriptions(:)'];
             desc = [obj.VariableDescriptions(idv),obj.RowDescription,...
                                         obj.DimensionDescriptions(:)'];
+            varlabels = getLabels(obj,'Variable');
+            label = [varlabels(idv),getLabels(obj,'Row'),...
+                                            getLabels(obj,'Dimension')];                                              
             %should always be at least one variable and rows, or one dimension
             %remove unused "dimensions"  
             nrow = height(obj.DataTable);
             if nrow==1                                 %single row
-                names = names([1,3]); desc = desc([1,3]);
+                names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
             elseif isempty(names{3})                   %no dimensions
-                names = names(1:2); desc = desc(1:2);
+                names = names(1:2);  desc = desc(1:2);  label = label(1:2);
             end
         end
 %%
@@ -663,7 +663,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             % selected - attibute to be used
             % range - min/max or start/end values for selected attribute
             if isnumeric(list)
-                [~,list] = getVarAttributes(obj,list); %where list==idvar
+                %if idvar is used in call (as list value) then use this
+                %variable id to get the attribute descriptions
+                [~,list] = getVarAttributes(obj,list);
             end
             %
             switch selected
@@ -682,16 +684,68 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     %ensure offset is correct
                     if height(obj.DataTable)>1, nr=3; else, nr=2; end 
                     idd = strcmp(list(nr:end),selected);
-%                     if height(obj.DataTable)>1   
-%                         idd = strcmp(list(3:end),selected);
-%                     else  
-%                         idd = strcmp(list(2:end),selected);
-%                     end
                     dimname = obj.DimensionNames{idd};
                     range = obj.DimensionRange.(dimname);
             end            
         end
-        
+%%
+        function [atname,atidx] = selectAttribute(obj,option)
+            %propmpt user to select a dstable variable, or dimension
+            % option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'
+            atidx = [];
+            switch option             %get selection list for chosen option
+                case {1,'Variable'}
+                    selist = obj.VariableNames;
+                case {2,'Row'}
+                    atname = obj.TableRowName;
+                    atidx = 1;
+                    return;
+                case {3,'Dimension'}
+                    selist = obj.DimensionNames;
+            end
+            %
+            if ~isempty(selist) && length(selist)>1
+                [atidx,ok] = listdlg('Name','Variables', ...
+                            'PromptString','Select a variable:', ...
+                            'ListSize',[200,100],...
+                            'SelectionMode','single', ...
+                            'ListString',selist);
+                if ok<1              %user cancelled no selection
+                    atname = [];
+                else                 %user selection from selist
+                    atname = selist{atidx};
+                end
+            elseif ~isempty(selist)  %only one attribute in list
+                atname = selist{1};
+                atidx = 1;
+            end                     
+        end
+%%
+        function updateRange(obj,selected,idv)
+            %update the range of the selected attribute 
+            % selected - attibute to be used
+            % idv - numeric index, or a variable/dimension name
+            switch selected
+                case {1,'Variable'}
+                    var = obj.DataTable(:,idv);
+                    obj.VariableRange = {min(var,'all'),max(var,'all')};
+                case {2,'Row'}
+                    rn = obj.RowNames;
+                    obj.RowRange = {rn(1),rn(end)};
+                case {3,'Dimension'}
+                    if isnumeric(idv)
+                        idv = obj.DimensionNames{idv};
+                    end
+                    dim = obj.Dimensions.(idv);       
+                    imin = 1; imax = length(dim);   %checks consistent with assignment
+                    if isnumeric(dim)              %used in setDimensionType
+                        [~,imin] = min(dim);
+                        [~,imax] = max(dim);
+                    end
+                    obj.DimensionRange = {dim(imin),dim(imax)};
+            end
+            obj.LastModified = datetime('now');
+        end
 %% ------------------------------------------------------------------------   
 % Manipulate Variables - add, remove, move, variable range, horzcat,
 % vertcat, sortrows, plot
@@ -766,11 +820,15 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             newdst = copy(obj1);  %new instance of dstable retaining existing properties
             newdst.DataTable = vertcat(table1,table2);    
             %sort rows to be in ascending order 
-            newdst = sortrows(newdst);
-            %add range limits
-            firstrec = newdst.DataTable.Properties.RowNames{1};
-            lastrec = newdst.DataTable.Properties.RowNames{end};
-            newdst.RowRange = {firstrec,lastrec};   
+            if ~isempty(newdst.RowNames)
+                newdst = sortrows(newdst);
+                %add range limits
+                firstrec = newdst.DataTable.Properties.RowNames{1};
+                lastrec = newdst.DataTable.Properties.RowNames{end};
+                newdst.RowRange = {firstrec,lastrec}; 
+            elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1
+                newdst.RowNames = (1:height(newdst.DataTable))';
+            end
         end
 %%
         function obj = sortrows(obj)
@@ -789,6 +847,57 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             x = obj.RowNames;
             y = obj.(variable);
             h = plot(x,y,varargin{:});
+        end
+%%
+        function dst = mergerows(dst1,dst2) 
+            %insert new timeseries, dst2, in correct position in dst1
+            %table RowNames
+            if ~strcmp(dst1.RowType,'datetime') || ~strcmp(dst1.RowType,'datetime')
+                warndlg('One or more of the dstables does not use datetime Rows')
+                dst = []; return;
+            end
+            oldrange = dst1.RowRange;
+            addrange = dst2.RowRange;
+            txt1 = sprintf('The range for the existing data is from %s to %s',datestr(oldrange{1}),datestr(oldrange{2}));
+            txt2 = sprintf('The range for the new data is from %s to %s',datestr(addrange{1}),datestr(addrange{2}));            
+            
+            if addrange{1}>oldrange{2}      %new data is after existing record
+                 dst = vertcat(dst1,dst2);
+            elseif oldrange(1)>addrange(2)  %new data is before existing record
+                dst = vertcat(dst2,dst1);
+            elseif addrange{1}<=oldrange{1} && addrange{2}>=oldrange{2}
+                %new data overlaps the existing date range
+                txt3 = 'Do you want to add selected data? This will overwrite any existing data,';
+                msg = sprintf('%s\n%s\n%s\n%s',txt1,txt2,txt3);
+                answer = questdlg(msg,'Data input','Yes','No','No');
+                if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst                    
+                dst = dst2;
+            else                            %new data is filling a gap 
+                txt3 = 'The new data is within the time range of the existing data';
+                msg = sprintf('%s\n%s\%s\nDo you want to continue?',txt3,txt1,txt2);
+                answer = questdlg(msg,'Data input','Yes','No','No');
+                if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst
+                %add new data over interval addrange. Offset ensures no
+                %duplicates. Existing data within interval is overwritten
+                oldrows = dst1.RowNames;
+                st_offset = addtodate(addrange{1}, -1, 'minute');
+                ts1 = isbetween(oldrows,oldrange{1},st_offset);
+
+                se_offset = addtodate(addrange{2}, 1, 'minute');
+                ts2 = isbetween(oldrows,se_offset,oldrange{2});
+                
+                if isempty(ts1)
+                    tsc2 = getDSTable(dst1,ts2);
+                    dst = vertcat(dst2,tsc2);
+                elseif isempty(ts2)
+                    tsc1 = getDSTable(dst1,ts1);
+                    dst = vertcat(tsc1,dst2);
+                else
+                    tsc1 = getDSTable(dst1,ts1);
+                    tsc2 = getDSTable(dst1,ts2);
+                    dst = vertcat(tsc1,dst2,tsc2);
+                end
+            end  
         end
 %% ------------------------------------------------------------------------   
 % Manipulate Dimensions - make dimensions apply to table or variable
@@ -925,28 +1034,6 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             fields = horzcat(obj.VariableNames,obj.TableRowName,...
                                                     obj.DimensionNames);
         end
-%%
-        function labels = getLabels(obj,fieldname)
-            %try to construct a label from desctiption and unit fields
-            f1 = sprintf('%sLabel',fieldname);
-            f2 = sprintf('%sDescription',fieldname);
-            f3 = sprintf('%sUnit',fieldname);
-            if ~strcmp(fieldname,'Row')
-                f1 = [f1,'s']; f2 = [f2,'s']; f3 = [f3,'s'];
-            end
-            
-            labels = obj.(f1);  
-            desc = obj.(f2);
-            unit = obj.(f3);
-            if ~iscell(labels), labels = {labels}; end
-            if ~iscell(desc), desc = {desc}; end
-            if ~iscell(unit), unit = {unit}; end
-            for i=1:length(labels)                
-                if isempty(labels{i})                    
-                    labels{i} = sprintf('%s %s',desc{i},unit{i});
-                end
-            end
-        end
     end 
 %% ------------------------------------------------------------------------
 % Functions called by methods (private)`
@@ -980,6 +1067,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     obj.VariableRange.(varname) = getVariableRange(obj,varname);
                 end
             end 
+            obj.LastModified = datetime('now');
         end
 %%
         function range = getVariableRange(obj,varname)
@@ -1304,11 +1392,18 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 end
                 obj.(propname) = dsprops.(dspname).(fname); 
             else
-                propvalues = dsprops.(dspname).(fname);
-                if iscell(propvalues) && isempty(propvalues{1})
-                    obj.(propname) = {''};
-                elseif strcmp(propname,'VariableNames')
-                    obj.(propname) = {dsprops.(dspname).(fname)};
+                if length(dsprops.(dspname))>1 || ...       %added 24/2/21
+                            (length(dsprops.(dspname).(fname))>=1 && ...
+                             ~iscell(dsprops.(dspname).(fname)))  
+                    propvalues = {dsprops.(dspname).(fname)};                                    
+                elseif isempty(dsprops.(dspname).(fname))                    
+                    propvalues = {''};                     
+                else
+                    propvalues = dsprops.(dspname).(fname);
+                end
+                %                                           %-------------
+                if strcmp(propname,'VariableNames')      
+                    obj.(propname) = propvalues;
                     updateVarNames(obj)
                 elseif strcmp(propname,'DimensionFormats')
                     if strcmp(obj.DimType,'datetime') || ...
@@ -1316,9 +1411,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                        dsprops.(dspname).(fname) = ...
                           checkRowDimFormat(obj,dsprops,dspname);
                     end 
-                    obj.(propname) = {dsprops.(dspname).(fname)};
+                    obj.(propname) = propvalues;
                 else
-                    obj.(propname) = {dsprops.(dspname).(fname)};
+                    obj.(propname) = propvalues;
                 end
             end            
         end
@@ -1347,5 +1442,27 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             rownames2 = table2.Properties.RowNames;
             chx.isrow = ismember(rownames1,rownames2);
         end
+ %%
+        function labels = getLabels(obj,fieldname)
+            %construct a label from description and unit fields
+            f1 = sprintf('%sLabel',fieldname);
+            f2 = sprintf('%sDescription',fieldname);
+            f3 = sprintf('%sUnit',fieldname);
+            if ~strcmp(fieldname,'Row')
+                f1 = [f1,'s']; f2 = [f2,'s']; f3 = [f3,'s'];
+            end
+            
+            labels = obj.(f1);  
+            desc = obj.(f2);
+            unit = obj.(f3);
+            if ~iscell(labels), labels = {labels}; end
+            if ~iscell(desc), desc = {desc}; end
+            if ~iscell(unit), unit = {unit}; end
+            for i=1:length(labels)                
+                if isempty(labels{i})                    
+                    labels{i} = sprintf('%s (%s)',desc{i},unit{i});
+                end
+            end
+        end       
     end
 end

@@ -310,7 +310,7 @@
 %   dst = rmCustomProperties(dst,'propertyName');                 %to remove a property
 % 
 %%
-% These incoke the _table_ equivalents of addprop and rmprop - see
+% These invoke the _table_ equivalents of addprop and rmprop - see
 % <matlab:doc('addprop') addprop> and <matlab:doc('rmprop') rmprop>.
 %
 %%
@@ -366,6 +366,10 @@
 %
 %   sortrows(dst)                         %sort table into ascending order of RowNames 
 %
+% *mergerows* combine two dstables that have RowNames that are datetime in
+% date order
+%   mergerows(dst1,dst2)                  %dst2 is added to dst1
+%
 % *dst2tsc* and *tsc2dst* convert between dstable and tscollection objects 
 % (see <matlab:doc('dst2tsc') dst2tsc> and <matlab:doc('tsc2dst') tsc2dst> for further
 % details).
@@ -393,13 +397,14 @@
 % *getVarAttributes* find the name and description of a varaible and the
 % associated row/dimension attributes
 %
-%   [names,desc,idv] = getVarAttributes(dst,idv)
+%   [names,desc,labe,idv] = getVarAttributes(dst,idv)
 %%
 % * idv -  index to variable, which can be character vector, string,
 % numerical or logical
 % * names - the names of the attributes assigned in the _ddstable_ in the
 % order variable, row, dimensions
-% * dessc - the descriptions of the attribures in the same order
+% * desc - the descriptions of the attribures in the same order
+% * label - the labels assigned to each attribute in hte asme order
 % * idv - numerical index of selected variable
 
 %%
@@ -411,6 +416,21 @@
 % numeric index value of the variable
 % * selected - the character vector or string of the attibute to use
 % * range - the start and end or min/max values of the selected attribute
+
+%%
+% *selectAttribute* propmpt user to select a dstable variable, or dimension
+%
+%   [name,idx] = selectAttribute(dst,option)
+%%
+% * option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'
+% * name - selected attribute name
+% * idx - index of selected attribute
+
+%% 
+% *allfieldnames* returns a cell array of all field names in order Variable
+% names, Row name, Dimension names
+%
+%   fields = allfieldnames(dst)
 
 %% dstable Indexing Methods
 % Data held in a dstable can be accessed by rows, variables and/or
@@ -445,6 +465,12 @@
 
 %%
 %   extracted_data = T.varname(rows,idd{:}) 
+%%
+% To delete rows and variables from a _table_ use the standard Matlab syntax
+%%
+%   T(rows,vars) = [];     %rows and vars to be deleted
+%   T.(varname) = [];      %varname to be deleted
+%   T(rows,:) = [];        %rows to be deleted for all variables
 
 %%
 % *Using indices with a _dstable_* <br>
@@ -485,6 +511,20 @@
 % specified as a cell array of character vectors, or a string array.  
 % * 'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be
 % used, specified in the format used for the dimension.
+%%
+% To delete rows and variables from a _table_ use the standard Matlab syntax
+%%
+%   dst.DataTable(rows,vars) = [];  %rows and vars to be deleted
+%   dst.DataTable.(varname) = [];   %varname to be deleted
+%   dst.DataTable(rows,:) = [];     %rows to be deleted for all variables
+%%
+% Then use *updateRange* to update the range values of the attribute that
+% has been modified
+%%
+%   updateRange(dst,atribute,id)    %attribute is 1,2,3 or 'Variable','Row','Dimension'
+%                                   %id is the index, or name, of the
+%                                   %variable, or dimension, and 1 for Rows.
+%                                   
 
 %% See Also
 % <matlab:doc('dsproperties') dsproperties>, <matlab:doc('dscatalogue') dscatalogue>, 
