@@ -25,6 +25,11 @@
 % This allows Variable, Row and Dimensions metat-data properties to added
 % and is an alternative to using VariableNames and DimensionNames (i.e. cannot
 % use both in the same call).
+%%
+% The variables in a _dstable_ can also be loaded using a _table_, with any
+% of the above 'Name', 'Value' syntax.
+%%
+%   dst = dstable(vartable)
 % 
 %% Description
 % A dstable holds a table in the property DataTable. This table retains
@@ -397,7 +402,7 @@
 % *getVarAttributes* find the name and description of a varaible and the
 % associated row/dimension attributes
 %
-%   [names,desc,labe,idv] = getVarAttributes(dst,idv)
+%   [names,desc,label,idv] = getVarAttributes(dst,idv)
 %%
 % * idv -  index to variable, which can be character vector, string,
 % numerical or logical

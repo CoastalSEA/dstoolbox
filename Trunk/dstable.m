@@ -145,14 +145,18 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end
             
             %build table
-            obj.DataTable = table(varargin{1});
-            for i=2:startprops-1
-                if size(varargin{i},1)==nrows %check has same number of rows
-                    obj.DataTable = addvars(obj.DataTable,varargin{i}); 
-                else
-                    warndlg(sprintf('Variable No %d has different number of rows',i))
-                    return;
-                end                
+            if istable(varargin{1})
+                obj.DataTable = varargin{1};
+            else
+                obj.DataTable = table(varargin{1});
+                for i=2:startprops-1
+                    if size(varargin{i},1)==nrows %check has same number of rows
+                        obj.DataTable = addvars(obj.DataTable,varargin{i}); 
+                    else
+                        warndlg(sprintf('Variable No %d has different number of rows',i))
+                        return;
+                    end                
+                end
             end
             
             %add additional dstable properties as CustomProperties
@@ -436,6 +440,8 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                         msgtxt = sprintf('%s %s %s\n%s',msg1,fname{i},msg2,msg3);
                         warndlg(msgtxt);
                         dimvals.(fname{i}) = [];
+                        obj.DataTable.Properties.CustomProperties.Dimensions = dimvals;
+                        return;
                     else
                         if isempty(oneval)
                             clearDimension(obj,i)                         
@@ -583,9 +589,11 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %extract data from a dstable using the dimension data
             %and return a 'dstable' based on the selected dimension 
             %values. Update dimensions and preserve metadata
-            newdst = copy(obj);
             [idr,idv,idd] = getInputIndices(obj,varargin{:});
             datatable = getDataUsingIndices(obj,idv,idr,idd);
+            if isempty(datatable), newdst = []; return; end
+            
+            newdst = copy(obj);
             newdst.DataTable = datatable;  
             %if height of table has changed update Row range
             if height(datatable)~=height(obj.DataTable)
@@ -650,7 +658,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %should always be at least one variable and rows, or one dimension
             %remove unused "dimensions"  
             nrow = height(obj.DataTable);
-            if nrow==1                                 %single row
+            if nrow==1 && isempty(obj.RowNames)        %single row
                 names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
             elseif isempty(names{3})                   %no dimensions
                 names = names(1:2);  desc = desc(1:2);  label = label(1:2);
@@ -668,24 +676,27 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 [~,list] = getVarAttributes(obj,list);
             end
             %
+            range = {'',''};
             switch selected
                 case list{1}
                     idvar = strcmp(obj.VariableDescriptions,list{1});           
                     varname = obj.VariableNames{idvar};
                     range = obj.VariableRange.(varname);
                 case list{2}
-                    if height(obj.DataTable)>1
-                        range = obj.RowRange;
-                    else
+                    if height(obj.DataTable)==1 && isempty(obj.RowNames)
                         dimname = obj.DimensionNames{1};
                         range = obj.DimensionRange.(dimname);
+                    else
+                        range = obj.RowRange;
                     end
                 otherwise
                     %ensure offset is correct
                     if height(obj.DataTable)>1, nr=3; else, nr=2; end 
                     idd = strcmp(list(nr:end),selected);
                     dimname = obj.DimensionNames{idd};
-                    range = obj.DimensionRange.(dimname);
+                    if ~isempty(obj.DimensionRange)
+                        range = obj.DimensionRange.(dimname);
+                    end
             end            
         end
 %%
@@ -779,57 +790,94 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             obj.DataTable = movevars(obj.DataTable,varname,position,location);
         end
 %%
-        function newdst = horzcat(obj1,obj2)
-            %horizontal concatenation of two dstables
-            %number of rows in obj1 and obj2 must match and variable names
+        function newdst = horzcat(obj1,varargin)
+            %horizontal concatenation of two or more dstables
+            %number of rows in each dstable must match and variable names
             %must be unique
-            newdst = [];
-            msg = @(txt) sprintf('Invalid dstable objects: %s',txt);
-            if ~isa(obj2,'dstable'), warndlg(msg,'not a dstable'); return; end  %not a dstable
-            %
-            [table1,table2,chx] = getCatChecks(obj1,obj2);
-            %number of rows must be same in both tables
-            if ~chx.isheight, warndlg(msg('different number of rows')); return; end
-            %variable names in the two tables must be unique
-            if any(chx.isvar), warndlg(msg('variable names not unique')); return; end
-            %rownames in the two tables must be the same
-            if ~all(chx.isrow), warndlg(msg('rownames do not match')); return; end
-            %
             newdst = copy(obj1);  %new instance of dstable retaining existing properties
-            newdst.DataTable = horzcat(table1,table2);
-        end
+            for i=1:length(varargin)
+                dst2 = varargin{i};
+                if ~isa(dst2,'dstable'), newdst = issueWarning(1); return; end  %not a dstable
+                %
+                [table1,table2,chx] = getCatChecks(newdst,dst2);
+                %number of rows must be same in both tables
+                if ~chx.isheight, newdst = issueWarning(2); return; end
+                %variable names in the two tables must be unique
+                if any(chx.isvar), newdst = issueWarning(3); return; end
+                %rownames in the two tables must be the same
+                if ~all(chx.isrow), newdst = issueWarning(4); return; end
+                %
+                newdst.DataTable = horzcat(table1,table2);
+            end
+            
+            %--------------------------------------------------------------
+            function newdst = issueWarning(idx)
+                newdst = [];
+                msg = @(txt) sprintf('Invalid dstable objects: %s',txt); 
+                switch idx
+                    case 1
+                        warndlg(msg,'not a dstable')
+                    case 2
+                        warndlg(msg('different number of rows'))
+                    case 3
+                        warndlg(msg('variable names not unique'))
+                    case 4
+                        warndlg(msg('rownames do not match'))
+                end
+            end            
+            
+            
+        end               
 %%
-        function newdst = vertcat(obj1,obj2)
-            %vertical concatenation of two dstables
+        function newdst = vertcat(obj1,varargin)
+            %vertical concatenation of two or more dstables
             %number and name of variables should be the same but can be in
             %different order
             %rows are sorted after concatenation into ascending order for
-            %the source data type of the RowNames data
-            newdst = [];
-            msg = @(txt) sprintf('Invalid dstable objects: %s',txt);
-            if ~isa(obj2,'dstable'), warndlg(msg('not a dstable')); return; end  %not a dstable
-            %
-            [table1,table2,chx] = getCatChecks(obj1,obj2);
-            %number of variables must be same in both tables
-            if ~chx.iswidth, warndlg(msg('number of variable do not match')); return; end
-            %variable names in the two tables must be the same
-            if ~all(chx.isvar), warndlg(msg('different variable names')); return; end
-            %check for duplicates in rownames
-            if any(chx.isrow), warndlg(msg('duplicate row names')); return; end
-            %
+            %the source data type of the RowNames data 
             newdst = copy(obj1);  %new instance of dstable retaining existing properties
-            newdst.DataTable = vertcat(table1,table2);    
+            for i=1:length(varargin)
+                dst2 = varargin{i};
+                if ~isa(dst2,'dstable'), newdst = issueWarning(1); return; end  %not a dstable
+                %
+                [table1,table2,chx] = getCatChecks(newdst,dst2);
+                %number of variables must be same in both tables
+                if ~chx.iswidth, newdst = issueWarning(2); return; end
+                %variable names in the two tables must be the same
+                if ~all(chx.isvar), newdst = issueWarning(3); return; end
+                %check for duplicates in rownames
+                if any(chx.isrow), newdst = issueWarning(4); return; end
+                %
+                newdst.DataTable = vertcat(table1,table2);
+            end
+
             %sort rows to be in ascending order 
             if ~isempty(newdst.RowNames)
                 newdst = sortrows(newdst);
                 %add range limits
-                firstrec = newdst.DataTable.Properties.RowNames{1};
-                lastrec = newdst.DataTable.Properties.RowNames{end};
+                firstrec = newdst.RowNames(1);
+                lastrec = newdst.RowNames(end);
                 newdst.RowRange = {firstrec,lastrec}; 
             elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1
+                
                 newdst.RowNames = (1:height(newdst.DataTable))';
             end
-        end
+            %--------------------------------------------------------------
+            function newdst = issueWarning(idx)
+                newdst = [];
+                msg = @(txt) sprintf('Invalid dstable objects: %s',txt); 
+                switch idx
+                    case 1
+                        warndlg(msg('not a dstable'))
+                    case 2
+                        warndlg(msg('number of variable do not match'))
+                    case 3
+                        warndlg(msg('different variable names'))
+                    case 4
+                        warndlg(msg('duplicate row names'))
+                end
+            end
+        end          
 %%
         function obj = sortrows(obj)
             %sort the rows in the dstable DataTable and return updated obj
@@ -863,7 +911,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             
             if addrange{1}>oldrange{2}      %new data is after existing record
                  dst = vertcat(dst1,dst2);
-            elseif oldrange(1)>addrange(2)  %new data is before existing record
+            elseif oldrange{1}>addrange{2}  %new data is before existing record
                 dst = vertcat(dst2,dst1);
             elseif addrange{1}<=oldrange{1} && addrange{2}>=oldrange{2}
                 %new data overlaps the existing date range
@@ -874,18 +922,18 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 dst = dst2;
             else                            %new data is filling a gap 
                 txt3 = 'The new data is within the time range of the existing data';
-                msg = sprintf('%s\n%s\%s\nDo you want to continue?',txt3,txt1,txt2);
+                msg = sprintf('%s\n%s\n%s\nDo you want to continue?',txt3,txt1,txt2);
                 answer = questdlg(msg,'Data input','Yes','No','No');
                 if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst
                 %add new data over interval addrange. Offset ensures no
                 %duplicates. Existing data within interval is overwritten
                 oldrows = dst1.RowNames;
-                st_offset = addtodate(addrange{1}, -1, 'minute');
+                st_offset = addrange{1}-minutes(1);
                 ts1 = isbetween(oldrows,oldrange{1},st_offset);
 
-                se_offset = addtodate(addrange{2}, 1, 'minute');
+                se_offset = addrange{2}+minutes(1);
                 ts2 = isbetween(oldrows,se_offset,oldrange{2});
-                
+   
                 if isempty(ts1)
                     tsc2 = getDSTable(dst1,ts2);
                     dst = vertcat(dst2,tsc2);
@@ -963,7 +1011,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             dspdim = length({dsprops.Dimensions(:).Name});
             if dspdim==1 && isempty(dsprops.Dimensions.Name)
                 %the Dimensions struct is empty
-            elseif cdim~=dspdim
+            elseif dspdim>1 && cdim~=dspdim
                 txt1 = sprintf('The first variable has %d dimensions and %d property dimensions are defined',cdim,dspdim);
                 txt2 = 'Select option:';
                 qtext = sprintf('%s\n%s',txt1,txt2);
@@ -1459,8 +1507,11 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             if ~iscell(desc), desc = {desc}; end
             if ~iscell(unit), unit = {unit}; end
             for i=1:length(labels)                
-                if isempty(labels{i})                    
-                    labels{i} = sprintf('%s (%s)',desc{i},unit{i});
+                if isempty(labels{i}) 
+                    labels{i} = '';
+                    if ~isempty(desc) && ~isempty(unit)
+                        labels{i} = sprintf('%s (%s)',desc{i},unit{i});
+                    end
                 end
             end
         end       

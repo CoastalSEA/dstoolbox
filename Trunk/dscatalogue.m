@@ -32,16 +32,20 @@ classdef dscatalogue < handle
 %% ------------------------------------------------------------------------
 % functions to add, get and remove Cases
 %--------------------------------------------------------------------------
-        function recnum = addRecord(obj,caseclass,casetype,casedesc)
+        function recnum = addRecord(obj,caseclass,casetype,casedesc,SupressPrompts)
             %add a Case record to the catalogue   
             % caseclass - class of data set to be catalogued
             % casetype  - type of data set (e.g. keywords: model, data)
             % casedesc  - description of case (optional)
+            % SupressPrompts - logical flag to use casedesc as record 
+            %                  description without prompting user (optional)
             if nargin<4
                 casedesc = {''};
+                SupressPrompts = false;
+            elseif nargin<5
+                SupressPrompts = false;
             end  
 
-            SupressPrompts = false;
             [recnum,caseid,casedesc] = newRecord(obj,SupressPrompts,casedesc);
             newrec = {caseid,casedesc,caseclass,casetype};
             obj.Catalogue = [obj.Catalogue;newrec];            

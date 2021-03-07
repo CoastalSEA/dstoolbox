@@ -415,7 +415,7 @@ classdef dsproperties < matlab.mixin.Copyable
                 isdesc = isunique({varprops(:).Description});
                 isnd = isnames & isdesc;
                 if ~isnd
-                    errtxt = sprintf('%s names are not unique in dsproperties',propname);
+                    errtxt = sprintf('%s names or descriptions are not unique in dsproperties',propname);
                     obj.errmsg = errtxt;
                 end
             end
