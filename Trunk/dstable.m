@@ -648,20 +648,27 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %called using obj.(names{i})
             names = [obj.VariableNames(idv),{'RowNames'},obj.DimensionNames(:)'];
             %return descriptions for use in UIs etc
-%             desc = [obj.VariableDescriptions(idv),{obj.RowDescription},...
-%                                         obj.DimensionDescriptions(:)'];
             desc = [obj.VariableDescriptions(idv),obj.RowDescription,...
                                         obj.DimensionDescriptions(:)'];
             varlabels = getLabels(obj,'Variable');
             label = [varlabels(idv),getLabels(obj,'Row'),...
                                             getLabels(obj,'Dimension')];                                              
             %should always be at least one variable and rows, or one dimension
-            %remove unused "dimensions"  
+            %remove unused "dimensions" and add undefined dimensions
+            vdim = getvariabledimensions(obj,idv);
+            setdims = sum(~cellfun(@isempty,names))-1;
+            missingdims = vdim-setdims; 
             nrow = height(obj.DataTable);
             if nrow==1 && isempty(obj.RowNames)        %single row
                 names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
+                if missingdims>0                       %add missing
+                    [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims); 
+                end
             elseif isempty(names{3})                   %no dimensions
                 names = names(1:2);  desc = desc(1:2);  label = label(1:2);
+                if missingdims>0                       %add missing
+                    [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+                end
             end
         end
 %%
@@ -677,9 +684,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end
             %
             range = {'',''};
+            idvar = strcmp(obj.VariableDescriptions,list{1});  
             switch selected
-                case list{1}
-                    idvar = strcmp(obj.VariableDescriptions,list{1});           
+                case list{1}                             
                     varname = obj.VariableNames{idvar};
                     range = obj.VariableRange.(varname);
                 case list{2}
@@ -694,7 +701,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     if height(obj.DataTable)>1, nr=3; else, nr=2; end 
                     idd = strcmp(list(nr:end),selected);
                     dimname = obj.DimensionNames{idd};
-                    if ~isempty(obj.DimensionRange)
+                    if isempty(obj.DimensionRange) && any(idd)
+                        [~,~,vsze] = getvariabledimensions(obj,idvar);
+                        range = {int16(1),int16(vsze(idd+1))};
+                    else
                         range = obj.DimensionRange.(dimname);
                     end
             end            
@@ -1359,6 +1369,16 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 newvargin = {};
             end  
         end
+%%
+        function [names,desc,label] = addDimIndex(~,names,desc,label,missingdims)
+            %some dimensions are undefined so add dummy names and labels
+            nrec = length(names);
+            for i=1:missingdims
+                names{nrec+i} = sprintf('Index%d',i);
+                desc{nrec+i} = sprintf('Index %d',i);
+                label{nrec+i} = sprintf('Index %d',i);
+            end
+        end
 %% dsproperties       
         function dsp = setgetDSprops(obj,dsprops)
             %set or get the dstable properties 
@@ -1440,7 +1460,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 end
                 obj.(propname) = dsprops.(dspname).(fname); 
             else
-                if length(dsprops.(dspname))>1 || ...       %added 24/2/21
+                if length(dsprops.(dspname))>1 || ...      %--added 24/2/21
                             (length(dsprops.(dspname).(fname))>=1 && ...
                              ~iscell(dsprops.(dspname).(fname)))  
                     propvalues = {dsprops.(dspname).(fname)};                                    
@@ -1449,7 +1469,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 else
                     propvalues = dsprops.(dspname).(fname);
                 end
-                %                                           %-------------
+                %                                          %-^------------^
                 if strcmp(propname,'VariableNames')      
                     obj.(propname) = propvalues;
                     updateVarNames(obj)
