@@ -329,6 +329,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %--------------------------------------------------------------------------
         function set.VariableNames(obj,varname)
             obj.DataTable.Properties.VariableNames = varname;
+            updateVarNames(obj); %update dynamic properties 
         end
         %
         function varname = get.VariableNames(obj)
@@ -621,6 +622,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                     newdst.Dimensions.(dimnames{i}) = oldims(idd{i});
                 end
             end
+            varnames = newdst.VariableNames;
+            if ~isprop(newdst,varnames{1})         %dynamic properties not set
+                newdst = updateVarNames(newdst);
+            end
             newdst.LastModified = datetime('now');
         end
 %%
@@ -635,6 +640,10 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             %returns a cell array containing an array for each variable
             [idr,idv,idd] = getInputIndices(obj,varargin{:});
             [~,dataset] = getDataUsingIndices(obj,idv,idr,idd);
+        end
+%%
+        function obj = activatedynamicprops(obj,varargin)
+            updateVarNames(obj,varargin{:});
         end
 %%
         function [names,desc,label,idv] = getVarAttributes(obj,idv)
@@ -742,7 +751,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end                     
         end
 %%
-        function updateRange(obj,selected,idv)
+        function obj = updateRange(obj,selected,idv)
             %update the range of the selected attribute 
             % selected - attibute to be used
             % idv - numeric index, or a variable/dimension name
@@ -771,18 +780,20 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 % Manipulate Variables - add, remove, move, variable range, horzcat,
 % vertcat, sortrows, plot
 %--------------------------------------------------------------------------
-        function addvars(obj,varargin)
+        function newdst = addvars(obj,varargin)
             %add variable to table and update properties
-            oldvarnames = obj.VariableNames;
-            obj.DataTable = addvars(obj.DataTable,varargin{:});
+            newdst = copy(obj);
+            oldvarnames = newdst.VariableNames;
+            newdst.DataTable = addvars(newdst.DataTable,varargin{:});
 
-            newvarnames = obj.VariableNames;
+            newvarnames = newdst.VariableNames;
             varnames = setdiff(newvarnames,oldvarnames);
             
             for i=1:length(varnames)
                 varname = varnames{i};
-                obj.VariableRange.(varname) = getVariableRange(obj,varname);
+                newdst.VariableRange.(varname) = getVariableRange(newdst,varname);
             end
+            updateVarNames(newdst,varnames);
         end
 %%
         function newdst = removevars(obj,varnames)
@@ -792,12 +803,13 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             newdst.DataTable = removevars(newdst.DataTable,varnames); 
         end
 %%
-        function movevars(obj,varname,position,location)
+        function newdst =  movevars(obj,varname,position,location)
             %move variable in table and update properties
             %varname is character vector,string scalar,integer,logical array
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
-            obj.DataTable = movevars(obj.DataTable,varname,position,location);
+            newdst = copy(obj);
+            newdst.DataTable = movevars(newdst.DataTable,varname,position,location);
         end
 %%
         function newdst = horzcat(obj1,varargin)
@@ -889,15 +901,16 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             end
         end          
 %%
-        function obj = sortrows(obj)
+        function newdst = sortrows(obj)
             %sort the rows in the dstable DataTable and return updated obj
             %RowNames in a table are char and sortrows does not sort time
             %formats correctly. Sort in ascending order
-            rowdata = obj.RowNames;
-            obj.DataTable = addvars(obj.DataTable,rowdata,...
+            newdst = copy(obj);
+            rowdata = newdst.RowNames;
+            newdst.DataTable = addvars(newdst.DataTable,rowdata,...
                                             'NewVariableNames',{'sxTEMPxs'});
-            obj.DataTable = sortrows(obj.DataTable,'sxTEMPxs');
-            obj.DataTable = removevars(obj.DataTable,'sxTEMPxs');
+            newdst.DataTable = sortrows(newdst.DataTable,'sxTEMPxs');
+            newdst.DataTable = removevars(newdst.DataTable,'sxTEMPxs');
         end
 %%
         function h = plot(obj,variable,varargin)
@@ -924,14 +937,14 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
             elseif oldrange{1}>addrange{2}  %new data is before existing record
                 dst = vertcat(dst2,dst1);
             elseif addrange{1}<=oldrange{1} && addrange{2}>=oldrange{2}
-                %new data overlaps the existing date range
+                %new data overlaps the entire existing date range
                 txt3 = 'Do you want to add selected data? This will overwrite any existing data,';
                 msg = sprintf('%s\n%s\n%s\n%s',txt1,txt2,txt3);
                 answer = questdlg(msg,'Data input','Yes','No','No');
                 if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst                    
                 dst = dst2;
-            else                            %new data is filling a gap 
-                txt3 = 'The new data is within the time range of the existing data';
+            else  %new data overlaps one end, or sits within existing data range
+                txt3 = 'The new data is, at least in part, within the time range of the existing data';
                 msg = sprintf('%s\n%s\n%s\nDo you want to continue?',txt3,txt1,txt2);
                 answer = questdlg(msg,'Data input','Yes','No','No');
                 if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst
@@ -944,16 +957,19 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                 se_offset = addrange{2}+minutes(1);
                 ts2 = isbetween(oldrows,se_offset,oldrange{2});
    
-                if isempty(ts1)
+                if ~any(ts1) && any(ts2)          
                     tsc2 = getDSTable(dst1,ts2);
                     dst = vertcat(dst2,tsc2);
-                elseif isempty(ts2)
+                elseif any(ts1) && ~any(ts2)
                     tsc1 = getDSTable(dst1,ts1);
                     dst = vertcat(tsc1,dst2);
-                else
+                elseif  any(ts1) && any(ts2)
                     tsc1 = getDSTable(dst1,ts1);
                     tsc2 = getDSTable(dst1,ts2);
                     dst = vertcat(tsc1,dst2,tsc2);
+                else
+                    %should not be here
+                    dst = dst1;  %returns old dst
                 end
             end  
         end
@@ -1115,9 +1131,12 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                                                 {'table','table','table'});   
         end        
 %% Variables
-        function updateVarNames(obj)
+        function updateVarNames(obj,varnames)
             %define or update dynamic properties and variable ranges
-            varnames = obj.VariableNames;
+            if nargin<2
+                varnames = obj.VariableNames;
+            end
+            
             for i=1:length(varnames)
                 varname = varnames{i};
                 if ~isprop(obj,varname)
@@ -1277,8 +1296,9 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %%
         function [idr,idv,idd] = getInputIndices(obj,varargin)
             %parse input to define row, variable and dimension indices
-            %Note numeric values for row or dimensions can only be input using the
-            %full syntax of Name,Value, other formats are assumed to be indices
+            %Note: native data type values for row or dimensions can only 
+            %be input using thefull syntax of Name,Value, other formats 
+            %are assumed to be indices
             idr = []; idv = []; idd = {};
             [~,cdim,vsze] = getvariabledimensions(obj,1);
             if ischar(varargin{1})  %unpack Name,Value input

@@ -334,17 +334,17 @@
 %%
 % *addvars* syntax is the same as <matlab:doc('addvars') addvars>. Updates metadata properties for new variable
 %%
-%   addvars(dst, varargin)  
+%   dst2 = addvars(dst1, varargin)  
 %%
 % *removevars* syntax is the same as <matlab:doc('removevars') removevars>
 %%
-%   dst2 = removevars(dst,'varNames')   
+%   dst2 = removevars(dst1,'varNames')   
 %%
 % *movevars* syntax is the same as <matlab:doc('movevars') movevars>. varName is the
 % variable to be moved, position is 'Before' or 'After' and location is
 % the name of the reference variable to use for the move.
 %%
-%   movevars(dst,'varName','position','location)            
+%  dst2 =  movevars(dst1,'varName','position','location)            
 %%
 % *vercat* vertically concatenates the two dstables, variable names
 % must match and RowNames in the two dstables must be unique.
@@ -369,11 +369,11 @@
 %%
 % *sortrows* sort table into ascending order of RowNames
 %
-%   sortrows(dst)                         %sort table into ascending order of RowNames 
+%   dst2 = sortrows(dst1)                       %sort table into ascending order of RowNames 
 %
 % *mergerows* combine two dstables that have RowNames that are datetime in
 % date order
-%   mergerows(dst1,dst2)                  %dst2 is added to dst1
+%   dst3 = mergerows(dst1,dst2)                 %dst2 is added to dst1
 %
 % *dst2tsc* and *tsc2dst* convert between dstable and tscollection objects 
 % (see <matlab:doc('dst2tsc') dst2tsc> and <matlab:doc('tsc2dst') tsc2dst> for further
@@ -489,8 +489,8 @@
 
 %%
 %  When using indices the syntax requires indices for rows, variables and
-%  dimensions in that order. Use [] or ':' to select the full range of
-%  values(colon is specified in quote marks).
+%  dimensions in that order. Use [] to select the full range of values.
+
 %%
 %   newdst = getDSTable(dst,idr,idv)                    %selects variables defined by idr and idv
 %   newdst = getDSTable(dst,idr,idv,idd1,idd2,..iddN);  %where the variables have N dimensions
@@ -519,16 +519,16 @@
 %%
 % To delete rows and variables from a _table_ use the standard Matlab syntax
 %%
-%   dst.DataTable(rows,vars) = [];  %rows and vars to be deleted
-%   dst.DataTable.(varname) = [];   %varname to be deleted
-%   dst.DataTable(rows,:) = [];     %rows to be deleted for all variables
+%   dst.DataTable(rows,vars) = [];     %rows and vars to be deleted
+%   dst.DataTable.(varname) = [];      %varname to be deleted
+%   dst.DataTable(rows,:) = [];        %rows to be deleted for all variables
 %%
 % Then use *updateRange* to update the range values of the attribute that
 % has been modified
 %%
-%   updateRange(dst,atribute,id)    %attribute is 1,2,3 or 'Variable','Row','Dimension'
-%                                   %id is the index, or name, of the
-%                                   %variable, or dimension, and 1 for Rows.
+%   dst = updateRange(dst,atribute,id) %attribute is 1,2,3 or 'Variable','Row','Dimension'
+%                                      %id is the index, or name, of the
+%                                      %variable, or dimension, and 1 for Rows.
 %                                   
 
 %% See Also
