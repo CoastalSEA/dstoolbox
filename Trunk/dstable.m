@@ -614,7 +614,7 @@ classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
                         newdst.(parts{1}).(parts{2}) = varargin{idv(i)+1};
                     end
                 end
-            elseif length(varargin)>2
+            elseif length(varargin)>2  && ~isempty(varargin{3})
                 %dimensions defined by index to existing values
                 dimnames = newdst.DimensionNames;
                 for i=1:length(idd)

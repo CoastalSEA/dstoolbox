@@ -169,11 +169,12 @@
 % and Dimensions. Provides the option to add Variables and Dimensions
 % interactively.
 %%
-%   dsp = dsproperties;               %empty dsproperties object
-%   setDSproperties(dsp);             %edit existing dsproperties object, dsp.
-%   setDSproperties(dsp,dsp_struct);  %load a dsproperties struct array into a dsproperties object
-%   setDSproperties(aa,[],'dspDesc'); %interactively define properties and add dspDesc as the DSPdescription
-
+%   dsp = dsproperties;                %empty dsproperties object
+%   setDSproperties(dsp);              %edit existing dsproperties object, dsp.
+%   setDSproperties(dsp,dsp_struct);   %load a dsproperties struct array into a dsproperties object
+%   setDSproperties(dsp,[],'dspDesc'); %interactively define properties and add dspDesc as the DSPdescription
+%   setDSproperties(dsp,[],'dspDesc',isset); %isset if optional logical flag that suppresses prompt
+%                                            %to set number of variables and dimensions
 %% 
 % *displayDSproperrties* displays the current property setting on a figure
 % with tabs for Variables, Row and Dimensions. Settings can be copied to

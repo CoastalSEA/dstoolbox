@@ -68,7 +68,7 @@ classdef dsproperties < matlab.mixin.Copyable
             if nargin>0 && strcmp(dsprops,'set')
                 setDSproperties(obj,[],dsdesc);
             elseif nargin>0 && isstruct(dsprops)
-                setDSproperties(obj,dsprops,dsdesc)
+                setDSproperties(obj,dsprops,dsdesc);
             else
                 setDSpropsStruct(obj);
             end
@@ -190,10 +190,12 @@ classdef dsproperties < matlab.mixin.Copyable
 %% --------------------------------------------------------------------------
 % dsproperties UI functions
 %--------------------------------------------------------------------------
-        function setDSproperties(obj,dsprops,dsdesc)
+        function setDSproperties(obj,dsprops,dsdesc,isset)
             %interactive UI to define the inputs needed for DSproperties
             if nargin<3
-                dsdesc = '';
+                dsdesc = ''; isset = false;
+            elseif nargin<4
+                isset = false;
             end
             %
             if ~isstruct(obj.Variables)
@@ -224,7 +226,8 @@ classdef dsproperties < matlab.mixin.Copyable
             else                
                 for i=1:3
                     substruct = obj.(subvars{i});
-                    obj.(subvars{i}) = setPropertyInput(obj,subvars{i},substruct);
+                    obj.(subvars{i}) = setPropertyInput(obj,subvars{i},...
+                                                         substruct,isset);
                 end
             end
             %
@@ -233,40 +236,7 @@ classdef dsproperties < matlab.mixin.Copyable
             else
                 obj.DSPdescription = dsdesc;
             end
-        end
-%%
-% CODE SUPERSEDED BY DEVELOPMENT OF tabtablefigure
-%         function displayDSproperties(obj)
-%             %display the current definitions as a table
-%             h_fig = figure('Name','DSproperties','Tag','TableFig',...
-%                        'NextPlot','add','MenuBar','none',...
-%                        'Visible','off');
-%             h_tab = uitabgroup(h_fig,'Tag','GuiTabs');  
-%             h_tab.Position = [0 0 1 0.96];
-%             
-%             ht(1) = uitab(h_tab,'Title',' Variables ','Tag','Variables');
-%             ht(2) = uitab(h_tab,'Title','  Row  ','Tag','Row');
-%             ht(3) = uitab(h_tab,'Title',' Dimensions ','Tag','Dimensions');
-%             %
-%             subvars = {'Variables','Row','Dimensions'};
-%             tablepos = zeros(3,4);
-%             for i=1:3
-%                 substruct = obj.(subvars{i});
-%                 atable = struct2table(substruct,'AsArray',true);
-%                 promptxt = sprintf('Current definition of DSproperties for %s',obj.DSPdescription);
-%                 h_tab.SelectedTab = ht(i);
-%                 tablefigure(h_fig,promptxt,atable);
-%                 apos = findobj(ht(i),'Tag','TableFig_panel');
-%                 tablepos(i,:) = apos.Position;
-%             end
-%             h_tab.SelectedTab = ht(1);
-%             rowheight = tablepos(2,4);
-%             width = max(tablepos(:,3))+rowheight/2;
-%             height = max(tablepos(:,4))+3*rowheight; %this needs refining based on max rowlength
-%             h_fig.Position(3) = width;
-%             h_fig.Position(4) = height;            
-%             h_fig.Visible = 'on';
-%         end   
+        end 
 %%
         function displayDSproperties(obj)
             tabnames = {'Variables','Row','Dimensions'};
@@ -306,11 +276,13 @@ classdef dsproperties < matlab.mixin.Copyable
             end             
         end        
 %%
-        function structdata = setPropertyInput(~,propname,propstruct)
+        function structdata = setPropertyInput(obj,propname,propstruct,isset)
             %set the inputs for a component of the DSproperties struct
-            %propname - Property of class: Variables, Row or Dimensions
-            %propstruct - existing structure for Property being set
-            %
+            % propname - Property of class: Variables, Row or Dimensions
+            % propstruct - existing structure for Property being set
+            % isset - logical flag to indicate whether to prompt for the
+            % number of variables or dimensions. No prompt if true. See
+            % muiUserModel.setdsp2save for an example of usage.
             structdata = propstruct;              %return same struct if cancelled
             fnames = fieldnames(propstruct);      %substruct fieldnames
             nfields = length(fnames);             %number of fields
@@ -332,6 +304,9 @@ classdef dsproperties < matlab.mixin.Copyable
             %
             if strcmp(propname,'Row')
                 numvars = 1;
+            elseif isset
+                numvars = length(obj.(propname));
+                if isempty(obj(1).(propname).Name), numvars = 0; end
             else
                 %get user to define number of variables or dimensions
                 promptxt = sprintf('Number of %s:',propname);
