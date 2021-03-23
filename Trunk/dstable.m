@@ -1,4 +1,4 @@
-classdef dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
+classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab.mixin.Copyable
 %
 %-------class help------------------------------------------------------
 % NAME
