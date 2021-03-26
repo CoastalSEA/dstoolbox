@@ -94,3 +94,7 @@
 % _casenum_ and _options_ input arguments not used <br>
 % Runs the model and loads data twice to create a catalogue of four data
 % sets. then calls plot and display functions for selected cases.
+
+%% See Also
+% <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 
+% <matlab:doc('dsproperties') dsproperties>, <matlab:doc('dstoolbox') dstoolbox>.

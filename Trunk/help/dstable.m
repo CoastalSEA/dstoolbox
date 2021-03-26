@@ -533,7 +533,7 @@
 
 %% See Also
 % <matlab:doc('dsproperties') dsproperties>, <matlab:doc('dscatalogue') dscatalogue>, 
-% <matlab:doc('dscollection') dscollection>, <matlab:doc('dstoolbox') dstoolbox>.
+% <matlab:doc('dstoolbox') dstoolbox>.
 
 
 

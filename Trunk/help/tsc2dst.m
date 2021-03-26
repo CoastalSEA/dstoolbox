@@ -16,5 +16,4 @@
 % names as a cell array of character vectors.
 
 %% See also
-% <matlab:doc('dstable') dstable>, <matlab:doc('tsccollection') tscollection>,
-% <matlab:doc('dst2tsc') dst2tsc>
+% <matlab:doc('dstable') dstable>, <matlab:doc('dst2tsc') dst2tsc>

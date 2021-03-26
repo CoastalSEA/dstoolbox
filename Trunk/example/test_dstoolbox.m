@@ -135,7 +135,7 @@ function test_dsproperties(testnum)
             %varnames/dimnames can be character vector, cell array of 
             %character vectors, string array, numeric array, logical array
             cc = dsproperties(dsp_cellstruct);%initialise with cell struct
-            varnames = {'var2','var3'};
+            varnames = {'Var2','Var3'};
             rmVariables(cc,varnames);       %remove variables
             dimnames = 'Dim1';
             rmDimensions(cc,dimnames);      %remove dimension
@@ -146,7 +146,8 @@ function test_dsproperties(testnum)
             %or just the name of the variable to be added
             dd = dsproperties(dsp_cellstruct);%initialise with cell struct
             varprops = 'var4';
-            addVariables(dd,varprops)
+            addVariables(dd,varprops);      %sets a property (no prompt)
+            editDSproperty(dd,'Variables') %edit current set of Variables
             dimprops = struct(...
                 'Name',{'Dim3';'Dim4'},...
                 'Description',{'Distance 3';'Distance 4'},...
@@ -161,8 +162,8 @@ function test_dsproperties(testnum)
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
             ee = dsproperties(dsp_struct);  %initialise with struct array
-            varname = 'var3';
-            location = "var2";
+            varname = 'Var3';
+            location = "Var2";
             moveVariable(ee,varname,'Before',location)
             moveDimension(ee,1,'After',[false,true])
             displayDSproperties(ee);        %display current definition

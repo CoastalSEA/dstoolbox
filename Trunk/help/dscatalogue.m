@@ -94,3 +94,7 @@
 % *caseID* - find caseid using caserec
 %
 %   caseid = caseID(dsc,caserec)   %get unique case id using id of a record in catalogue
+
+%% See Also
+% <matlab:doc('dstable') dstable>, <matlab:doc('dsproperties') dsproperties>, 
+% <matlab:doc('dstoolbox') dstoolbox>.

@@ -20,5 +20,4 @@
 % variables.
 
 %% See also
-% <matlab:doc('dstable') dstable>, <matlab:doc('tsccollection') tscollection>,
-% <matlab:doc('tsc2dst') tsc2dst>
+% <matlab:doc('dstable') dstable>, <matlab:doc('tsc2dst') tsc2dst>.

@@ -88,12 +88,15 @@ classdef dsproperties < matlab.mixin.Copyable
 %% Variables
 %--------------------------------------------------------------------------
         function set.Variables(obj,varprops)  
-            %
+            %overload set method to allow set to handle varprops as a
+            %struct, [] to clear and call using 'set' to intialise UI
             if isstruct(varprops)  
                 isvalid = checkPropertyStruct(obj,'Variables',varprops);
                 isoknames = checkPropertyNames(obj,'Variables',varprops);
                 if isvalid && isoknames
                     obj.Variables = varprops;
+                else
+                    warndlg('Invalid Variable struct. Properties not loaded');
                 end
             elseif isempty(varprops)  %request to clear all properties
                 idrec = 1:length(obj.Variables);
@@ -115,7 +118,8 @@ classdef dsproperties < matlab.mixin.Copyable
             %varprops is a Variables struct, cell array, or just the
             %name of the variable to be added
             if nargin<2 || isempty(varprops)
-                obj.Variables = setPropertyInput(obj,'Variables',obj.Variables);
+                obj.Variables = setPropertyInput(obj,'Variables',...
+                                                            obj.Variables);
             else
                 addPropertyInput(obj,'Variables',varprops);
             end
@@ -131,6 +135,8 @@ classdef dsproperties < matlab.mixin.Copyable
 %% Row
 %--------------------------------------------------------------------------
         function set.Row(obj,rowprops)
+            %overload set method to allow set to handle varprops as a
+            %struct, [] to clear and call using 'set' to intialise UI
             if isstruct(rowprops)
                 isvalid = checkPropertyStruct(obj,'Row',rowprops);
                 if isvalid
@@ -149,11 +155,15 @@ classdef dsproperties < matlab.mixin.Copyable
 %% Dimensions
 %--------------------------------------------------------------------------
         function set.Dimensions(obj,dimprops)
+            %overload set method to allow set to handle varprops as a
+            %struct, [] to clear and call using 'set' to intialise UI
             if isstruct(dimprops) 
                 isvalid = checkPropertyStruct(obj,'Dimensions',dimprops);
                 isoknames = checkPropertyNames(obj,'Dimensions',dimprops);
                 if isvalid && isoknames
                     obj.Dimensions = dimprops;
+                else
+                    warndlg('Invalid Dimensions struct. Properties not loaded') 
                 end
             elseif isempty(dimprops)  %request to clear all properties
                 idrec = 1:length(obj.Dimensions);
@@ -175,7 +185,8 @@ classdef dsproperties < matlab.mixin.Copyable
             %dimprops is a Dimensions struct, cell array, or just the
             %name of the dimension to be added
             if nargin<2 || isempty(dimprops)
-                obj.Dimensions = setPropertyInput(obj,'Dimensions',obj.Dimensions);
+                obj.Dimensions = setPropertyInput(obj,'Dimensions',...
+                                                          obj.Dimensions);
             else
                 addPropertyInput(obj,'Dimensions',dimprops);
             end
@@ -239,6 +250,7 @@ classdef dsproperties < matlab.mixin.Copyable
         end 
 %%
         function displayDSproperties(obj)
+            %display the current properties in a tabtablefigure
             tabnames = {'Variables','Row','Dimensions'};
             tabtxt = sprintf('Current definition of DSproperties for %s',obj.DSPdescription);
             
@@ -257,6 +269,12 @@ classdef dsproperties < matlab.mixin.Copyable
             %adjust position on screen            
             h_fig.Position(1)=  h_fig.Position(3)*3/2; 
             h_fig.Visible = 'on';
+        end
+%%
+        function editDSproperty(obj,propname)
+            %edit an existing property set of Variables, Row, Dimensions
+            props = obj.(propname);
+            obj.(propname) = setPropertyInput(obj,propname,props,true);
         end
     end
 %% ------------------------------------------------------------------------
@@ -283,6 +301,7 @@ classdef dsproperties < matlab.mixin.Copyable
             % isset - logical flag to indicate whether to prompt for the
             % number of variables or dimensions. No prompt if true. See
             % muiUserModel.setdsp2save for an example of usage.
+            if nargin<4, isset = false; end
             structdata = propstruct;              %return same struct if cancelled
             fnames = fieldnames(propstruct);      %substruct fieldnames
             nfields = length(fnames);             %number of fields
@@ -306,7 +325,7 @@ classdef dsproperties < matlab.mixin.Copyable
                 numvars = 1;
             elseif isset
                 numvars = length(obj.(propname));
-                if isempty(obj(1).(propname).Name), numvars = 0; end
+                if isempty(obj.(propname)(1).Name), numvars = 0; end
             else
                 %get user to define number of variables or dimensions
                 promptxt = sprintf('Number of %s:',propname);
@@ -326,6 +345,8 @@ classdef dsproperties < matlab.mixin.Copyable
                     defaults = repmat({''},nfields,1);
                 else
                     defaults = struct2cell(propstruct(i));
+                    idd = cellfun(@isempty,defaults);
+                    defaults(idd)= repmat({''},sum(idd),1);
                     if size(defaults,2)>1
                         defaults = cellfun(@(x) x{i},defaults,'UniformOutput',false); 
                     end
@@ -495,7 +516,7 @@ classdef dsproperties < matlab.mixin.Copyable
                         obj.(propname)(ndim+i) = varnames(i);
                     end
                 else
-                    warndlg('Invlaid struct. Properties not loaded')
+                    warndlg('Invalid struct. Properties not loaded')
                 end
             else
                 warndlg('Unknown input format')

@@ -664,19 +664,43 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                                             getLabels(obj,'Dimension')];                                              
             %should always be at least one variable and rows, or one dimension
             %remove unused "dimensions" and add undefined dimensions
-            vdim = getvariabledimensions(obj,idv);
+            [vdim,~,vsze] = getvariabledimensions(obj,idv);
             setdims = sum(~cellfun(@isempty,names))-1;
             missingdims = vdim-setdims; 
-            nrow = height(obj.DataTable);
-            if nrow==1 && isempty(obj.RowNames)        %single row
-                names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
-                if missingdims>0                       %add missing
-                    [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims); 
+%             nrow = height(obj.DataTable);
+%             if nrow==1 && all(vsze(2:end)==1)          %variable with no rows or dims
+%                 names = names(1);  desc = desc(1);  label = label(1);
+%             elseif nrow==1                             %single row
+%                 names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
+%                 if missingdims>0                       %add missing if undefined
+%                     [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims); 
+%                 end
+%             elseif isempty(names{3})                   %no dimensions
+%                 names = names(1:2);  desc = desc(1:2);  label = label(1:2);
+%                 if missingdims>0                       %add missing if undefined
+%                     [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+%                 end
+%             elseif nrow>1 && all(vsze(2:end)==1)       %rows with dims for a point        
+%                 names = names(1:2);  desc = desc(1:2);  label = label(1:2);
+%             else
+%             end
+
+            if vsze(1)==1
+                if all(vsze(2:end)==1)        %variable with no rows or dims
+                    names = names(1);  desc = desc(1);  label = label(1);
+                else                          %single row with dims
+                    names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
+                    if missingdims>0          %add missing if undefined
+                        [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+                    end
                 end
-            elseif isempty(names{3})                   %no dimensions
-                names = names(1:2);  desc = desc(1:2);  label = label(1:2);
-                if missingdims>0                       %add missing
-                    [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+            else                              %multiple rows
+                if all(vsze(2:end)==1)        %variable with rows but no dims
+                    names = names(1:2);  desc = desc(1:2);  label = label(1:2);
+                else                          %variable with rows and dims
+                    if missingdims>0          %add missing if undefined
+                        [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+                    end
                 end
             end
         end
@@ -1074,8 +1098,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 % Other functions
 %--------------------------------------------------------------------------  
         function tsc = dst2tsc(obj,varargin)
-            %convert dstable object to a tscollection if dstable has more than one
-            %variable and a timeseries if only one variable
+            %convert dstable object to a tscollection 
             % idxtime - index vector for the subselection of time
             % idxvars - index vector for the subselection of variables, or the 
             %           variable names as a cell array of character vectors 

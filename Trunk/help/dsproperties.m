@@ -169,12 +169,19 @@
 % and Dimensions. Provides the option to add Variables and Dimensions
 % interactively.
 %%
-%   dsp = dsproperties;                %empty dsproperties object
-%   setDSproperties(dsp);              %edit existing dsproperties object, dsp.
-%   setDSproperties(dsp,dsp_struct);   %load a dsproperties struct array into a dsproperties object
-%   setDSproperties(dsp,[],'dspDesc'); %interactively define properties and add dspDesc as the DSPdescription
-%   setDSproperties(dsp,[],'dspDesc',isset); %isset if optional logical flag that suppresses prompt
-%                                            %to set number of variables and dimensions
+%   dsp = dsproperties;                     %empty dsproperties object
+%   setDSproperties(dsp);                   %edit existing dsproperties object, dsp.
+%   setDSproperties(dsp,dsp_struct);        %load a dsproperties struct array into a dsproperties object
+%   setDSproperties(dsp,[],'dspDesc');      %interactively define properties and add dspDesc as the DSPdescription
+%   setDSproperties(dsp,[],'dspDesc',isset);%isset (optional) logical flag that suppresses prompt
+%                                           %to set the number of variables and dimensions
+%%
+% *editDSproperties* calls the UI and allows existing Row, Variables or
+% Dimensions to edited. To change the number of Variables or Dimensions use 
+% setDSproperties.
+%%
+%   editDSproperty(dsp,propname)      %where propname is 'Row', 'Variables',' or 'Dimensions'
+%   
 %% 
 % *displayDSproperrties* displays the current property setting on a figure
 % with tabs for Variables, Row and Dimensions. Settings can be copied to
@@ -182,8 +189,6 @@
 %%
 %   displayDSproperties(dsp);         %display current definitions
  
-
 %% See Also
 % <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 
-% <matlab:doc('dscollection') dscollection>,
 % <matlab:doc('dstoolbox') dstoolbox>.
