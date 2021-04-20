@@ -7,8 +7,8 @@
 % the example folder <matlab:example_folder here>. 
 %%
 %   dm = dstb_usage;    %initialise class that manages calls to models and data classes
-%   run_a_model(dm);
-%   load_data(dm);
+%   run_a_model(dm);    %run model and save record to catalogue
+%   load_data(dm);      %load data from text file and save record to catalogue
 %   plotCase(dm);       %plot some results for a selected Case
 %   displayProps(dm);   %display DSproperties for a selected Case
 %
@@ -18,12 +18,12 @@
 % dstable and dsproperties, with a record for each data set held in
 % dscatalouge. An option to run dstb_usage is included in test_dstoolbox
 
-%% demoData class
+%% ds_demoData class
 % A class to load data from a file and store it in a <matlab:doc('dstable') dstable>. 
 % The class includes methods to define the dsproperties, read the 
 % input file format, load the data into a _dstable_ and plot some output.
 
-%% demoModel class
+%% ds_demoModel class
 % A class to run a simple model (2D diffusion using hard code parameter settings)
 % The class includes methods to run the model, save the results, and plot
 % the model output
@@ -94,7 +94,7 @@
 % *dstb_usage* <br>
 % _casenum_ and _options_ input arguments not used <br>
 % Runs the model and loads data twice to create a catalogue of four data
-% sets. then calls plot and display functions for selected cases.
+% sets, then calls plot and display functions for selected cases.
 
 %% See Also
 % <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 

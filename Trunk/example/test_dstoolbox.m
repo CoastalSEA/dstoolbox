@@ -66,7 +66,7 @@ function test_dscatalogue()
     
     %select from the TestClass subset
     [caserec,~] = selectRecord(dsCat,'PromptText','Select case:',...
-                     'CaseClass','TestClass','ListSize',[250,200]);
+                     'CaseClass',{'TestClass'},'ListSize',[250,200]);
     fprintf('Selected TestCLass record %g\n',caserec)
     
     removeRecord(dsCat,[2,4]);

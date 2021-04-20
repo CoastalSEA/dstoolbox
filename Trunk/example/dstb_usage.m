@@ -33,29 +33,29 @@ classdef dstb_usage < handle
         function run_a_model(obj)
             %run models and add to the Cases catalogue
             if isempty(obj.Models)
-                obj.Models = demoModel.runModel(obj.Cases);
+                obj.Models = ds_demoModel.runModel(obj.Cases);
             else
                 idx = length(obj.Models)+1;
-                obj.Models(idx) = demoModel.runModel(obj.Cases);
+                obj.Models(idx) = ds_demoModel.runModel(obj.Cases);
             end            
         end
 %%
         function load_data(obj)
             %load an imported data set
             if isempty(obj.Data)
-                obj.Data = demoData.loadData(obj.Cases);
+                obj.Data = ds_demoData.loadData(obj.Cases);
             else
                 idx = length(obj.Data)+1;
-                obj.Data(idx) = demoData.loadData(obj.Cases);
+                obj.Data(idx) = ds_demoData.loadData(obj.Cases);
             end             
         end
 %%
         function plotCase(obj)
             %plot the results for a model or imported data
-            [caserec,ok] = selectCase(obj.Cases);
+            [caserec,ok] = selectRecord(obj.Cases);
             if ok<1, return; end
             classrec = classRec(obj,caserec);
-            casedef = getCase(obj.Cases,caserec);                     
+            casedef = getRecord(obj.Cases,caserec);                     
             switch casedef.CaseType
                 case 'model'
                     mobj = obj.Models(classrec);
@@ -70,7 +70,7 @@ classdef dstb_usage < handle
 %%
         function displayProps(obj)
             %displeay the metadata properties of a selected case
-            [caserec,ok] = selectCase(obj.Cases);
+            [caserec,ok] = selectRecord(obj.Cases);
             if ok<1, return; end
             classrec = classRec(obj,caserec);
             ctype = obj.Cases.Catalogue.CaseType(caserec);
@@ -85,7 +85,7 @@ classdef dstb_usage < handle
 %%
         function classrec = classRec(obj,caserec)
             %find class record with classid that matches caserec
-            casedef = getCase(obj.Cases,caserec);
+            casedef = getRecord(obj.Cases,caserec);
             switch casedef.CaseType
                 case 'model'
                     lobj = obj.Models;                    

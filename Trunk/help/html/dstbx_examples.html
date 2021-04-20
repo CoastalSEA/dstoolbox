@@ -6,8 +6,8 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dstoolbox examples</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-04"><meta name="DC.source" content="dstbx_examples.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      --><title>dstoolbox examples</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-03-30"><meta name="DC.source" content="dstbx_examples.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -66,24 +67,25 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>dstoolbox examples</h1><!--introduction--><p>The construct illustrated in the introduction of the <a href="matlab:doc('dstoolbox')">dstoolbox</a> is illustrated using the calling function dstb_usage.m and the dstb_DemoData class that inherits from the <a href="matlab:doc('dscollection')">dscollection</a> abstract class. <br> Usage of the individual classes is provided in the test_dstoolbox function.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">dstb_usage class</a></li><li><a href="#3">demoData class</a></li><li><a href="#4">demoModel class</a></li><li><a href="#5">test_dstoolbox function</a></li></ul></div><pre class="language-matlab">dm = dstb_usage;    <span class="comment">%initialise class that manages calls to models and data classes</span>
-run_a_model(dm);
-load_data(dm);
+  </style></head><body><div class="content"><h1>dstoolbox examples</h1><!--introduction--><p>The construct illustrated in the introduction of the <a href="matlab:doc('dstoolbox')">dstoolbox</a> is illustrated using the calling function dstb_usage.m and the demoData and demoModel classes <br> Usage of the individual classes is provided in the test_dstoolbox function. The files for the example use cases can be found in the example folder <a href="matlab:example_folder">here</a>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">dstb_usage class</a></li><li><a href="#3">ds_demoData class</a></li><li><a href="#4">ds_demoModel class</a></li><li><a href="#5">test_dstoolbox function</a></li><li><a href="#14">See Also</a></li></ul></div><pre class="language-matlab">dm = dstb_usage;    <span class="comment">%initialise class that manages calls to models and data classes</span>
+run_a_model(dm);    <span class="comment">%run model and save record to catalogue</span>
+load_data(dm);      <span class="comment">%load data from text file and save record to catalogue</span>
 plotCase(dm);       <span class="comment">%plot some results for a selected Case</span>
 displayProps(dm);   <span class="comment">%display DSproperties for a selected Case</span>
-</pre><h2 id="2">dstb_usage class</h2><p>A class to illustrate the combined use of data and model classes that use dstable and dsproperties, with a record for each data set held in dscatalouge. An option to run dstb_usage is included in test_dstoolbox</p><h2 id="3">demoData class</h2><p>A class to load data from a file and store it in a <a href="matlab:doc('dstable')">dstable</a>. The class includes a method to define the dsproperties, read the input file format and load the data into a <i>dstable</i> and plot some output.</p><h2 id="4">demoModel class</h2><p>A class to run a simple model (2D diffusion using hard code parameter settings) The class includes a methods run the model and save the results, and plot the model output</p><h2 id="5">test_dstoolbox function</h2><p>The test_dstoolbox function can be used to experiment with the different options available for the <a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('dsproperties')">dsproperties</a> and <a href="matlab:doc('dscatalogue')">dsdscatalogue</a>. The comments included in the code explain each function call.</p><p><b>Examples of usage</b></p><pre class="language-matlab">test_dstoolbox(classname,casenum,options)
-</pre><p><i>classname</i> is one of the toolbox classes 'dscatalogue', 'dsproperties', 'dstable' <br> <i>casenum</i> is the example test case (see below) <br> <i>options</i> define the input selection for some of the cases (see below)</p><p><b>dscatalogue</b> <br> <i>casenum</i> and <i>options</i> input arguments not used <br> Initialises the class object, add and remove some records, prompt to edit case descriptions, select records to be deleted. Results are displayed in the Command Window.</p><p><b>dsproperties</b> <br> <i>options</i> input arguments not used <br> <i>casenum</i> defines the test cases below: <br> Case 1 - create and display blank dsproperties. <br> Case 2 - set properties and display.  <br> Case 3 - call and set properties individually using UI.  <br> Case 4 - create using a struct and delete contents.  <br> Case 5 - alternative syntax to set all using UI.  <br> Case 6 - assign a struct array.  <br> Case 7 - assign a struct of cell arrays.  <br> Case 8 - set and test loading incomplete struct (fails).  <br> Case 9 - removal of variables and dimensions.  <br> Case 10 - addition of variables and dimensions. <br> Case 11 - change order of variables and dimensions <br> Case 12 - input of struct with empty fields</p><p><b>dstable</b> <br> <i>casenum</i> defines the test cases below: <br> Case 1 - initialise a blank dstable. option not used <br> Case 2 - create a simple table with no dimensions. options is a single scalar value <br> Case 3 - create table with 2d+t array. options are a [1x3] vector <br> Case 4 - update the values in the variable. options are a [1x3] vector <br> Case 5 - horzcat and vertcat - simple table with no dimensions. options are a single scalar value <br> Case 6 - horzcat and vertcat - multiple variables with dimensions. options are a [1x3] vector <br> Case 7 - add variable rownames, dimensions and metadata in one call. options are a [1x3] vector <br> Case 8 - access data using dimensions. options are a [1x3] vector <br> Case 9 - convert dstable to tscollection and back. options are a [1x3] vector</p><p><i>options</i> define the data type used to generate row and dimension data. A single value defines the row dimension and a [1x3] vector defines [row,dim1,dim2] data types. The data types are numbered as follows: <br> 1 - datetime <br> 2 - duration <br> 3 - char <br> 4 - string <br> 5 - numeric</p><p><b>dstb_usage</b> <br> <i>casenum</i> and <i>options</i> input arguments not used <br> Runs the model and loads data twice to create a catalogue of four data sets. then calls plot and display functions for selected cases.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+</pre><h2 id="2">dstb_usage class</h2><p>A class to illustrate the combined use of data and model classes that use dstable and dsproperties, with a record for each data set held in dscatalouge. An option to run dstb_usage is included in test_dstoolbox</p><h2 id="3">ds_demoData class</h2><p>A class to load data from a file and store it in a <a href="matlab:doc('dstable')">dstable</a>. The class includes methods to define the dsproperties, read the input file format, load the data into a <i>dstable</i> and plot some output.</p><h2 id="4">ds_demoModel class</h2><p>A class to run a simple model (2D diffusion using hard code parameter settings) The class includes methods to run the model, save the results, and plot the model output</p><h2 id="5">test_dstoolbox function</h2><p>The test_dstoolbox function can be used to experiment with the different options available for the <a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('dsproperties')">dsproperties</a> and <a href="matlab:doc('dscatalogue')">dsdscatalogue</a>. The comments included in the code explain each function call.</p><p><b>Examples of usage</b></p><pre class="language-matlab">test_dstoolbox(classname,casenum,options)
+</pre><p><i>classname</i> is one of the toolbox classes 'dscatalogue', 'dsproperties', 'dstable' <br> <i>casenum</i> is the example test case (see below) <br> <i>options</i> define the input selection for some of the cases (see below)</p><p><b>dscatalogue</b> <br> <i>casenum</i> and <i>options</i> input arguments not used <br> Initialises the class object, add and remove some records, prompt to edit case descriptions, select records to be deleted. Results are displayed in the Command Window.</p><p><b>dsproperties</b> <br> <i>options</i> input arguments not used <br> <i>casenum</i> defines the test cases below: <br> Case 1 - create and display blank dsproperties. <br> Case 2 - set properties and display.  <br> Case 3 - call and set properties individually using UI.  <br> Case 4 - create using a struct and delete contents.  <br> Case 5 - alternative syntax to set all using UI.  <br> Case 6 - assign a struct array.  <br> Case 7 - assign a struct of cell arrays.  <br> Case 8 - set and test loading incomplete struct (fails).  <br> Case 9 - removal of variables and dimensions.  <br> Case 10 - addition of variables and dimensions. <br> Case 11 - change order of variables and dimensions <br> Case 12 - input of struct with empty fields</p><p><b>dstable</b> <br> <i>casenum</i> defines the test cases below: <br> Case 1 - initialise a blank dstable. option not used <br> Case 2 - create a simple table with no dimensions. options is a single scalar value <br> Case 3 - create table with 2d+t array. options are a [1x3] vector <br> Case 4 - update the values in the variable. options are a [1x3] vector <br> Case 5 - horzcat and vertcat - simple table with no dimensions. options are a single scalar value <br> Case 6 - horzcat and vertcat - multiple variables with dimensions. options are a [1x3] vector <br> Case 7 - add variable rownames, dimensions and metadata in one call. options are a [1x3] vector <br> Case 8 - access data using dimensions. options are a [1x3] vector <br> Case 9 - convert dstable to tscollection and back. options are a [1x3] vector</p><p><i>options</i> define the data type used to generate row and dimension data. A single value defines the row dimension and a [1x3] vector defines [row,dim1,dim2] data types. The data types are numbered as follows: <br> 1 - datetime <br> 2 - duration <br> 3 - char <br> 4 - string <br> 5 - numeric</p><p><b>dstb_usage</b> <br> <i>casenum</i> and <i>options</i> input arguments not used <br> Runs the model and loads data twice to create a catalogue of four data sets. then calls plot and display functions for selected cases.</p><h2 id="14">See Also</h2><p><a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('dscatalogue')">dscatalogue</a>, <a href="matlab:doc('dsproperties')">dsproperties</a>, <a href="matlab:doc('dstoolbox')">dstoolbox</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% dstoolbox examples
 % The construct illustrated in the introduction of the <matlab:doc('dstoolbox') dstoolbox>
 % is illustrated using the calling function dstb_usage.m and the
-% dstb_DemoData class that inherits from the <matlab:doc('dscollection') dscollection> abstract class. <br>
+% demoData and demoModel classes <br>
 % Usage of the individual classes is provided in the test_dstoolbox
-% function.
+% function. The files for the example use cases can be found in
+% the example folder <matlab:example_folder here>. 
 %%
 %   dm = dstb_usage;    %initialise class that manages calls to models and data classes
-%   run_a_model(dm);
-%   load_data(dm);
+%   run_a_model(dm);    %run model and save record to catalogue
+%   load_data(dm);      %load data from text file and save record to catalogue
 %   plotCase(dm);       %plot some results for a selected Case
 %   displayProps(dm);   %display DSproperties for a selected Case
 %
@@ -93,14 +95,14 @@ displayProps(dm);   <span class="comment">%display DSproperties for a selected C
 % dstable and dsproperties, with a record for each data set held in
 % dscatalouge. An option to run dstb_usage is included in test_dstoolbox
 
-%% demoData class
+%% ds_demoData class
 % A class to load data from a file and store it in a <matlab:doc('dstable') dstable>. 
-% The class includes a method to define the dsproperties, read the 
-% input file format and load the data into a _dstable_ and plot some output.
+% The class includes methods to define the dsproperties, read the 
+% input file format, load the data into a _dstable_ and plot some output.
 
-%% demoModel class
+%% ds_demoModel class
 % A class to run a simple model (2D diffusion using hard code parameter settings)
-% The class includes a methods run the model and save the results, and plot
+% The class includes methods to run the model, save the results, and plot
 % the model output
 
 %% test_dstoolbox function
@@ -170,6 +172,10 @@ displayProps(dm);   <span class="comment">%display DSproperties for a selected C
 % _casenum_ and _options_ input arguments not used <br>
 % Runs the model and loads data twice to create a catalogue of four data
 % sets. then calls plot and display functions for selected cases.
+
+%% See Also
+% <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 
+% <matlab:doc('dsproperties') dsproperties>, <matlab:doc('dstoolbox') dstoolbox>.
 
 ##### SOURCE END #####
 --></body></html>

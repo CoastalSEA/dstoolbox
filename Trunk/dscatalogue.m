@@ -125,11 +125,15 @@ classdef dscatalogue < handle
             casetype = obj.Catalogue.CaseType;
             
             if ~isempty(v.CaseClass)   %only use selected classes
-                idc = find(strcmp(v.CaseClass,caseclass));
+                for i=1:length(v.CaseClass)
+                    idc = [idc,find(strcmp(v.CaseClass{i},caseclass))];
+                end
             end
             %
             if ~isempty(v.CaseType)    %only use selected data types
-                idt = find(strcmp(v.CaseType,casetype));
+                for i=1:length(v.CaseType)
+                    idt = [idt,find(strcmp(v.CaseType{i},casetype))];
+                end
             end
             
             idx = union(idc,idt);      
@@ -175,7 +179,7 @@ classdef dscatalogue < handle
                     if ok<1
                         selection = 'All';
                     else
-                        selection = oplist{sel};
+                        selection = oplist(sel);
                     end
                 end
             else

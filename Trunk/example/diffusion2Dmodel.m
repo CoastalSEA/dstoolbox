@@ -1,54 +1,74 @@
-function [ut,xy,t] = diffusion2Dmodel()
-%
-%-----function help--------------------------------------------------------
+function [ut,xy,t] = diffusion2Dmodel(inp,run)
 % Simulating the 2-D Diffusion equation by the Finite Difference Method 
 % Numerical scheme used is a first order upwind in time and a second 
 % order central difference in space (Implicit and Explicit).
-% Based on the code of Suraj Shanka, Copyright (c) 2012
+% Core model is based on the code of Suraj Shanka, Copyright (c) 2012
 % See Licence agreement for details of rights and permissions). 
 % Downloaded from the Matlab Exchange Forum 3-Jan-2018.
+% INPUTS
+%   inp - struct containing
+%         Xlength             Length of X dimension (m)
+%         Ylength             Length of Y dimension', (m)
+%         Xint                Number of intervals in X dimension
+%         Yint                Number of intervals in Y dimension
+%         uWest               Boundary condition at X=0
+%         uEast               Boundary condition at X=L
+%         uNorth              Boundary condition at Y=0
+%         uSouth              Boundary condition at Y=L
+%         DiffCoeff           Diffusion coefficient (-) 
+%         uPeak               magnitude of initial distrubance
+%         PkSize              proportion of X and Y that is disturbed  
+%   run - struct containing
+%         TimeStep            time step duration (seconds)
+%         NumStep             number of time steps(-)
+%         BCoption            selected boundary condition (1 or 2)  
+%         NumScheme           %selected numerical scheme (1 or 2)
+%         is3D - flag to return a pseudo 3D output (XYZT) to test graphics
+% OUTPUTS
+%   ut - transport veoclity vector (m/s)
+%   xy - x and y co-ordinates of grid (m)
+%   t  - time in seconds
+% NOTES
 %
-% INPUT
-%   Input values are hard coded
+% AUTHOR
+% Ian Townend
+%
 % COPYRIGHT
-% CoastalSEA, (c) 2017, Suraj Shanka, (c) 2012
-%--------------------------------------------------------------------------
-    is3D = false;
+% Suraj Shanka, Copyright (c) 2012
+% modified to run in ModelUI by CoastalSEA, (c) 2017
+%----------------------------------------------------------------------
+    is3D = run.is3D;
     % unpack input data 
-    nx = 20;
-    ny = 30;    
-    Lx = 100;
-    Ly = 150;
-    dc = 0.5;
+    nx = inp.Xint;
+    ny = inp.Yint;    
+    Lx = inp.Xlength;
+    Ly = inp.Ylength;
+    dc = inp.DiffCoeff;
     % model domain
     dx = Lx/(nx-1);
     dy = Ly/(ny-1);
     x = 0:dx:Lx;
     y = 0:dy:Ly;
-    xy = {x',y'};            %assign xyz coordinates
-    dt = 0.5;
-    nt = 100;
-    t = 0:dt:dt*nt;          %assign time variable
+    xy = {x',y'};      %assign xyz coordinates
+    dt = run.TimeStep;
+    nt = run.NumStep;
+    t = 0:dt:dt*nt;        %assign time variable
     u = zeros(nx,ny);
     ut = zeros(nt+1,nx,ny);
     % boundary conditions
-    UE = 0;
-    UW = 0;
-    US = 0;
-    UN = 0;
-    BCoption = 1;             %selected boundary condition (1 or 2)  
-    NumScheme = 1;            %selected numerical scheme (1 or 2)
-    PkSize = 0.2;
-    uPeak = 0.8;
+    UE = inp.uEast;
+    UW = inp.uWest;
+    US = inp.uSouth;
+    UN = inp.uNorth;
 %%
     %Initial Conditions
     for i=1:nx
         for j=1:ny
-            offsetX = (1-PkSize)*Lx/2;
-            offsetY = (1-PkSize)*Ly/2;
+            offsetX = (1-inp.PkSize)*Lx/2;
+            offsetY = (1-inp.PkSize)*Ly/2;
             if ((offsetY<=y(j))&&(y(j)<=Ly-offsetY) && ...
                                     (offsetX<=x(i))&&(x(i)<=Lx-offsetX))
-                u(i,j)=uPeak;
+                u(i,j)=inp.uPeak;
             else
                 u(i,j)=0;
             end
@@ -64,14 +84,14 @@ function [ut,xy,t] = diffusion2Dmodel()
     end
 %%
     %B.C vector and coefficient matrix for the implicit scheme
-    [bc,D] = BCvector(BCoption);
+    [bc,D] = BCvector(run.BCoption);
 %%
     %main computation loop
     i=2:nx-1;
     j=2:ny-1;
     for it=2:nt+1
         un=u;
-        switch NumScheme
+        switch run.NumScheme
             case 1          %implicit scheme
                 U=un;U(1,:)=[];U(end,:)=[];U(:,1)=[];U(:,end)=[];
                 U=reshape(U+bc,[],1);
@@ -83,7 +103,7 @@ function [ut,xy,t] = diffusion2Dmodel()
                     (dc*dt*(un(i+1,j)-2*un(i,j)+un(i-1,j))/(dx*dx))+...
                     (dc*dt*(un(i,j+1)-2*un(i,j)+un(i,j-1))/(dy*dy));
         end
-        u = boundarycondition(u,BCoption);
+        u = boundarycondition(u,run.BCoption);
         ut(it,:,:,1) = u;
         if is3D
             %code to generate a simple 3D output 

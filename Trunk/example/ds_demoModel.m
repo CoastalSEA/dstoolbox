@@ -1,13 +1,13 @@
-classdef demoModel < handle
+classdef ds_demoModel < handle
 %
 %-------class help------------------------------------------------------===
 % NAME
-%   demoModel.m
+%   ds_demoModel.m
 % PURPOSE
 %   Class to illustrate running a model, adding the results to dstable and
 %   a record in a dscatlogue with a method to plot the output
 % USAGE
-%   obj = demoModel.runModel(catobj) %where catobj is a handle to a dscatalogue
+%   obj = ds_demoModel.runModel(catobj) %where catobj is a handle to a dscatalogue
 % SEE ALSO
 %   uses diffusion2Dmodel.m based on code by Suraj Shanka, (c) 2012,
 %   (fileexchange/diffusion-in-1d-and-2d), and dstable and dscatalogue
@@ -26,7 +26,7 @@ classdef demoModel < handle
     end    
     
     methods (Access = private)
-        function obj = demoModel()
+        function obj = ds_demoModel()
             %class constructor
         end
     end
@@ -34,13 +34,13 @@ classdef demoModel < handle
     methods (Static)
         function obj = runModel(catobj)
             %initialise class object
-            obj = demoModel;
+            obj = ds_demoModel;
             dsp = modelDSproperties(obj);
             
             %run the diffusion2Dmodel
-            [ut,xy,modeltime] = diffusion2Dmodel();
+            [inp,run] = ds_demo_inputprops();
+            [ut,xy,modeltime] = diffusion2Dmodel(inp,run);
             modeltime = seconds(modeltime);  %durataion data for rows
-%             modeltime.Format = dsp.Row.Format;
             %load the results into a dstable            
             dst = dstable(ut,'RowNames',modeltime,'DSproperties',dsp);
             dst.Dimensions.X = xy{:,1};   %grid x-coordinate
@@ -53,7 +53,7 @@ classdef demoModel < handle
             %assign dstable to demoModel Collection property
             obj.Collection = dst;
             %add the run to the catalogue
-            obj.ClassIndex = addCase(catobj,'demoModel','model');
+            obj.ClassIndex = addRecord(catobj,'demoModel','model');
         end 
     end
 %%

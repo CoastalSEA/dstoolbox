@@ -1,13 +1,13 @@
-classdef demoData < handle
+classdef ds_demoData < handle
 %
 %-------class help------------------------------------------------------===
 % NAME
-%   demoData.m
+%   ds_demoData.m
 % PURPOSE
 %   Class to illustrate importing a data set, adding the results to dstable
 %   and a record in a dscatlogue with a method to plot the output
 % USAGE
-%   obj = demoData.loadData(catobj) %where catobj is a handle to a dscatalogue
+%   obj = ds_demoData.loadData(catobj) %where catobj is a handle to a dscatalogue
 % SEE ALSO
 %   uses dstable and dscatalogue
 %
@@ -24,7 +24,7 @@ classdef demoData < handle
     end      
     
     methods (Access = private)
-        function obj = demoData()
+        function obj = ds_demoData()
             %class constructor
         end
     end
@@ -32,7 +32,7 @@ classdef demoData < handle
     methods (Static)
         function obj = loadData(catobj)
             %read and load a data set from a file
-            obj = demoData;               %initialise class object
+            obj = ds_demoData;               %initialise class object
             [data,~,filename] = readInputData(obj);             
             if isempty(data), obj = []; return; end
             dsp = dataDSproperties(obj);  %initialise dsproperties for data
@@ -47,7 +47,7 @@ classdef demoData < handle
             %assign dstable to demoModel Collection property
             obj.Collection = dst;
             %add the run to the catalogue
-            obj.ClassIndex = addCase(catobj,'demoData','data');
+            obj.ClassIndex = addRecord(catobj,'demoData','data');
         end 
     end
 %%
@@ -83,7 +83,7 @@ classdef demoData < handle
             filename = [path fname];
             dataSpec = '%d %d %s %s %s %s'; 
             nhead = 1;     %number of header lines
-            [header,data] = readinputfile(filename,nhead,dataSpec);
+            [data,header] = readinputfile(filename,nhead,dataSpec);
         end     
 %%        
         function [varData,myDatetime] = getData(~,data,dsp)

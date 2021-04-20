@@ -13,6 +13,12 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 %   The DataTable property holds the Matlab(c) table 
 %   All additional properties are added as CustomProperties to the table in
 %   a dsproperties struct or a dsproperties object
+%   NB: dynamic properties are not saved when dstable is saved to a mat
+%   file. To reinitialise these properies to enable direct access to
+%   variables (eg. using obj.VariableName) call 
+%      dst = activatedynamicprops(dst);   %eg called in muiCatalogue.getDataset
+%   dstable uses ConstructOnLoad so this should no longer be needed but it
+%   is!
 % SEE ALSO
 %   see test_dstoolbox.m for examples of usage
 %
@@ -108,7 +114,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 %empty dstable
                 obj.DataTable = table;
                 %add default properties used by dstables
-                addDefaultProperties(obj);                
+                addDefaultProperties(obj); 
                 return;
             end
             nvars = length(varargin);
@@ -667,31 +673,22 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             [vdim,~,vsze] = getvariabledimensions(obj,idv);
             setdims = sum(~cellfun(@isempty,names))-1;
             missingdims = vdim-setdims; 
-%             nrow = height(obj.DataTable);
-%             if nrow==1 && all(vsze(2:end)==1)          %variable with no rows or dims
-%                 names = names(1);  desc = desc(1);  label = label(1);
-%             elseif nrow==1                             %single row
-%                 names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
-%                 if missingdims>0                       %add missing if undefined
-%                     [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims); 
-%                 end
-%             elseif isempty(names{3})                   %no dimensions
-%                 names = names(1:2);  desc = desc(1:2);  label = label(1:2);
-%                 if missingdims>0                       %add missing if undefined
-%                     [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
-%                 end
-%             elseif nrow>1 && all(vsze(2:end)==1)       %rows with dims for a point        
-%                 names = names(1:2);  desc = desc(1:2);  label = label(1:2);
-%             else
-%             end
 
             if vsze(1)==1
                 if all(vsze(2:end)==1)        %variable with no rows or dims
                     names = names(1);  desc = desc(1);  label = label(1);
-                else                          %single row with dims
+                elseif isempty(obj.RowNames)  %single row with dims
                     names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
                     if missingdims>0          %add missing if undefined
                         [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+                    end
+                else                          %row is a dimension
+                    if all(vsze(2:end)==1)        %variable with rows but no dims
+                        names = names(1:2);  desc = desc(1:2);  label = label(1:2);
+                    else                          %variable with rows and dims
+                        if missingdims>0          %add missing if undefined
+                            [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
+                        end
                     end
                 end
             else                              %multiple rows
@@ -1354,7 +1351,9 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 
             idd = inputvargs{3};
             if isempty(idd)               %aasign dimension indices
-                idd = {1};
+                for j=1:length(ndim)
+                    idd{j} = 1:ndim(j);
+                end
             else
                 for j=1:length(idd)
                     if isempty(idd{j})
