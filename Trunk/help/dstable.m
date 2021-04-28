@@ -437,6 +437,18 @@
 %
 %   fields = allfieldnames(dst)
 
+%%
+% *getsampleusingtime* is simialr to the Matlab function for tscollections
+% and extracts timeseries data between a start and end time from a dstable. 
+% The rows of the dstable must be datetime. All variables in the dstable 
+% are resampled.
+%
+%   newdst = getsampleusingtime(dst,startime,endtime)
+%%
+% * startime - specified as a datetime scalar
+% * endtime - specified as a datetime scalar
+
+
 %% dstable Indexing Methods
 % Data held in a dstable can be accessed by rows, variables and/or
 % dimensions.

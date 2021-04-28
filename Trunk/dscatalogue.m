@@ -126,13 +126,13 @@ classdef dscatalogue < handle
             
             if ~isempty(v.CaseClass)   %only use selected classes
                 for i=1:length(v.CaseClass)
-                    idc = [idc,find(strcmp(v.CaseClass{i},caseclass))];
+                    idc = [idc;find(strcmp(v.CaseClass{i},caseclass))]; %#ok<AGROW>
                 end
             end
             %
             if ~isempty(v.CaseType)    %only use selected data types
                 for i=1:length(v.CaseType)
-                    idt = [idt,find(strcmp(v.CaseType{i},casetype))];
+                    idt = [idt;find(strcmp(v.CaseType{i},casetype))]; %#ok<AGROW>
                 end
             end
             
@@ -160,16 +160,18 @@ classdef dscatalogue < handle
             end
        end
 %%
-        function selection = selectRecordOptions(~,oplist,promptxt)
+        function [selection,ok] = selectRecordOptions(~,oplist,promptxt)
             %select classes or types of data to use to select records
             % oplist - unique values in the dscatalogue CaseClass or CaseType
             % promtxt - text to use to prompt user
+            % ok - returns 1 if selection made
             if length(oplist)>1
                 %add All option and use button or list to get user to choose
                 oplist = [convertStringsToChars(oplist);'All'];
                 if length(oplist)<4
-                    selection = questdlg(promptxt,'Record Selection',...
-                        oplist{:},'All');
+                    selection = {questdlg(promptxt,'Record Selection',...
+                        oplist{:},'All')};
+                    ok = 1;
                 else
                     [sel,ok] = listdlg('Name','Record Selection', ...
                                        'ListSize',[200,100],...
@@ -183,14 +185,18 @@ classdef dscatalogue < handle
                     end
                 end
             else
-                selection = 'All';
+                selection = 'All'; ok = 1;
             end
             if strcmp(selection,'All'), selection = []; end
         end
 %%
         function caserec = caseRec(obj,caseid)
             %find caserec given caseid
-            caserec = find(obj.Catalogue.CaseID==caseid);
+            nsrec = length(caseid);
+            caserec = zeros(1,nsrec);
+            for i=1:nsrec
+                caserec(i) = find(obj.Catalogue.CaseID==caseid(i));
+            end
         end
 %%
         function caseid = caseID(obj,caserec)
