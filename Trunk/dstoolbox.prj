@@ -6,7 +6,7 @@
     <param.company>University of Southampton</param.company>
     <param.summary>dstoolbox is a collection of classes used to store and manage access to multi-dimensional data sets.</param.summary>
     <param.description>The toolbox is designed to store and manage multi-dimensional data sets, including meta-data of the variables and all dimensions and manage access to a collection of classes that hold data sets using a catalogue.</param.description>
-    <param.screenshot>D:\Work\Tools\MATLAB\MUImodels\CSEA-Logo-only.png</param.screenshot>
+    <param.screenshot>${PROJECT_ROOT}\help\html\dstoolbox_logo.png</param.screenshot>
     <param.version>1.0</param.version>
     <param.output>${PROJECT_ROOT}\dstoolbox.mltbx</param.output>
     <param.products.name />
@@ -34,7 +34,7 @@ help/*.txt
 Working Docs
 %
 % All files of a certain name in all subfolders of the toolbox folder:
-% **/.svn
+**/.svn
 %
 % All files matching a pattern in all subfolders of the toolbox folder:
 % **/*.bak
@@ -49,7 +49,9 @@ Working Docs
     <param.matlabpath.excludes />
     <param.javaclasspath.excludes />
     <param.exported.on.package>false</param.exported.on.package>
-    <param.required.addons />
+    <param.required.addons>
+      <requiredaddons />
+    </param.required.addons>
     <param.matlab.project.id />
     <param.matlab.project.name />
     <param.release.start>R2016b</param.release.start>
@@ -80,7 +82,6 @@ Working Docs
       <param.matlabpath.excludes />
       <param.javaclasspath.excludes />
       <param.exported.on.package />
-      <param.required.addons />
       <param.matlab.project.id />
       <param.matlab.project.name />
       <param.release.current.only />
@@ -98,7 +99,7 @@ Working Docs
       <file>${PROJECT_ROOT}</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}\Contents.m</file>
+      <file>${PROJECT_ROOT}\Contents_old.m</file>
       <file>${PROJECT_ROOT}\demos.xml</file>
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\dscatalogue.m</file>
@@ -106,35 +107,14 @@ Working Docs
       <file>${PROJECT_ROOT}\dsprop_struct_template.m</file>
       <file>${PROJECT_ROOT}\dsproperties.m</file>
       <file>${PROJECT_ROOT}\dstable.m</file>
+      <file>${PROJECT_ROOT}\dstfunctions</file>
       <file>${PROJECT_ROOT}\example</file>
       <file>${PROJECT_ROOT}\help</file>
       <file>${PROJECT_ROOT}\info.xml</file>
       <file>${PROJECT_ROOT}\tsc2dst.m</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
-    <fileset.depfun.excluded>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\cellstruct2cell.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\cellstruct2structarray.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\copydata2clip.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\getcolumnwidths.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\getdatatype.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\getdateformat.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\getdialog.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\getfiles.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\getvariabledimensions.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\isunique.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\mat2clip.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\num2duration.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\readinputfile.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\setactionbutton.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\setdialog.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\statictextbox.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\str2duration.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\str2var.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\tablefigure.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\tabtablefigure.m</file>
-      <file>D:\Work\Tools\MATLAB\MUImodels2\muifunctions\var2str.m</file>
-    </fileset.depfun.excluded>
+    <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
       <file location="${PROJECT_ROOT}" name="dstoolbox.mltbx" optional="false">D:\Work\Tools\MATLAB\MUImodels2\dstoolbox\dstoolbox.mltbx</file>

@@ -31,7 +31,8 @@
         <tocitem target="dstbx_func_help.html" 
                  image="HelpIcon.FUNCTION">Function Reference
             <tocitem target="dst2tsc.html">dst2tsc</tocitem>    
-            <tocitem target="tsc2dst.html">tsc2dst</tocitem>        
+            <tocitem target="tsc2dst.html">tsc2dst</tocitem>  
+            <tocitem target="dstfunctions.html">Summary of utility functions</tocitem>   
         </tocitem>        
         <!-- Optional List of Examples, with hyperlinks to examples in other files -->
         <tocitem target="dstbx_examples.html" 
@@ -39,7 +40,7 @@
         </tocitem>
         <!-- Optional link or links to your or other Web sites -->
         <tocitem target="http://www.coastalsea.uk" 
-                 image="CSEA-Logo-only.png">Developers web site       
+                 image="dstoolbox_logo.png">Developers web site       
         </tocitem>
     </tocitem>
 </toc>
