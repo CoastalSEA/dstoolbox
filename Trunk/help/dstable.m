@@ -357,6 +357,14 @@
 %%
 %   dst3 = horzcat(dst1, dst2)     
 %%
+% *height* number of rows in the dstable
+%%
+%   H = height(dst);
+%%
+% *width* number of variables in the dstable.
+%%
+%   W = width(dst);
+%%
 % *plot* overloads plot to extract the RowNames and the values for varName
 % and passes thes to plot with any additional input variables 
 % accepted by <matlab:doc('plot') plot>. Returns the plot handle, h.

@@ -40,9 +40,25 @@ Working Docs
 % **/*.bak
 %</param.exclude.filters>
     <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
-    <param.examples />
+    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;examples&gt;
+   &lt;exampleCategory name="help"&gt;
+      &lt;example name="dstoolbox" type="html"&gt;
+         &lt;file type="source"&gt;/help/html/dstoolbox.html&lt;/file&gt;
+         &lt;file type="main"/&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Examples" type="html"&gt;
+         &lt;file type="source"&gt;/help/html/dstbx_examples.html&lt;/file&gt;
+         &lt;file type="main"/&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+   &lt;/exampleCategory&gt;
+&lt;/examples&gt;</param.examples>
     <param.demosxml />
-    <param.apps />
+    <param.apps>
+      <file>${PROJECT_ROOT}\ModelUI.mlappinstall</file>
+    </param.apps>
     <param.registered.apps />
     <param.docs>${PROJECT_ROOT}\info.xml</param.docs>
     <param.getting.started.guide>${PROJECT_ROOT}\doc\GettingStarted.mlx</param.getting.started.guide>
@@ -75,9 +91,7 @@ Working Docs
       <param.products.version />
       <param.platforms />
       <param.exclude.pcodedmfiles />
-      <param.examples />
       <param.demosxml />
-      <param.apps />
       <param.registered.apps />
       <param.matlabpath.excludes />
       <param.javaclasspath.excludes />
@@ -106,11 +120,13 @@ Working Docs
       <file>${PROJECT_ROOT}\dscollection.m</file>
       <file>${PROJECT_ROOT}\dsprop_struct_template.m</file>
       <file>${PROJECT_ROOT}\dsproperties.m</file>
+      <file>${PROJECT_ROOT}\dstable.asv</file>
       <file>${PROJECT_ROOT}\dstable.m</file>
       <file>${PROJECT_ROOT}\dstfunctions</file>
       <file>${PROJECT_ROOT}\example</file>
       <file>${PROJECT_ROOT}\help</file>
       <file>${PROJECT_ROOT}\info.xml</file>
+      <file>${PROJECT_ROOT}\setdstpath.m</file>
       <file>${PROJECT_ROOT}\tsc2dst.m</file>
     </fileset.rootfiles>
     <fileset.depfun.included />

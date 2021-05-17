@@ -596,6 +596,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %extract data from a dstable using the dimension data
             %and return a 'dstable' based on the selected dimension 
             %values. Update dimensions and preserve metadata
+            % varargin can include
             [idr,idv,idd] = getInputIndices(obj,varargin{:});
             datatable = getDataUsingIndices(obj,idv,idr,idd);
             if isempty(datatable), newdst = []; return; end
@@ -654,7 +655,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             dstime = isbetween(obj.RowNames,startime,endtime);
             newdst = getDSTable(obj,dstime,':');
             
-            %tested following burt also slow fineding indeices            
+            %tested following but also slow finding indeices            
             % idr = find(ismember(obj.RowNames,startime,'rows')); 
             % ide = find(ismember(obj.RowNames,endtime,'rows')); 
             % newdst = getDSTable(obj,idr:ide,':');
@@ -811,7 +812,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         end
 %% ------------------------------------------------------------------------   
 % Manipulate Variables - add, remove, move, variable range, horzcat,
-% vertcat, sortrows, plot
+% vertcat, sortrows, height, width, plot, mergerows
 %--------------------------------------------------------------------------
         function newdst = addvars(obj,varargin)
             %add variable to table and update properties
@@ -945,6 +946,16 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             newdst.DataTable = sortrows(newdst.DataTable,'sxTEMPxs');
             newdst.DataTable = removevars(newdst.DataTable,'sxTEMPxs');
         end
+%%
+        function tableheight = height(obj)
+            %map table height function to a dstable
+            tableheight = height(obj.DataTable);
+        end
+%%
+        function tablewidth = width(obj)
+            %map table height function to a dstable
+            tablewidth = width(obj.DataTable);
+        end        
 %%
         function h = plot(obj,variable,varargin)
             %overload plot function to plot variable against RowNames
