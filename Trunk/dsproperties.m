@@ -201,7 +201,7 @@ classdef dsproperties < matlab.mixin.Copyable
 %% --------------------------------------------------------------------------
 % dsproperties UI functions
 %--------------------------------------------------------------------------
-        function setDSproperties(obj,dsprops,dsdesc,isset)
+        function obj = setDSproperties(obj,dsprops,dsdesc,isset)
             %interactive UI to define the inputs needed for DSproperties
             if nargin<3
                 dsdesc = ''; isset = false;
@@ -343,16 +343,21 @@ classdef dsproperties < matlab.mixin.Copyable
                 %for each variable/dimension to be included
                 if nexvars<i
                     defaults = repmat({''},nfields,1);
-                else
-                    defaults = struct2cell(propstruct(i));
+                else 
+                    %set up defaults from propstruct
+                    %struct2cell(propstruct(i)) does not work for rows with
+                    %single strings in a cell (returns cell in a cell),
+                    %hence make the change via a table:
+                    defaults = table2cell(struct2table(propstruct(i),'AsArray',true));                    
+                    %if empty values are used convert to ''
                     idd = cellfun(@isempty,defaults);
                     defaults(idd)= repmat({''},sum(idd),1);
-                    if size(defaults,2)>1
-                        defaults = cellfun(@(x) x{i},defaults,'UniformOutput',false); 
-                    end
-                end
-                
+%                     if size(defaults,2)>1
+%                         defaults = cellfun(@(x) x{i},defaults,'UniformOutput',false); 
+%                     end
+                end                
                 if strcmp(propname,'Row')
+                    isrow = true;
                     addtype = @(x) sprintf('%s %s',propname,x);
                 else
                     %strip 's' from Variables and Dimensions and 

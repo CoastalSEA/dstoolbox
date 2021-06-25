@@ -10,11 +10,12 @@ function h = test_dstoolbox(classname,casenum,option)
 %       e.g. test_dstoolbox('dstable',6,[1,3,5]);
 % INPUT
 %   classsname - name of dstoolbox class function to be tested
-%   testnum - number of test to run
+%   casenum - number of case to run
 %   option  - selects format for dimension when calling set_dimension in
 %             dstable - single value or vector depending on case:
 %             for vector v(1)=row type, v(2)=dim1 type, v(3)=dim2 type
-%             see function set_dimension for list of cases
+%             1  datetime; 2  duration; 3  char; 4  string; 5  numeric;
+%             6  test duplicate dimension check; 7  categorical; 8  ordinal            
 % OUTPUT
 %   See in-code comments for details of test and in-code outputs.
 %
@@ -22,11 +23,15 @@ function h = test_dstoolbox(classname,casenum,option)
 % CoastalSEA (c)June 2020
 %--------------------------------------------------------------------------
 %
+    if nargin<3
+        option = [];
+    end
+
     switch classname
         case 'dscatalogue'  %Class to manage catalogue of cases held
             test_dscatalogue;
         case 'dsproperties' %Class to manage the meta-data properties
-            test_dsproperties(casenum);
+            test_dsproperties(casenum,option);
         case 'dstable'       %collection of one or more datasets with one 
                              %or more common dimension vectors
             test_dstable(casenum,option);
@@ -78,7 +83,7 @@ end
 %--------------------------------------------------------------------------
 %   Tests for dsproperties
 %--------------------------------------------------------------------------
-function test_dsproperties(testnum)
+function test_dsproperties(testnum,option)
     %test set, edit, delete and display options
     switch testnum
         case 1  %Set individual assinement
@@ -98,7 +103,9 @@ function test_dsproperties(testnum)
             displayDSproperties(aa);        %display current definition
             
         case 4  %create using a struct and delete contents
-            aa = dsproperties(dsp_struct);  %alternative call to initialise        
+            dsp = dsp_struct(option);       %predefined struct array
+            aa = dsproperties(dsp);         %alternative call to initialise        
+            displayDSproperties(aa);        %display current definition
             aa.Variables(2) = [];           %clear a Variable (Var2)
             aa.Dimensions = [];             %clear all Dimensions
             aa.Row = [];                    %clear Row
@@ -112,7 +119,7 @@ function test_dsproperties(testnum)
             
         case 6  %assign a struct array
             aa = dsproperties;              %create blank dsproperties
-            dsp = dsp_struct;               %predefined struct array
+            dsp = dsp_struct(option);       %predefined struct array
             setDSproperties(aa,dsp);        %load a dsp struct directly
             setDSproperties(aa);            %call ui to edit
             displayDSproperties(aa);        %display current definition
@@ -124,7 +131,8 @@ function test_dsproperties(testnum)
             displayDSproperties(aa);        %display current definition
             
         case 8  %set and manipulate using option 2
-            bb = dsproperties(dsp_struct);  %alternative call to initialise
+            dsp = dsp_struct(option);       %predefined struct array
+            bb = dsproperties(dsp);         %alternative call to initialise
             bb_str = bb.Variables;          %assign DSproperties struct
             bad_str = rmfield(bb_str,'Label');%remove a row field from struct
             bb.Variables = bad_str;         %assign incomplete struct (fails)
@@ -161,7 +169,8 @@ function test_dsproperties(testnum)
             %varname is character vector,string scalar,integer,logical array
             %position is 'Before' or 'After'
             %location is character vector,string scalar,integer,logical array
-            ee = dsproperties(dsp_struct);  %initialise with struct array
+            dsp = dsp_struct(option);       %predefined struct array
+            ee = dsproperties(dsp);         %initialise with struct array
             varname = 'Var3';
             location = "Var2";
             moveVariable(ee,varname,'Before',location)
@@ -181,7 +190,7 @@ function test_dstable(testnum,option)
     %test initialisation, setting, accessing, editing and deleting dstable
     switch testnum
         case 1  %initialise a blank dstable
-            t1 = dstable     
+            t1 = dstable      %#ok<NOPRT>
             
         case 2  %create a simple table with no dimensions
             nrows = 5;
@@ -200,29 +209,66 @@ function test_dstable(testnum,option)
             fprintf('Row: %s to %s\n',t1.RowRange{1},t1.RowRange{2})
             fprintf('Dim1: %s to %s\n',t1.DimensionRange.Dim1{1},t1.DimensionRange.Dim1{2})
             fprintf('Dim2: %s to %s\n',t1.DimensionRange.Dim2{1},t1.DimensionRange.Dim2{2})
-            fprintf('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})            
-            
+            fprintf('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})     
+
         case 4  %update the values in the variable
             t1 = dummytable(option);
-            t1.DSproperties = dsp_struct; %assign DSproperties struct
+            t1.DSproperties = dsp_struct(option); %assign DSproperties struct
             fprintf('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
             t1.Var1 = t1.Var1*2;
-            fprintf('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
+            fprintf('2xVar: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
             %now test manipulation of dstable                       
             tv2 = t1.Var2;      %extract values for Var2
             t2 = removevars(t1,'Var2');        %create new dst and remove Var2
             t1.Var2 = [];                      %remove Var2 from original table
-            addvars(t2,tv2,'Before','Var3');   %restore Var2
-            movevars(t2,'Var2','After','Var3');%move Var2 after Var3
-            dsp = t2.DSproperties;             %get the current table properties
+            t3 = addvars(t2,tv2,'Before','Var3');   %restore Var2
+            t3.DSproperties = setDSproperties(t3.DSproperties);
+            displayDSproperties(t3.DSproperties);
+            t4 = movevars(t3,'Var2','After','Var3');%move Var2 after Var3
+            t4.VariableRange
+            dsp = t4.DSproperties;             %get the current table properties
             dsp.Variables(3).QCflag = 'raw';   %update specific properties
             dsp.Variables(3).Description = 'A moved variable';
-            t2.DSproperties = dsp;             %assign updated properties to table
-            displayDSproperties(t2.DSproperties);
-            movevars(t2,'Var3','After','Var2') %move variable and assigned properties
-            displayDSproperties(t2.DSproperties);
+            t4.DSproperties = dsp;             %assign updated properties to table
+            displayDSproperties(t4.DSproperties);
+            t4 = movevars(t4,'Var3','After','Var2'); %move variable and assigned properties
+            displayDSproperties(t4.DSproperties);
+            t4.VariableRange
             
-        case 5 %test horzcat and vertcat - simple table with no dimensions
+        case 5 %add and delete rows and dimensions
+            t1 = dummytable(option);
+            t1.DSproperties = dsp_struct(option); %assign DSproperties struct
+            t1.Dimensions.Dim1 = [];              %delete first dimenion
+            t1.RowRange
+            t1.DimensionRange
+            ndim1 = 3; ndim2 = 7; 
+            dim1 =  set_dimension(option(2),ndim1);
+            t1.Dimensions.Dim1 = dim1;            %reassign first dimension
+            %now reorder dimension fields
+            t1 = orderdims(t1,{'Dim1','Dim2'});
+            t1.DimensionRange
+            %rows can be added by vertical concatenation of two dstables, 
+            %which sorts the dstable into ascending order. Alterantively,
+            %rows can be added using the rownames and variables to be added
+            %(the number of variables must match the number in the table)
+            t1.RowRange
+            t1.VariableRange
+            nrows = 3;
+            rowdims = set_dimension(option(1),nrows,height(t1));
+            var1 = set_variable(nrows,ndim1,ndim2);
+            var2 = set_variable(nrows,ndim1,ndim2);
+            var3 = set_variable(nrows,ndim1,ndim2);
+            t1 = addrows(t1,rowdims,var1,var2,var3); %add an array of rows
+            t1.RowNames
+            t1.RowRange
+            t1.VariableRange
+            t1 = removerows(t1,rowdims);             %restore original
+            %t1 = removerows(t1,cellstr(rowdims));   %syntax using table RowNames data type
+            %t1 = removerows(t1,6:8);                %syntax using indices
+            t1.RowRange
+            t1.VariableRange
+            
+        case 6 %test horzcat and vertcat - simple table with no dimensions
             nrows = 5;
             varnames = {'Var1'};
             data = set_variable(nrows);               %generate dataset
@@ -241,75 +287,90 @@ function test_dstable(testnum,option)
             t3.DataTable                              %display
             displayDSproperties(t3.DSproperties);
             
-        case 6 %test horzcat and vertcat - multiple variables with dimensions
+        case 7 %test horzcat and vertcat - multiple variables with dimensions
             t1 = dummytable(option);
-            t1.DSproperties = dsp_struct; %assign DSproperties struct
+            t1.DSproperties = dsp_struct(option); %assign DSproperties struct
             t2 = copy(t1);  %make copy of dstable including all dynamic properties
             t2.VariableNames = {'vv1','vv2','vv3'};   %change the variable names
+            t2.VariableDescriptions = {'varv1','varv2','varv3'};
             t3 = horzcat(t2,t1);                      %horizontal concatenation of the two tables    
             displayDSproperties(t3.DSproperties);
+            t3.RowRange
+            t3.VariableRange
             t4 = dummytable(option);                  %table with different row values
+            rowdims = set_dimension(option(1),height(t4),height(t4));
+            t4.RowNames = rowdims;
+            %change variable order to test vertical concatenation sort
             movevars(t4,'Var2','After','Var3');       %move Var2 after Var3
             t5 = vertcat(t1,t4);                      %vertical concatenation of the two tables
             displayDSproperties(t5.DSproperties);     %display
+            t5.RowRange
+            t5.VariableRange
+            t5.DimensionRange
             
-        case 7 %test add variable rownames, dimensions and metadata in one call
+        case 8 %test add variable rownames, dimensions and metadata in one call
             nrows = 5; ndim1 = 3; ndim2 = 7;
             data1 = set_variable(nrows,ndim1,ndim2);
             data2 = set_variable(nrows,ndim1,ndim2);
             data3 = set_variable(nrows,ndim1,ndim2);
             rowdims = set_dimension(option(1),nrows);
             %dsp = dsp_struct;                        %DSproperies struct
-            dsp = dsproperties(dsp_struct);           %dsproperies object (prompts for name)
+            dsp = dsproperties(dsp_struct(option));   %dsproperies object (prompts for name)
             t1 = dstable(data1,data2,data3,'RowNames',rowdims,'DSproperties',dsp);           
             t1.DataTable                              %display
             displayDSproperties(t1.DSproperties);     
             
-        case 8 %access dstable using getDataTable and getDStable with dimensions
+        case 9 %access dstable using getDataTable and getDStable with dimensions
             t1 = dummytable(option);
-            t1.DSproperties = dsp_struct; %assign DSproperties struct
+            t1.DSproperties = dsp_struct(option);     %assign DSproperties struct
             dim1 = t1.Dimensions.Dim1;
             dim2 = t1.Dimensions.Dim2;
             dim3 = t1.RowNames;
             subrow = dim3(2:3);
+            %setup sub-selection vectors
             subvar = {'Var2','Var3'};
             subdimx = dim1(2:3);
             subdimy = dim2(2:2:6);
+            %use sub-selections to retrieve table and dstable
             datatable = getDataTable(t1,'RowNames',subrow,'VariableNames',subvar,...
-                       'Dimensions.Dim2',subdimy);
+                       'Dimensions.Dim2',subdimy); 
             newdst = getDSTable(t1,'RowNames',subrow,'VariableNames',subvar,...
-                       'Dimensions.Dim1',subdimx,'Dimensions.Dim2',subdimy);            
+                       'Dimensions.Dim1',subdimx,'Dimensions.Dim2',subdimy);  
+            %dispaly dsproperties and print ranges to command window       
             displayDSproperties(newdst.DSproperties);
+            newdst.RowRange
+            newdst.VariableRange
+            newdst.DimensionRange
   
-        case 9 %convert dstable to tscollection and back
-            t1 = tstable();             %dstable of timeseries data
-            t1.DSproperties = dsp_struct;   %assign properties to dstable
-            tsc1 = dst2tsc(t1);         %convert to full table to tscollection
+        case 10 %convert dstable to tscollection and back
+            t1 = tstable();                           %dstable of timeseries data
+            t1.DSproperties = dsp_struct(option);     %assign properties to dstable
+            tsc1 = dst2tsc(t1);                       %convert to full table to tscollection
             figure; plot(tsc1.Var2);
             %syntax dst2tsc(obj, times or time_index, variables or variable_index)
-            times = cellstr(t1.RowNames(5:16));  %can be cell of strings
-%             times = t1.RowNames(5:16);             %can be datetime
-            tsc2 = dst2tsc(t1,times,{'Var2','Var3'});  %convert subset of table to tscollection
+            times = cellstr(t1.RowNames(5:16));       %can be cell of strings
+%             times = t1.RowNames(5:16);              %can be datetime
+            tsc2 = dst2tsc(t1,times,{'Var2','Var3'}); %convert subset of table to tscollection
             hold on
             plot(tsc2.Var2);
             %syntax tsc2dst(obj, times or time_index, variables or variable_index)
 %             times2 = 3:9;
             times2 = times(3:9);
-            dst = tsc2dst(tsc2,times2,1);         %convert subset tsc back to dstable
-            plot(dst,'Var2','x')         
+            dst = tsc2dst(tsc2,times2,1);             %convert subset tsc back to dstable
+            plot(dst,'Var2','x','MarkerSize',10);        
             hold off
             displayDSproperties(dst.DSproperties); 
             
-        case 10 %change dimensions to be variable specific NOT YET IMPLEMENTED
-            t1 = tstable();                 %dstable of timeseries data
-            t1.DSproperties = dsp_struct;   %assign properties to dstable
-            setDimensions2Variable(t1);     %set the dimensions to be variable specific
-            t1.Dimensions.Lat = [11,12,13];
-            t1.Dimensions.Long = [21,22,23];
+        case 11 %change dimensions to be variable specific NOT IMPLEMENTED
+%             t1 = tstable();                 %dstable of timeseries data
+%             t1.DSproperties = dsp_struct;   %assign properties to dstable
+%             setDimensions2Variable(t1);     %set the dimensions to be variable specific
+%             t1.Dimensions.Lat = [11,12,13];
+%             t1.Dimensions.Long = [21,22,23];
             
-        case 11  %different ways of accessing data to get table or data array
+        case 12  %different ways of accessing data to get table or data array
             t1 = dummytable(option);
-            t1.DSproperties = dsp_struct; %assign DSproperties struct
+            t1.DSproperties = dsp_struct(option); %assign DSproperties struct
             
             dim1 = t1.Dimensions.Dim1;
             idd1 = 1:length(dim1);
@@ -324,8 +385,8 @@ function test_dstable(testnum,option)
             idv = 1:length(dimv);
             
             %extract data using index syntax
-            newdst = getDSTable(t1,idr(2:3),':',{idd1,idd2(3:4)});       %returns a dstable
-            datatable = getDataTable(t1,idr(2:3),idv(2),{[],idd2(3:4)}); %returns a table
+            newdst = getDSTable(t1,idr(2:3),':',{idd1,idd2(3:4)});       %#ok<*NASGU> %returns a dstable
+            datatable = getDataTable(t1,idr(2:3),idv(2),{[],idd2(3:4)}); %returns a table of Var2
             vars = getData(t1,idr(1:5),[],idd);                          %returns a cell array of variable arrays
             
             %extract data using dimension values syntax
@@ -340,7 +401,7 @@ function test_dstable(testnum,option)
             
             %extract data from table
             T = t1.DataTable;
-            newT = T(idr(2:3),idv(2));   %returns subtable
+            newT = T(idr(2:3),idv(2));                     %returns subtable
             Tdat1 = T{idr(2:3),idv(2)}(:,idd1,idd2(3:4));  %returns data set
             Tdat2 = T{idr(2:3),'Var2'}(:,idd{:});          %equivalent syntax
             Tdat3 = T.Var2(2:3,idd{:});
@@ -383,7 +444,7 @@ end
 %--------------------------------------------------------------------------
 %   Additional functions used by test functions
 %--------------------------------------------------------------------------
-function dsp = dsp_struct
+function dsp = dsp_struct(options)
     %populate the DSproperties stuct as a struct array 
     %uses cell arrays of row or column vectors (but not string arrays)
             dsp = struct('Variables',[],'Row',[],'Dimensions',[]);           
@@ -393,18 +454,49 @@ function dsp = dsp_struct
                 'Unit',{'m2','m3','m'},...
                 'Label',{'Area','Volume','Length'},...
                 'QCflag',{'raw','-','model'}); 
-            dsp.Row = struct(...
-                'Name',{'Time'},...
-                'Description',{'Row Description'},...
-                'Unit',{'time'},...
-                'Label',{'s'},...
-                'Format',{'dd-MMM-uuuu HH:mm:ss'});            
+
+            switch options(1)      %Rows
+                case 1  %datetime format
+                    dsp.Row = struct(...
+                        'Name',{'Time'},...
+                        'Description',{'Row Description'},...
+                        'Unit',{'time'},...
+                        'Label',{'s'},...
+                        'Format',{'dd-MMM-uuuu HH:mm:ss'});  
+                case 2  %duration format
+                    dsp.Row = struct(...
+                        'Name',{'Time'},...
+                        'Description',{'Row Description'},...
+                        'Unit',{'year'},...
+                        'Label',{'s'},...
+                        'Format',{'y'});  
+                otherwise
+                    dsp.Row = struct(...
+                        'Name',{'Index'},...
+                        'Description',{'Row Description'},...
+                        'Unit',{'id'},...
+                        'Label',{'Index'},...
+                        'Format',{''});  
+            end
+            
             dsp.Dimensions = struct(...
                 'Name',{'Dim1';'Dim2'},...
-                'Description',{'Distance 1';'Distance 2'},...
+                'Description',{'Dim 1';'Dim 2'},...
                 'Unit',{'m';'m'},...
-                'Label',{'Distance';'Distance'},...
-                'Format',{'na';'na'});           
+                'Label',{'Dimension1';'Dimension2'},...
+                'Format',{'';''}); 
+            
+            for i=1:2                 %Dimensions
+                switch options(i+1)
+                    case 1  %datetime format
+                        aformat = 'dd-MMM-uuuu HH:mm:ss';
+                    case 2  %duration format 
+                        aformat = 'y';
+                    otherwise
+                        aformat = '';
+                end
+                dsp.Dimensions(i).Format = aformat;
+            end
 end
 %%
 function dsp = dsp_cellstruct
@@ -458,16 +550,16 @@ function dimensions = set_dimension(idx,idim,offset)
         case 1  %datetime format
             dimensions = getdate(idim,offset);
         case 2  %duration format
-            yrdate = getdate(idim,offset);
-            dimensions = yrdate-yrdate(1);
-            dimensions.Format = 'd';
+            yrdate = getdate(idim,0);
+            dimensions = (yrdate-yrdate(1))+years(offset);
+            dimensions.Format = 'y';
         case 3  %char format
-            dimensions = get_text(idim);
+            dimensions = get_text(idim,offset);
         case 4  %string format
-            txt = get_text(idim);
+            txt = get_text(idim,offset);
             dimensions = string(txt);
         case 5  %numeric format
-            dimensions = 1:idim;
+            dimensions(:,1) = (1:idim)+offset;
         case 6  %test duplicate dimension check
             dimensions = 1:idim;
             if idim>1
@@ -476,9 +568,9 @@ function dimensions = set_dimension(idx,idim,offset)
                 dimensions = [];
             end
         case 7  %categorical
-            dimensions = categorical(get_text(idim));
+            dimensions = categorical(get_text(idim,offset));
         case 8  %ordinal 
-            dimensions =  categorical(get_text(idim),'Ordinal',true);
+            dimensions =  categorical(get_text(idim,offset),'Ordinal',true);
     end
     %
         function yrdate = getdate(idim,offset)
@@ -487,9 +579,9 @@ function dimensions = set_dimension(idx,idim,offset)
             yrdate = date+addyear;
         end
     %
-        function txt = get_text(idim)
+        function txt = get_text(idim,offset)
             for i=1:idim
-                txt{1,i} = sprintf('Text %u',i);
+                txt{1,i} = sprintf('Text %u',i+offset); %#ok<AGROW>
             end
         end
 end

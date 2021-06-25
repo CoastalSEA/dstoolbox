@@ -6,7 +6,7 @@
 %
 %% Syntax
 %
-%   dst = dstable(var1,...,varN)
+%   dst = dstable(var1,.. ,varN)
 %   dst = dstable('Size',sz,'VariableTypes',varTypes)
 %   dst = dstable(___,'VariableNames',varNames)
 %   dst = dstable(___,'RowNames',rowNames)
@@ -109,9 +109,9 @@
 % Individual metadata properties for variables and dimensions are accessed
 % with the variable or dimension index as follows:
 %%
-%   dst.variableProperty(index) = value  %variableProperty is any dstable metadata property
+%   dst.variableProperty{index} = value  %variableProperty is any dstable metadata property
 %   dst.rowProperty = value              %rowProperty is any dstable metadata property
-%   dst.dimensionProperty(index) = value %dimensionProperty is any dstable metadata property
+%   dst.dimensionProperty{index} = value %dimensionProperty is any dstable metadata property
 %%
 % The assigned _value_ should be the same as any existing assignments or
 % be specified in accordance with the Metatdata Property specification.
@@ -332,9 +332,13 @@
 % that ensures that the properties defining Variable, Row and Dimension
 % meta-data are preserved. These functions are as follows:
 %%
-% *addvars* syntax is the same as <matlab:doc('addvars') addvars>. Updates metadata properties for new variable
+% *addvars* syntax is the same as <matlab:doc('addvars') addvars>. 
+
 %%
 %   dst2 = addvars(dst1, varargin)  
+%%
+% _addvars_ does NOT update metadata properties for the new variable. To do this
+% interactively use setDSproperties(dst.DSproperties).
 %%
 % *removevars* syntax is the same as <matlab:doc('removevars') removevars>
 %%
@@ -346,7 +350,7 @@
 %%
 %  dst2 =  movevars(dst1,'varName','position','location)            
 %%
-% *vercat* vertically concatenates the two dstables, variable names
+% *vertcat* vertically concatenates the two dstables, variable names
 % must match and RowNames in the two dstables must be unique.
 % Sorts new table into ascending order, and updates RowRange property
 %%
@@ -370,25 +374,60 @@
 % accepted by <matlab:doc('plot') plot>. Returns the plot handle, h.
 %%
 %   h = plot(dst,'varName',varargin) 
-%
 
 %%
 % The following functions are specific to a _dstable_.
 %%
+% *addrows* add rows to a table, using a vector of rownames that matches
+% the existing RowNames data type. The values in the merged list must be
+% unique. The variables must have a first dimension that matches the length
+% of the rownames vector, with other dimensions matching the existing
+% variables and listed in the same order as the existing variables. 
+%
+%   dst2 = addrows(dst1, rownames,var1,var2,.. varN); %where var1...varN should be in 
+%                                                     %the order used in the dstable
+%%
+% When adding or removing rows the metadata properties of the _dstable_ 
+% are unchanged.
+%%
+% *removerows* remove rows from all variables in a dstable and update RowRange
+% rows2use can be  a numeric index or RowNames values. The latter can be
+% in source data type format as used by a dstable, or a string array or cell array 
+% as used by The RowNames property for a table.
+%
+%   dst2 = removerows(dst1,row2use);  
+%%
 % *sortrows* sort table into ascending order of RowNames
 %
-%   dst2 = sortrows(dst1)                       %sort table into ascending order of RowNames 
+%   dst2 = sortrows(dst1);                %sort table into ascending order of RowNames 
+%%
+% *mergerows* combine two dstables that have RowNames that are datetimes in
+% date order (e.g. when infilling a gap in a data set, dst1, with dst2).
 %
-% *mergerows* combine two dstables that have RowNames that are datetime in
-% date order
-%   dst3 = mergerows(dst1,dst2)                 %dst2 is added to dst1
+%   dst3 = mergerows(dst1,dst2);          %dst2 is added to dst1
+%%
+% To _add_ or _remove_ dimensions use the following syntax
 %
+%   dst.Dimensions.Dim1 = dim1;           %add dimension Dim1 to dst
+%   dst.Dimensions.Dim1 = [];             %remove dimension Dim1
+%%
+% where Dim1 is the dimensions name and dim1 is the vector of values that 
+% define the dimension (must be ordered and same length as one of the
+% variable dimensions).
+%%
+% Adding a dimension does NOT update metadata properties for the new dimension. 
+% To do this interactively, use setDSproperties(dst.DSproperties).
+%%
+% *orderdims* order dimensions that have been assigned
+%
+%   dst = orderdims(dst,dimnames);        %re-order the dimensions to match dimnames (cell array)
+%%  
 % *dst2tsc* and *tsc2dst* convert between dstable and tscollection objects 
 % (see <matlab:doc('dst2tsc') dst2tsc> and <matlab:doc('tsc2dst') tsc2dst> for further
 % details).
 %
-%   tsc = dst2tsc(dst,idxtime,idxvars)    %converts a dstable object to a tscollection object
-%   dst = tsc2dst(tsc,idxtime,idxvars)    %converts a tscollection to a dstable object
+%   tsc = dst2tsc(dst,idxtime,idxvars);   %converts a dstable object to a tscollection object
+%   dst = tsc2dst(tsc,idxtime,idxvars);   %converts a tscollection to a dstable object
 %%
 % * idxtime - index vector for the subselection of time, or the row names
 % as cell array of character vectors or datatime array
@@ -407,10 +446,10 @@
 % variable, such as a list of the variable, row and dimension name or description, or the
 % data range of a particular attribute
 %%
-% *getVarAttributes* find the name and description of a varaible and the
+% *getVarAttributes* find the name and description of a variable and the
 % associated row/dimension attributes
 %
-%   [names,desc,label,idv] = getVarAttributes(dst,idv)
+%   [names,desc,label,idv] = getVarAttributes(dst,idv);
 %%
 % * idv -  index to variable, which can be character vector, string,
 % numerical or logical
@@ -423,7 +462,7 @@
 %%
 % *getVarAttRange* finds the range of the selected variable attribute
 %
-%   range = getVarAttRange(dst,list,selected)
+%   range = getVarAttRange(dst,list,selected);
 %%
 % * list - cell array of attribute descriptions to select from, or a
 % numeric index value of the variable
@@ -433,7 +472,7 @@
 %%
 % *selectAttribute* propmpt user to select a dstable variable, or dimension
 %
-%   [name,idx] = selectAttribute(dst,option)
+%   [name,idx] = selectAttribute(dst,option);
 %%
 % * option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'
 % * name - selected attribute name
@@ -443,7 +482,7 @@
 % *allfieldnames* returns a cell array of all field names in order Variable
 % names, Row name, Dimension names
 %
-%   fields = allfieldnames(dst)
+%   fields = allfieldnames(dst);
 
 %%
 % *getsampleusingtime* is simialr to the Matlab function for tscollections
@@ -451,7 +490,7 @@
 % The rows of the dstable must be datetime. All variables in the dstable 
 % are resampled.
 %
-%   newdst = getsampleusingtime(dst,startime,endtime)
+%   newdst = getsampleusingtime(dst,startime,endtime);
 %%
 % * startime - specified as a datetime scalar
 % * endtime - specified as a datetime scalar
@@ -471,9 +510,9 @@
 
 %%  
 %   T = dst.DataTable      %extract table to use any of the following:
-%   extracted_data = T{rows,vars}(:,idd1,idd2,..iddN)
-%   extracted_data = T.varname(rows,idd1,idd2,..iddN)
-%   extracted_data = T.(vars)(rows,idd1,idd2,..iddN)
+%   extracted_data = T{rows,vars}(:,idd1,idd2,..iddN);
+%   extracted_data = T.varname(rows,idd1,idd2,..iddN);
+%   extracted_data = T.(vars)(rows,idd1,idd2,..iddN);
 %%
 % where rows, vars, idd1,...iddN are indices for the Rows, Variables and 
 % Dimensions, respecitvely. <br>
@@ -489,7 +528,7 @@
 % as follows:
 
 %%
-%   extracted_data = T.varname(rows,idd{:}) 
+%   extracted_data = T.varname(rows,idd{:}); 
 %%
 % To delete rows and variables from a _table_ use the standard Matlab syntax
 %%
@@ -512,9 +551,9 @@
 %  dimensions in that order. Use [] to select the full range of values.
 
 %%
-%   newdst = getDSTable(dst,idr,idv)                    %selects variables defined by idr and idv
+%   newdst = getDSTable(dst,idr,idv);                   %selects variables defined by idr and idv
 %   newdst = getDSTable(dst,idr,idv,idd1,idd2,..iddN);  %where the variables have N dimensions
-%   newdst = getDSTable(dst,idr,idv,idd)                %where idd = {idd1,idd2,..iddN}
+%   newdst = getDSTable(dst,idr,idv,idd);               %where idd = {idd1,idd2,..iddN}
 
 %%
 % The same syntax can be used with getDataTable and getTable
@@ -524,7 +563,7 @@
 % (including rows) to access data in the table. The syntax is as follows:
 
 %%
-%   newdst = getDSTable(dst,'Name','Value')
+%   newdst = getDSTable(dst,'Name','Value');
 %   newtable = getDataTable(dst,'Name','Value'); 
 %   newdataset = getData(dst,'Name','Value');
 %%
@@ -535,21 +574,7 @@
 % * 'VariableNames', varnames - where varnames is a subset of the variable names to be used, 
 % specified as a cell array of character vectors, or a string array.  
 % * 'Dimensions.dimName', dimnames - where dimnames is a subset of the dimension dimName to be
-% used, specified in the format used for the dimension.
-%%
-% To delete rows and variables from a _table_ use the standard Matlab syntax
-%%
-%   dst.DataTable(rows,vars) = [];     %rows and vars to be deleted
-%   dst.DataTable.(varname) = [];      %varname to be deleted
-%   dst.DataTable(rows,:) = [];        %rows to be deleted for all variables
-%%
-% Then use *updateRange* to update the range values of the attribute that
-% has been modified
-%%
-%   dst = updateRange(dst,atribute,id) %attribute is 1,2,3 or 'Variable','Row','Dimension'
-%                                      %id is the index, or name, of the
-%                                      %variable, or dimension, and 1 for Rows.
-%                                   
+% used, specified in the format used for the dimension.                              
 
 %% See Also
 % <matlab:doc('dsproperties') dsproperties>, <matlab:doc('dscatalogue') dscatalogue>, 

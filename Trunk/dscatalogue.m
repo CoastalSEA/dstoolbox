@@ -58,7 +58,7 @@ classdef dscatalogue < handle
             if nargin<2 || isempty(caserec)
                 [caserec,ok] = selectRecord(obj,'PromptText','Select case to remove:',...
                               'ListSize',[250,200],'SelectionMode','multiple');
-                if ok<1, return; end 
+                if ok<1, casedef = []; return; end 
             end
             casedef = obj.Catalogue(caserec,:);
         end    

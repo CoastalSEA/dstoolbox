@@ -294,11 +294,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             obj.DataTable.Properties.DimensionNames{1} = dimname;    
             
             %add range limits
-            obj.RowRange = {};
             if ~isempty(obj.DataTable.Properties.RowNames)
-                firstrec = inrows(1);
-                lastrec = inrows(end);
-                obj.RowRange = {firstrec,lastrec}; 
+                obj.RowRange = inrows;
                 obj.LastModified = datetime('now');
             end
         end
@@ -314,7 +311,19 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 outrows = str2var(outdata,type,format,true);
             end
         end
-%%        
+%%     
+        function set.RowRange(obj,inrows)
+            %set the RowRange checking whether cell or array
+            if iscell(inrows(1))
+                firstrec = inrows{1};
+                lastrec = inrows{end};
+            else
+                firstrec = inrows(1);
+                lastrec = inrows(end);
+            end
+            obj.RowRange = {firstrec,lastrec};    
+        end
+%%
         function set.Description(obj,desc)
             obj.DataTable.Properties.Description = desc;
         end
@@ -333,13 +342,13 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 %% ------------------------------------------------------------------------
 % Standard table Variable Properties
 %--------------------------------------------------------------------------
-        function set.VariableNames(obj,varname)
-            obj.DataTable.Properties.VariableNames = varname;
+        function set.VariableNames(obj,varnames)
+            obj.DataTable.Properties.VariableNames = varnames;
             updateVarNames(obj); %update dynamic properties 
         end
         %
-        function varname = get.VariableNames(obj)
-            varname = obj.DataTable.Properties.VariableNames;
+        function varnames = get.VariableNames(obj)
+            varnames = obj.DataTable.Properties.VariableNames;
         end
 %%      
         function set.VariableDescriptions(obj,vardesc)
@@ -454,7 +463,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                             clearDimension(obj,i)                         
                         else
                             [dvals,drange,dtype,dformat] = ...
-                                            setDimensionType(obj,oneval,i);
+                                            setDimensionType(obj,oneval);
                             dimvals.(fname{i}) = dvals;
                             dimrange.(fname{i}) = drange;
                             dimtype.(fname{i}) = dtype;
@@ -470,7 +479,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     clearDimension(obj,dimnum)
                 else
                     [dimvals,dimrange,dimtype,dimformat] = ...
-                                        setDimensionType(obj,vals,dimnum);
+                                        setDimensionType(obj,vals);
                     dimnames = {'Dim1'};               
                 end
             end
@@ -608,6 +617,14 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 inrows = newdst.RowNames;
                 newdst.RowRange = {inrows(1),inrows(end)};                 
             end
+            obj.VariableRange
+            newdst.VariableRange
+            %if width of table has changed update Variable range            
+            if width(datatable)~=width(obj.DataTable)
+                newdst.VariableRange = [];              
+            end
+            updateVarNames(newdst);
+            
             %if varargin includes 'Dimensions' amend arrays
             if ischar(varargin{1})                
                 %dimension values defined by input vector
@@ -626,13 +643,15 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 dimnames = newdst.DimensionNames;
                 for i=1:length(idd)
                     oldims = newdst.Dimensions.(dimnames{i});
+                    %set.Dimensions updates DimensionRange
                     newdst.Dimensions.(dimnames{i}) = oldims(idd{i});
                 end
             end
-            varnames = newdst.VariableNames;
-            if ~isprop(newdst,varnames{1})         %dynamic properties not set
-                newdst = updateVarNames(newdst);
-            end
+%             varnames = newdst.VariableNames;
+%             if ~isprop(newdst,varnames{1})         %dynamic properties not set
+%                 newdst = updateVarNames(newdst);
+%             end
+            
             newdst.LastModified = datetime('now');
         end
 %%
@@ -726,7 +745,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 [~,list] = getVarAttributes(obj,list);
             end
             %
-            range = {'',''};
+%             range = {'',''};
             idvar = strcmp(obj.VariableDescriptions,list{1});  
             switch selected
                 case list{1}                             
@@ -784,32 +803,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 atidx = 1;
             end                     
         end
-%%
-        function obj = updateRange(obj,selected,idv)
-            %update the range of the selected attribute 
-            % selected - attibute to be used
-            % idv - numeric index, or a variable/dimension name
-            switch selected
-                case {1,'Variable'}
-                    var = obj.DataTable(:,idv);
-                    obj.VariableRange = {min(var,'all'),max(var,'all')};
-                case {2,'Row'}
-                    rn = obj.RowNames;
-                    obj.RowRange = {rn(1),rn(end)};
-                case {3,'Dimension'}
-                    if isnumeric(idv)
-                        idv = obj.DimensionNames{idv};
-                    end
-                    dim = obj.Dimensions.(idv);       
-                    imin = 1; imax = length(dim);   %checks consistent with assignment
-                    if isnumeric(dim)              %used in setDimensionType
-                        [~,imin] = min(dim);
-                        [~,imax] = max(dim);
-                    end
-                    obj.DimensionRange = {dim(imin),dim(imax)};
-            end
-            obj.LastModified = datetime('now');
-        end
 %% ------------------------------------------------------------------------   
 % Manipulate Variables - add, remove, move, variable range, horzcat,
 % vertcat, sortrows, height, width, plot, mergerows
@@ -822,19 +815,17 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 
             newvarnames = newdst.VariableNames;
             varnames = setdiff(newvarnames,oldvarnames);
-            
-            for i=1:length(varnames)
-                varname = varnames{i};
-                newdst.VariableRange.(varname) = getVariableRange(newdst,varname);
-            end
-            updateVarNames(newdst,varnames);
+            updateVarNames(newdst,varnames)            
+            newdst.VariableRange = orderfields(newdst.VariableRange,newvarnames);
         end
 %%
         function newdst = removevars(obj,varnames)
             %remove variable from table and update properties
             newdst = copy(obj);
-            newdst.DataTable = obj.DataTable;            
-            newdst.DataTable = removevars(newdst.DataTable,varnames); 
+            if ~iscell(varnames), varnames = {varnames}; end
+            for i=1:length(varnames)
+                newdst.(varnames{i}) = [];
+            end
         end
 %%
         function newdst =  movevars(obj,varname,position,location)
@@ -844,6 +835,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %location is character vector,string scalar,integer,logical array
             newdst = copy(obj);
             newdst.DataTable = movevars(newdst.DataTable,varname,position,location);
+            newvarnames = newdst.VariableNames;
+            newdst.VariableRange = orderfields(newdst.VariableRange,newvarnames);
         end
 %%
         function newdst = horzcat(obj1,varargin)
@@ -860,8 +853,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if ~chx.isheight, newdst = issueWarning(2); return; end
                 %variable names in the two tables must be unique
                 if any(chx.isvar), newdst = issueWarning(3); return; end
+                %variable descriptions in the two tables must be unique
+                if any(chx.isdsc), newdst = issueWarning(4); return; end
                 %rownames in the two tables must be the same
-                if ~all(chx.isrow), newdst = issueWarning(4); return; end
+                if ~all(chx.isrow), newdst = issueWarning(5); return; end
                 %
                 newdst.DataTable = horzcat(table1,table2);
             end
@@ -876,8 +871,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     case 2
                         warndlg(msg('different number of rows'))
                     case 3
-                        warndlg(msg('variable names not unique'))
+                        warndlg(msg('variable names  not unique'))
                     case 4
+                        warndlg(msg('variable descriptions not unique'))
+                    case 5
                         warndlg(msg('rownames do not match'))
                 end
             end            
@@ -891,6 +888,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %different order
             %rows are sorted after concatenation into ascending order for
             %the source data type of the RowNames data 
+            %metadata of dstable is derived from obj1
             newdst = copy(obj1);  %new instance of dstable retaining existing properties
             for i=1:length(varargin)
                 dst2 = varargin{i};
@@ -910,14 +908,13 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %sort rows to be in ascending order 
             if ~isempty(newdst.RowNames)
                 newdst = sortrows(newdst);
-                %add range limits
-                firstrec = newdst.RowNames(1);
-                lastrec = newdst.RowNames(end);
-                newdst.RowRange = {firstrec,lastrec}; 
-            elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1
-                
+                newdst.RowRange = newdst.RowNames; 
+            elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1                
                 newdst.RowNames = (1:height(newdst.DataTable))';
             end
+            
+            %update VariableRange
+            updateVarNames(newdst,newdst.VariableNames)
             %--------------------------------------------------------------
             function newdst = issueWarning(idx)
                 newdst = [];
@@ -935,18 +932,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
         end          
 %%
-        function newdst = sortrows(obj)
-            %sort the rows in the dstable DataTable and return updated obj
-            %RowNames in a table are char and sortrows does not sort time
-            %formats correctly. Sort in ascending order
-            newdst = copy(obj);
-            rowdata = newdst.RowNames;
-            newdst.DataTable = addvars(newdst.DataTable,rowdata,...
-                                            'NewVariableNames',{'sxTEMPxs'});
-            newdst.DataTable = sortrows(newdst.DataTable,'sxTEMPxs');
-            newdst.DataTable = removevars(newdst.DataTable,'sxTEMPxs');
-        end
-%%
         function tableheight = height(obj)
             %map table height function to a dstable
             tableheight = height(obj.DataTable);
@@ -962,6 +947,66 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             x = obj.RowNames;
             y = obj.(variable);
             h = plot(x,y,varargin{:});
+        end
+%%
+        function obj = addrows(obj,rownames,varargin)
+            %add rows to all variales in a dstable and sort into row order
+            idw = width(obj)==length(varargin);          %check number of variables
+            nvar = length(varargin);
+            varnames = obj.VariableNames;
+            idr = false(1,nvar); idv = idr;
+            for i=1:nvar 
+                [~,~,vsze] = getvariabledimensions(obj,varnames{i});
+                newsze = size(varargin{i});
+                idr(i) = length(rownames)==newsze(1);    %check number of rows of variable
+                idv(i) = all(vsze(2:end)==newsze(2:end));%check other dimensions of variable
+            end
+            %
+            if idw && all(idr) && all(idv) %add variables if all tests passed
+                newrows = dstable(varargin{:},'RowNames',rownames);
+                obj = vertcat(obj,newrows);
+                updateVarNames(obj,varnames)
+            else
+                warndlg('Number of variables, or dimensions of variables, do not match table')
+            end
+        end
+%%
+        function obj = removerows(obj,rows2use)
+            %remove rows from all variables in a dstable and update RowRange
+            % rows2use can be index or RowNames values. The latter can be
+            % in source data type format, or a string array or cell array 
+            % as used by The RowNames property for a table.
+            if ~isnumeric(rows2use) && ~iscell(rows2use)
+                rows2use = cellstr(rows2use);
+            end
+            obj.DataTable(rows2use,:) = [];    %delete rows
+            obj.RowRange = obj.RowNames;
+            %re-assign VaraibleRange for each variable
+            updateVarNames(obj,obj.VariableNames)
+        end
+%%
+        function newdst = sortrows(obj)
+            %sort the rows in the dstable DataTable and return updated obj
+            %RowNames in a table are char and sortrows does not sort time
+            %formats correctly. Sort in ascending order
+            types = {'char','string','categorical','ordinal'};
+            newdst = copy(obj);
+            rowdata = newdst.RowNames;
+            dtype = getdatatype(rowdata);
+            if ismember(dtype,types)  
+                %use sort_nat to sort numbered character RowNames
+                if ismember(dtype,{'categorical','ordinal'})
+                    rowdata = cellstr(rowdata);
+                end
+                [~,idx] = sort_nat(rowdata);
+                newdst.DataTable = newdst.DataTable(idx,:);
+            else
+                %use dummy variable to sort numeric and time RowNames
+                newdst.DataTable = addvars(newdst.DataTable,rowdata,...
+                                                'NewVariableNames',{'sxTEMPxs'});
+                newdst.DataTable = sortrows(newdst.DataTable,'sxTEMPxs');
+                newdst.DataTable = removevars(newdst.DataTable,'sxTEMPxs');
+            end
         end
 %%
         function dst = mergerows(dst1,dst2) 
@@ -1016,6 +1061,18 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     dst = dst1;  %returns old dst
                 end
             end  
+        end
+%%
+        function obj = orderdims(obj,dimnames)
+            %reorder the dimension fields in the order defined in dimnames.
+            %the dimensions must exist            
+            if length(obj.DimensionNames)==length(dimnames) && ...
+                            all(ismember(obj.DimensionNames,dimnames))
+                obj.Dimensions = orderfields(obj.Dimensions,dimnames);               
+                obj.DimensionRange = orderfields(obj.DimensionRange,dimnames);
+            else
+                warndlg('Ordered dimension name do not match existing dimension names')
+            end
         end
 %% ------------------------------------------------------------------------   
 % Manipulate Dimensions - make dimensions apply to table or variable
@@ -1182,10 +1239,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             
             for i=1:length(varnames)
                 varname = varnames{i};
-                if ~isprop(obj,varname)
-                    obj.add_dyn_prop(varname, [], false);
-                    obj.VariableRange.(varname) = getVariableRange(obj,varname);
+                if ~isprop(obj,varname)  %variable added
+                    obj.add_dyn_prop(varname, [], false);                    
                 end
+                obj.VariableRange.(varname) = getVariableRange(obj,varname);
             end 
             obj.LastModified = datetime('now');
         end
@@ -1195,12 +1252,12 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %if numeric otherwise return first and last value
             data = obj.DataTable.(varname);
             if isnumeric(data)   %vector and array data
-                minval = (min(data,[],'all'));
-                maxval = (max(data,[],'all'));
+                minval = (min(data,[],'all','omitnan'));
+                maxval = (max(data,[],'all','omitnan'));
                 range = {minval,maxval};
             elseif iscell(data)  %character arrays
                 range ={data{1},data{end}};
-            else                 %character strings, string arrays
+            else                 %string arrays, datetime, duration, etc
                 range = {data(1),data(end)};
             end
         end        
@@ -1239,7 +1296,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
         end
 %% Dimensions
-        function [dvals,drange,dtype,dformat] = setDimensionType(obj,indims,idx)
+        function [dvals,drange,dtype,dformat] = setDimensionType(~,indims)
             %check dimension type and return values as a char array
             % indims - input dimension array
             % idx - index of dimension
@@ -1253,17 +1310,17 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             [dvals,dtype] = var2str(indims);
             
             if isdatetime(indims) || isduration(indims)
-                if length(obj.DimensionFormats)>1                 
-                    obj.DimensionFormats{1,idx} = indims.Format;
-                    dformat = obj.DimensionFormats;
-                else
-                    dformat = indims.Format;
-                end
+                dformat = indims.Format;
             elseif isnumeric(indims)
                 [~,imin] = min(indims);
                 [~,imax] = max(indims);
             end
-            drange = {indims(imin),indims(imax)};
+            
+            if iscell(indims)  %character arrays
+                drange ={indims{imin},indims{imax}};
+            else                 %string arrays, datetime, duration, etc
+                drange = {indims(imin),indims(imax)};
+            end
         end
 %%
         function outdims = getDimensionType(obj,source,dimname)
@@ -1290,7 +1347,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             obj.DimensionDescriptions = checkProperty(obj.DimensionDescriptions,ndim);
             obj.DimensionUnits = checkProperty(obj.DimensionUnits,ndim);
             obj.DimensionLabels = checkProperty(obj.DimensionLabels,ndim);
-            %DimensionFormats is set when checking in setDimensionType
+            obj.DimensionFormats = checkProperty(obj.DimensionFormats,ndim);
             
             function paddedprop = checkProperty(prop,ndim)
                 nfields = length(prop);
@@ -1570,6 +1627,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             varnames1 = table1.Properties.VariableNames;
             varnames2 = table2.Properties.VariableNames;
             chx.isvar = ismember(varnames1,varnames2);
+            %variable descriptions in the two tables must be the same
+            dscnames1 = table1.Properties.VariableDescriptions;
+            dscnames2 = table2.Properties.VariableDescriptions;
+            chx.isdsc = ismember(dscnames1,dscnames2);
             %check for duplicates in rownames
             rownames1 = table1.Properties.RowNames;
             rownames2 = table2.Properties.RowNames;
