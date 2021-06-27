@@ -617,8 +617,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 inrows = newdst.RowNames;
                 newdst.RowRange = {inrows(1),inrows(end)};                 
             end
-            obj.VariableRange
-            newdst.VariableRange
             %if width of table has changed update Variable range            
             if width(datatable)~=width(obj.DataTable)
                 newdst.VariableRange = [];              
@@ -1196,7 +1194,11 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 tsobj.Name =obj.VariableNames{j};
                 tsobj.QualityInfo.Code = [0 1];
                 tsobj.QualityInfo.Description = {'good' 'bad'};
-                tsc = addts(tsc,tsobj);
+                if width(T)==1
+                    tsc = tsobj;
+                else
+                    tsc = addts(tsc,tsobj);
+                end
             end
             tsc.Name = obj.Description;
             tsc.TimeInfo.UserData = copy(obj.DSproperties);
