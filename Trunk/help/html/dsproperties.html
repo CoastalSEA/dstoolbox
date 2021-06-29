@@ -6,8 +6,8 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dsproperties</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-04"><meta name="DC.source" content="dsproperties.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      --><title>dsproperties</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-06-29"><meta name="DC.source" content="dsproperties.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -66,14 +67,14 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>dsproperties</h1><!--introduction--><p>dsproperties defines the struct used to assign the metadata to a <i>dstable</i>. A valid struct can be used to initialise dsproperties, or the Row, Variables and Dimensions properties can be defined interactively.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#3">Description</a></li><li><a href="#4">Input arguments</a></li><li><a href="#5">Properties</a></li><li><a href="#6">Assign and access Properties</a></li><li><a href="#8">dsproperties input formats</a></li><li><a href="#12">dsproperties methods</a></li><li><a href="#28">See Also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dsp = dsproperties;            <span class="comment">%creates an empty object</span>
+  </style></head><body><div class="content"><h1>dsproperties</h1><!--introduction--><p>dsproperties defines the struct used to assign the metadata to a <i>dstable</i>. A valid struct can be used to initialise dsproperties, or the Row, Variables and Dimensions properties can be defined interactively.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#3">Description</a></li><li><a href="#4">Input arguments</a></li><li><a href="#5">Properties</a></li><li><a href="#6">Assign and access Properties</a></li><li><a href="#8">dsproperties input formats</a></li><li><a href="#12">dsproperties methods</a></li><li><a href="#33">See Also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dsp = dsproperties;            <span class="comment">%creates an empty object</span>
 dsp = dsproperties(dsprops);   <span class="comment">%assigns dsprops to dsp.DSproperties</span>
 dsp = dsproperties(<span class="string">'set'</span>);     <span class="comment">%invokes UI to set values interactively</span>
-</pre><h2 id="3">Description</h2><p>The <i>dstable</i> class provides for more extensive metadata for each variable and the dimensions of the variables. dsproperties can be used to setup a valid struct that can be used to populate the metadata in a <i>dstable</i>.</p><h2 id="4">Input arguments</h2><p><b>dsprops</b> can be a valid dsproperties struct, or the keyword 'set'. The keyword 'set' is the same as using setDSproperties(dsp) and calls a UI to allow the propery values to be set or edited interactively.</p><h2 id="5">Properties</h2><p><b>DSPdescription</b> <br> The DSPdescription property is used to provide a desecription of the dsproperties object <br></p><p><b>Variables</b> <br> A struct array of the properties for each variable including the following fields: <br> Name  - names used in dstable, tscollection and table to label variables <br> Description - description of variables (used in data access UIs to provide a fuller description of the variables) <br> Unit  - variable units <br> Label - axis labels for results <br> QCflag - flag to indicate any quality control of data  <br></p><p><b>Row</b> <br> Name - name for datatype used in table rows Assigned to the Property TableRowName in a <a href="matlab:doc('dstable')">dstable</a> and as the first value of the DimensionNames property in a <a href="matlab:doc('table')">table</a> <br> Description - description for RowNames in table (usually Time but rows can be any unique descriptor) <br> Unit   - units of row data  <br> Label  - axis labels for use with row data <br> Format - time format to use when saving time data. Formats can be durations (e.g. y,d,m,s),or datetime (e.g. dd-MMM-uuuu HH:mm:ss) <br></p><p><b>Dimensions</b> <br> Name - stuct name used for dimensions.&lt;br&gt; Description - description to be used for co-ordinates <br> Unit  - units for the defined co-ordinates <br> Label - axis labels for use with XYZ data <br> Format - data format to use when saving the dimension <br></p><p>The <i>Labels</i> field can be used to define generic summaries of variables, such as when plotting different variables of the same type but labelling the axis with a common label. For example: variables: Vel1, Vel2, Vel2 all labelled 'Velocity (m/s)'.</p><h2 id="6">Assign and access Properties</h2><p>Properties can be assigned and accessed using dot indexing for the property and array indexing for the element in the struct array. In addition the keyword 'set; can be used to invoke the UI to assign or edit values of any of the properties. For example:</p><pre class="language-matlab">dsp.Variables = <span class="string">'set'</span>;     <span class="comment">%calls UI to set or edit the Variables property</span>
+</pre><h2 id="3">Description</h2><p>The <i>dstable</i> class provides for more extensive metadata for each variable and the dimensions of the variables. dsproperties can be used to setup a valid struct that can be used to populate the metadata in a <i>dstable</i>.</p><h2 id="4">Input arguments</h2><p><b>dsprops</b> can be a valid dsproperties struct, or the keyword 'set'. The keyword 'set' is the same as using setDSproperties(dsp) and calls a UI to allow the propery values to be set or edited interactively.</p><h2 id="5">Properties</h2><p><b>DSPdescription</b> <a href="br">br</a> The DSPdescription property is used to provide a desecription of the dsproperties object <a href="br">br</a></p><p><b>Variables</b> <a href="br">br</a> A struct array of the properties for each variable including the following fields: <a href="br">br</a> Name  - names used in dstable, tscollection and table to label variables <a href="br">br</a> Description - description of variables (used in data access UIs to provide a fuller description of the variables) <a href="br">br</a> Unit  - variable units <a href="br">br</a> Label - axis labels for results <a href="br">br</a> QCflag - flag to indicate any quality control of data  <a href="br">br</a></p><p><b>Row</b> <a href="br">br</a> Name - name for datatype used in table rows Assigned to the Property TableRowName in a <a href="matlab:doc('dstable')">dstable</a> and as the first value of the DimensionNames property in a <a href="matlab:doc('table')">table</a> <a href="br">br</a> Description - description for RowNames in table (usually Time but rows can be any unique descriptor) <a href="br">br</a> Unit   - units of row data  <a href="br">br</a> Label  - axis labels for use with row data <a href="br">br</a> Format - time format to use when saving time data. Formats can be durations (e.g. y,d,m,s),or datetime (e.g. dd-MMM-uuuu HH:mm:ss) <a href="br">br</a></p><p><b>Dimensions</b> <a href="br">br</a> Name - stuct name used for dimensions.&lt;br&gt; Description - description to be used for co-ordinates <a href="br">br</a> Unit  - units for the defined co-ordinates <a href="br">br</a> Label - axis labels for use with XYZ data <a href="br">br</a> Format - data format to use when saving the dimension <a href="br">br</a></p><p>The <i>Labels</i> field can be used to define generic summaries of variables, such as when plotting different variables of the same type but labelling the axis with a common label. For example: variables: Vel1, Vel2, Vel2 all labelled 'Velocity (m/s)'.</p><h2 id="6">Assign and access Properties</h2><p>Properties can be assigned and accessed using dot indexing for the property and array indexing for the element in the struct array. In addition the keyword 'set; can be used to invoke the UI to assign or edit values of any of the properties. For example:</p><pre class="language-matlab">dsp.Variables = <span class="string">'set'</span>;     <span class="comment">%calls UI to set or edit the Variables property</span>
 dsp.Row = [];              <span class="comment">%clears the struct array element</span>
 dsp.Dimensions = [];       <span class="comment">%clears all dimension properties</span>
 dsp.Dimensions(idx) = [];  <span class="comment">%clears only the idx dimensions in the struct array</span>
-</pre><h2 id="8">dsproperties input formats</h2><p>Two fprmats can be used to load a dsproperties object from a a struct. Both use a struct with fields Variables, Row, and Dimensions. The second level struct can then be a struct array of the fields, or a cell array for each field, as illustrated by the following two examples. <br></p><p><b>dsproperties struct array</b> <br> Populate the DSproperties stuct as a struct array. Uses cell arrays of row or column vectors (but not string arrays). The file <tt>dsprop_struct_template.m</tt> provides a copy of the following format</p><pre class="codeinput">    dsp = struct(<span class="string">'Variables'</span>,[],<span class="string">'Row'</span>,[],<span class="string">'Dimensions'</span>,[]);
+</pre><h2 id="8">dsproperties input formats</h2><p>Two fprmats can be used to load a dsproperties object from a a struct. Both use a struct with fields Variables, Row, and Dimensions. The second level struct can then be a struct array of the fields, or a cell array for each field, as illustrated by the following two examples. <a href="br">br</a></p><p><b>dsproperties struct array</b> <a href="br">br</a> Populate the DSproperties stuct as a struct array. Uses cell arrays of row or column vectors (but not string arrays). The file <tt>dsprop_struct_template.m</tt> provides a copy of the following format</p><pre class="codeinput">    dsp = struct(<span class="string">'Variables'</span>,[],<span class="string">'Row'</span>,[],<span class="string">'Dimensions'</span>,[]);
     dsp.Variables = struct(<span class="keyword">...</span><span class="comment">   %cell arrays can be column or row vectors</span>
         <span class="string">'Name'</span>,{<span class="string">'Var1'</span>,<span class="string">'Var2'</span>,<span class="string">'Var3'</span>},<span class="keyword">...</span>
         <span class="string">'Description'</span>,{<span class="string">'Variable 1'</span>,<span class="string">'Variable 2'</span>,<span class="string">'Variable 3'</span>},<span class="keyword">...</span>
@@ -92,7 +93,7 @@ dsp.Dimensions(idx) = [];  <span class="comment">%clears only the idx dimensions
         <span class="string">'Unit'</span>,{<span class="string">'u1'</span>;<span class="string">'u2'</span>},<span class="keyword">...</span>
         <span class="string">'Label'</span>,{<span class="string">'Label1'</span>;<span class="string">'Label2'</span>},<span class="keyword">...</span>
         <span class="string">'Format'</span>,{<span class="string">'-'</span>;<span class="string">'-'</span>});      <span class="comment">%only used for datetime and duration formats</span>
-</pre><p><b>dsproperties struct of cell arrays</b> <br> Populate the DSproperties stuct as a struct of cell arrays. Uses cell arrays of row or column vectors, or string arrays.</p><pre class="codeinput">    dsp = struct(<span class="string">'Variables'</span>,[],<span class="string">'Row'</span>,[],<span class="string">'Dimensions'</span>,[]);
+</pre><p><b>dsproperties struct of cell arrays</b> <a href="br">br</a> Populate the DSproperties stuct as a struct of cell arrays. Uses cell arrays of row or column vectors, or string arrays.</p><pre class="codeinput">    dsp = struct(<span class="string">'Variables'</span>,[],<span class="string">'Row'</span>,[],<span class="string">'Dimensions'</span>,[]);
     dsp.Variables.Name = {<span class="string">'Var1'</span>,<span class="string">'Var2'</span>,<span class="string">'Var3'</span>}; <span class="comment">%cell arrays can be column or row vectors</span>
     dsp.Variables.Description = {<span class="string">'Variable 1'</span>,<span class="string">'Variable 2'</span>,<span class="string">'Variable 3'</span>};
     dsp.Variables.Unit = [<span class="string">"u1"</span>,<span class="string">"u2"</span>,<span class="string">"u3"</span>];       <span class="comment">%string array</span>
@@ -108,20 +109,24 @@ dsp.Dimensions(idx) = [];  <span class="comment">%clears only the idx dimensions
     dsp.Dimensions.Unit = {<span class="string">'u1'</span>;<span class="string">'u2'</span>};
     dsp.Dimensions.Label = {<span class="string">'Label1'</span>,<span class="string">'Label2'</span>};
     dsp.Dimensions.Format = {<span class="string">'-'</span>;<span class="string">'-'</span>};   <span class="comment">%only used for datetime and duration formats</span>
-</pre><h2 id="12">dsproperties methods</h2><p><b>addVariables</b> add additional stuct array elements to the Variables property. Input can be just the name of the variable, a cell array of variable names, or a stuct of variable fields.</p><pre class="language-matlab">addVariables(dsp,{<span class="string">'varNames'</span>});   <span class="comment">%add 'varNames' to the dsproperties object, dsp</span>
+</pre><h2 id="12">dsproperties methods</h2><p><b>addVariables</b> add additional stuct array elements to the Variables property. Input can be just the name of the variable, a cell array of variable names, or a stuct of variable fields. NB: a cell array and character vector only add the variable Name(s). To add all properties use a dsp.Variables struct, or call <i>addDSproperties</i>, which uses a cell array, or a struct, to define the fields in a dsp.Variables struct.</p><pre class="language-matlab">addVariables(dsp,{<span class="string">'varNames'</span>});   <span class="comment">%add 'varNames' to the dsproperties object, dsp</span>
 addVariables(dsp,varStruct);      <span class="comment">%add 'varStruct' to the dsproperties object, dsp</span>
 </pre><p><b>rmVariables</b> remove variables from the struct array of a dsproperties object. Input values for 'varNames' can be a character vector, cell array of character vectors, string array, numeric array, or logical array of the variable to be removed.</p><pre class="language-matlab">rmVariables(dsp,{<span class="string">'varNames'</span>});    <span class="comment">%remove 'varNames' from the dsproperties object, dsp</span>
 </pre><p><b>moveVariables</b> move the position of a variable in the dsproperties stuct array Inputs for varName and location can be a character vector,string scalar, integer, or logical array, and position is 'Before' or 'After'.</p><pre class="language-matlab">moveVariable(dsp,varName,position,location)
-</pre><p><b>addDimensions</b> add additional stuct array elements to the Dimensions property. Input can be just the name of the variable, a cell array of variable names, or a stuct of variable fields.</p><pre class="language-matlab">addDimensions(dsp,{<span class="string">'dimNames'</span>});  <span class="comment">%add 'dimNames' to the dsproperties object, dsp</span>
+</pre><p><b>addDimensions</b> add additional stuct array elements to the Dimensions property. Input can be just the name of the variable, a cell array of variable names, or a stuct of variable fields. NB: a cell array and character vector only add the dimension Name(s). To add all properties use a dsp.Dimensions struct, or call <i>addDSproperties</i>, which uses a cell array, or a struct, to define the fields in a dsp.Dimensions struct.</p><pre class="language-matlab">addDimensions(dsp,{<span class="string">'dimNames'</span>});  <span class="comment">%add 'dimNames' to the dsproperties object, dsp</span>
 addDimensions(dsp,dimStruct);     <span class="comment">%add 'dimStruct' to the dsproperties object, dsp</span>
 </pre><p><b>rmDimensions</b> remove dimensions from the struct array of a dsproperties object. Input values for 'dimNames' can be a character vector, cell array of character vectors, string array, numeric array, or logical array of the variable to be removed.</p><pre class="language-matlab">rmDimensions(dsp,{<span class="string">'dimNames'</span>});   <span class="comment">%remove 'dimNames' from the dsproperties object, dsp</span>
-</pre><p><b>moveDimensions</b> move the position of a variable in the dsproperties stuct array Inputs for varName and location can be a character vector,string scalar, integer, or logical array, and position is 'Before' or 'After'.</p><pre class="language-matlab">moveDimension(dsp,varName,position,location)
-</pre><p><b>setDSproperties</b> calls the UI to add the definition for Row, Variables and Dimensions. Provides the option to add Variables and Dimensions interactively.</p><pre class="language-matlab">dsp = dsproperties;               <span class="comment">%empty dsproperties object</span>
-setDSproperties(dsp);             <span class="comment">%edit existing dsproperties object, dsp.</span>
-setDSproperties(dsp,dsp_struct);  <span class="comment">%load a dsproperties struct array into a dsproperties object</span>
-setDSproperties(aa,[],<span class="string">'dspDesc'</span>); <span class="comment">%interactively define properties and add dspDesc as the DSPdescription</span>
-</pre><p><b>displayDSproperrties</b> displays the current property setting on a figure with tabs for Variables, Row and Dimensions. Settings can be copied to the clipboard.</p><pre class="language-matlab">displayDSproperties(dsp);         <span class="comment">%display current definitions</span>
-</pre><h2 id="28">See Also</h2><p><a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('dscatalogue')">dscatalogue</a>, <a href="matlab:doc('dscollection')">dscollection</a>, <a href="matlab:doc('dstoolbox')">dstoolbox</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+</pre><p><b>moveDimensions</b> move the position of a dimension in the dsproperties stuct array Inputs for dimName and location can be a character vector,string scalar, integer, or logical array, and position is 'Before' or 'After'.</p><pre class="language-matlab">moveDimension(dsp,dimName,position,location)
+</pre><p><b>setDSproperties</b> calls the UI to add the definition for Row, Variables and Dimensions. Provides the option to add Variables and Dimensions interactively.</p><pre class="language-matlab">dsp = dsproperties;                     <span class="comment">%empty dsproperties object</span>
+setDSproperties(dsp);                   <span class="comment">%edit existing dsproperties object, dsp.</span>
+setDSproperties(dsp,dsp_struct);        <span class="comment">%load a dsproperties struct array into a dsproperties object</span>
+setDSproperties(dsp,[],<span class="string">'dspDesc'</span>);      <span class="comment">%interactively define properties and add dspDesc as the DSPdescription</span>
+setDSproperties(dsp,[],<span class="string">'dspDesc'</span>,isset);<span class="comment">%isset (optional) logical flag that suppresses prompt</span>
+                                        <span class="comment">%to set the number of variables and dimensions</span>
+</pre><p><b>editDSproperties</b> calls the UI and allows existing Row, Variables or Dimensions to edited. To change the number of Variables or Dimensions use setDSproperties.</p><pre class="language-matlab">editDSproperty(dsp,propname)      <span class="comment">%where propname is 'Row', 'Variables',' or 'Dimensions'</span>
+</pre><p><b>addDSproperties</b> adds a set of property values to the the Variables, or Dimensions, property.</p><pre class="language-matlab">[dsp,ok] = addDSproperties(dsp,propname,varprops) <span class="comment">%returns ok=1 if successful</span>
+</pre><p>where <i>propname</i> is either 'Variables' or 'Dimensions' and <i>varprops</i> is a cell array, or struct, containing the field values of the property set to be added.</p><p><b>displayDSproperrties</b> displays the current property setting on a figure with tabs for Variables, Row and Dimensions. Settings can be copied to the clipboard.</p><pre class="language-matlab">displayDSproperties(dsp);         <span class="comment">%display current definitions</span>
+</pre><h2 id="33">See Also</h2><p><a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('dscatalogue')">dscatalogue</a>, <a href="matlab:doc('dstoolbox')">dstoolbox</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% dsproperties
 % dsproperties defines the struct used to assign the metadata to a
@@ -252,7 +257,11 @@ setDSproperties(aa,[],<span class="string">'dspDesc'</span>); <span class="comme
 %% dsproperties methods
 % *addVariables* add additional stuct array elements to the Variables property.
 % Input can be just the name of the variable, a cell array of variable 
-% names, or a stuct of variable fields.
+% names, or a stuct of variable fields. NB: a cell array and character
+% vector only add the variable Name(s). To add all properties
+% use a dsp.Variables struct, or call _addDSproperties_, which uses
+% a cell array, or a struct, to define the fields in a dsp.Variables 
+% struct.
 %%
 %   addVariables(dsp,{'varNames'});   %add 'varNames' to the dsproperties object, dsp 
 %   addVariables(dsp,varStruct);      %add 'varStruct' to the dsproperties object, dsp
@@ -272,7 +281,11 @@ setDSproperties(aa,[],<span class="string">'dspDesc'</span>); <span class="comme
 %%
 % *addDimensions* add additional stuct array elements to the Dimensions property. 
 % Input can be just the name of the variable, a cell array of variable
-% names, or a stuct of variable fields.
+% names, or a stuct of variable fields. NB: a cell array and character
+% vector only add the dimension Name(s). To add all properties
+% use a dsp.Dimensions struct, or call _addDSproperties_, which uses
+% a cell array, or a struct, to define the fields in a dsp.Dimensions 
+% struct.
 %%
 %   addDimensions(dsp,{'dimNames'});  %add 'dimNames' to the dsproperties object, dsp
 %   addDimensions(dsp,dimStruct);     %add 'dimStruct' to the dsproperties object, dsp
@@ -284,32 +297,48 @@ setDSproperties(aa,[],<span class="string">'dspDesc'</span>); <span class="comme
 %%
 %   rmDimensions(dsp,{'dimNames'});   %remove 'dimNames' from the dsproperties object, dsp 
 %%
-% *moveDimensions* move the position of a variable in the dsproperties stuct array
-% Inputs for varName and location can be a character vector,string scalar, 
+% *moveDimensions* move the position of a dimension in the dsproperties stuct array
+% Inputs for dimName and location can be a character vector,string scalar, 
 % integer, or logical array, and position is 'Before' or 'After'.
 %%
-%   moveDimension(dsp,varName,position,location)
+%   moveDimension(dsp,dimName,position,location)
 %%
 % *setDSproperties* calls the UI to add the definition for Row, Variables
 % and Dimensions. Provides the option to add Variables and Dimensions
 % interactively.
 %%
-%   dsp = dsproperties;               %empty dsproperties object
-%   setDSproperties(dsp);             %edit existing dsproperties object, dsp.
-%   setDSproperties(dsp,dsp_struct);  %load a dsproperties struct array into a dsproperties object
-%   setDSproperties(aa,[],'dspDesc'); %interactively define properties and add dspDesc as the DSPdescription
-
+%   dsp = dsproperties;                     %empty dsproperties object
+%   setDSproperties(dsp);                   %edit existing dsproperties object, dsp.
+%   setDSproperties(dsp,dsp_struct);        %load a dsproperties struct array into a dsproperties object
+%   setDSproperties(dsp,[],'dspDesc');      %interactively define properties and add dspDesc as the DSPdescription
+%   setDSproperties(dsp,[],'dspDesc',isset);%isset (optional) logical flag that suppresses prompt
+%                                           %to set the number of variables and dimensions
+%%
+% *editDSproperties* calls the UI and allows existing Row, Variables or
+% Dimensions to edited. To change the number of Variables or Dimensions use 
+% setDSproperties.
+%%
+%   editDSproperty(dsp,propname)      %where propname is 'Row', 'Variables',' or 'Dimensions'
+%   
 %% 
+% *addDSproperties* adds a set of property values to the the Variables,
+% or Dimensions, property.
+%%
+%   [dsp,ok] = addDSproperties(dsp,propname,varprops) %returns ok=1 if successful
+% 
+%%
+% where _propname_ is either 'Variables' or 'Dimensions' and
+% _varprops_ is a cell array, or struct, containing the field values of the
+% property set to be added.
+%%
 % *displayDSproperrties* displays the current property setting on a figure
 % with tabs for Variables, Row and Dimensions. Settings can be copied to
 % the clipboard.
 %%
 %   displayDSproperties(dsp);         %display current definitions
  
-
 %% See Also
 % <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 
-% <matlab:doc('dscollection') dscollection>,
 % <matlab:doc('dstoolbox') dstoolbox>.
 ##### SOURCE END #####
 --></body></html>

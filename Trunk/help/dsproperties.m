@@ -127,7 +127,11 @@
 %% dsproperties methods
 % *addVariables* add additional stuct array elements to the Variables property.
 % Input can be just the name of the variable, a cell array of variable 
-% names, or a stuct of variable fields.
+% names, or a stuct of variable fields. NB: a cell array and character
+% vector only add the variable Name(s). To add all properties
+% use a dsp.Variables struct, or call _addDSproperties_, which uses
+% a cell array, or a struct, to define the fields in a dsp.Variables 
+% struct.
 %%
 %   addVariables(dsp,{'varNames'});   %add 'varNames' to the dsproperties object, dsp 
 %   addVariables(dsp,varStruct);      %add 'varStruct' to the dsproperties object, dsp
@@ -147,7 +151,11 @@
 %%
 % *addDimensions* add additional stuct array elements to the Dimensions property. 
 % Input can be just the name of the variable, a cell array of variable
-% names, or a stuct of variable fields.
+% names, or a stuct of variable fields. NB: a cell array and character
+% vector only add the dimension Name(s). To add all properties
+% use a dsp.Dimensions struct, or call _addDSproperties_, which uses
+% a cell array, or a struct, to define the fields in a dsp.Dimensions 
+% struct.
 %%
 %   addDimensions(dsp,{'dimNames'});  %add 'dimNames' to the dsproperties object, dsp
 %   addDimensions(dsp,dimStruct);     %add 'dimStruct' to the dsproperties object, dsp
@@ -159,11 +167,11 @@
 %%
 %   rmDimensions(dsp,{'dimNames'});   %remove 'dimNames' from the dsproperties object, dsp 
 %%
-% *moveDimensions* move the position of a variable in the dsproperties stuct array
-% Inputs for varName and location can be a character vector,string scalar, 
+% *moveDimensions* move the position of a dimension in the dsproperties stuct array
+% Inputs for dimName and location can be a character vector,string scalar, 
 % integer, or logical array, and position is 'Before' or 'After'.
 %%
-%   moveDimension(dsp,varName,position,location)
+%   moveDimension(dsp,dimName,position,location)
 %%
 % *setDSproperties* calls the UI to add the definition for Row, Variables
 % and Dimensions. Provides the option to add Variables and Dimensions
@@ -183,6 +191,16 @@
 %   editDSproperty(dsp,propname)      %where propname is 'Row', 'Variables',' or 'Dimensions'
 %   
 %% 
+% *addDSproperties* adds a set of property values to the the Variables,
+% or Dimensions, property.
+%%
+%   [dsp,ok] = addDSproperties(dsp,propname,varprops) %returns updsted dsp and ok=1 if successful
+% 
+%%
+% where _propname_ is either 'Variables' or 'Dimensions' and
+% _varprops_ is a cell array, or struct, containing the field values of the
+% property set to be added.
+%%
 % *displayDSproperrties* displays the current property setting on a figure
 % with tabs for Variables, Row and Dimensions. Settings can be copied to
 % the clipboard.

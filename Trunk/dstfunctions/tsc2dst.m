@@ -16,7 +16,7 @@ function dst = tsc2dst(tsc,idxtime,idxvars)
 %   dst - dstable object
 % NOTES
 %   if the tsc was created using dst2tsc the DSproperties will have been
-%   coped and these are used to reset the DSproperties of the new dstable
+%   copied and these are used to reset the DSproperties of the new dstable
 % SEE ALSO
 %   dstable.m and method dst2tsc
 %

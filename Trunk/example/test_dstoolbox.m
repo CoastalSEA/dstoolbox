@@ -155,7 +155,7 @@ function test_dsproperties(testnum,option)
             dd = dsproperties(dsp_cellstruct);%initialise with cell struct
             varprops = 'var4';
             addVariables(dd,varprops);      %sets a property (no prompt)
-            editDSproperty(dd,'Variables') %edit current set of Variables
+            editDSproperty(dd,'Variables')  %edit current set of Variables
             dimprops = struct(...
                 'Name',{'Dim3';'Dim4'},...
                 'Description',{'Distance 3';'Distance 4'},...
@@ -164,6 +164,21 @@ function test_dsproperties(testnum,option)
                 'Format',{'na';'na'});
             addDimensions(dd,dimprops)
             displayDSproperties(dd);        %display current definition
+            %add a variable with the field values defined as a cell array
+            [ee,~] = addDSproperties(dd,'Variables',...
+                {'Var5','Variable 5','units','Variable 5 label','raw'});
+            rmDimensions(ee,{'Dim2','Dim3','Dim4'});
+            dimprop5 = struct(...
+                'Name',{'Dim5'},...
+                'Description',{'Distance 5'},...
+                'Unit',{'m'},...
+                'Label',{'Distance'},...
+                'Format',{'-'});
+            %add a dimension with the field values defined as a struct
+            [ee,ok] = addDSproperties(ee,'Dimensions',dimprop5);
+            if ok==1
+                displayDSproperties(ee);        %display current definition
+            end
             
         case 11  %test change order of variables and dimensions
             %varname is character vector,string scalar,integer,logical array
@@ -222,7 +237,7 @@ function test_dstable(testnum,option)
             t2 = removevars(t1,'Var2');        %create new dst and remove Var2
             t1.Var2 = [];                      %remove Var2 from original table
             t3 = addvars(t2,tv2,'Before','Var3');   %restore Var2
-            t3.DSproperties = setDSproperties(t3.DSproperties);
+            t3.DSproperties = setDSproperties(t3.DSproperties); %interactively define dsproperties
             displayDSproperties(t3.DSproperties);
             t4 = movevars(t3,'Var2','After','Var3');%move Var2 after Var3
             t4.VariableRange
@@ -361,12 +376,16 @@ function test_dstable(testnum,option)
             hold off
             displayDSproperties(dst.DSproperties); 
             
-        case 11 %change dimensions to be variable specific NOT IMPLEMENTED
-%             t1 = tstable();                 %dstable of timeseries data
-%             t1.DSproperties = dsp_struct;   %assign properties to dstable
-%             setDimensions2Variable(t1);     %set the dimensions to be variable specific
-%             t1.Dimensions.Lat = [11,12,13];
-%             t1.Dimensions.Long = [21,22,23];
+        case 11 %add variable and dimension and update dsproperties programatically
+            t1 = dummytable(option);
+            t1.DSproperties = dsp_struct(option); %assign DSproperties struct              
+            tv2 = t1.Var2;             %extract values for Var2
+            dm2 = t1.Dimensions.Dim2;  %extract values for Dim2
+            t2 = addvars(t1,tv2,'NewDSproperties',...
+                {'ClusterNumber','Cluster Numbers','-','Cluster Numbers','-'});
+            displayDSproperties(t2.DSproperties);
+            t2.Dimensions.Dim3 = dm2;
+                       
             
         case 12  %different ways of accessing data to get table or data array
             t1 = dummytable(option);

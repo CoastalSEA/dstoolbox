@@ -809,11 +809,28 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %add variable to table and update properties
             newdst = copy(obj);
             oldvarnames = newdst.VariableNames;
+            %check if user is updating DSproperties
+            iscmp = @(x) strcmp(x,'NewDSproperties');
+            isdsp = cellfun(iscmp ,varargin,'UniformOutput' ,false);
+            if any([isdsp{:}])              %modify varargin if using NewDSproperties
+                idx = find([isdsp{:}]);
+                varprops = varargin{idx+1}; %extract properties to use for NewDSproperties
+                varargin(idx:idx+1) = [];   %remove NewDSproperties from varargin
+            else
+                varprops = [];
+            end
+            %update the table using Matlab addvars function
             newdst.DataTable = addvars(newdst.DataTable,varargin{:});
-
+            if ~isempty(varprops)
+                [newdsp,ok] = addDSproperties(obj.DSproperties,'Variables',varprops);
+                if ok==1
+                    newdst.DSproperties = newdsp;  %update the DSproperties property in the dstable     
+                end
+            end
+            
             newvarnames = newdst.VariableNames;
             varnames = setdiff(newvarnames,oldvarnames);
-            updateVarNames(newdst,varnames)            
+            updateVarNames(newdst,varnames)              %active new dynamic variables and update ranges
             newdst.VariableRange = orderfields(newdst.VariableRange,newvarnames);
         end
 %%
@@ -876,8 +893,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                         warndlg(msg('rownames do not match'))
                 end
             end            
-            
-            
         end               
 %%
         function newdst = vertcat(obj1,varargin)

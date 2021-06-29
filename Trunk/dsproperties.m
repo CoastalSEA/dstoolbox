@@ -116,7 +116,11 @@ classdef dsproperties < matlab.mixin.Copyable
 %%
         function addVariables(obj,varprops)
             %varprops is a Variables struct, cell array, or just the
-            %name of the variable to be added
+            %name of the variable to be added. NB cell array and character
+            %vector only add the variable Name(s). To add all properties
+            %use a dsp.Variables struct or call addDSproperties which uses
+            %a cell array or struct to define the fields in a dsp.Variables 
+            %struct 
             if nargin<2 || isempty(varprops)
                 obj.Variables = setPropertyInput(obj,'Variables',...
                                                             obj.Variables);
@@ -183,7 +187,11 @@ classdef dsproperties < matlab.mixin.Copyable
 %%
         function addDimensions(obj,dimprops)
             %dimprops is a Dimensions struct, cell array, or just the
-            %name of the dimension to be added
+            %name of the dimension to be added.  NB cell array and character
+            %vector only add the dimension Name(s). To add all properties
+            %use a dsp.Dimensions struct or call addDSproperties which uses
+            %a cell array, or struct, to define the fields in a dsp.Dimensions 
+            %struct.
             if nargin<2 || isempty(dimprops)
                 obj.Dimensions = setPropertyInput(obj,'Dimensions',...
                                                           obj.Dimensions);
@@ -276,6 +284,36 @@ classdef dsproperties < matlab.mixin.Copyable
             props = obj.(propname);
             obj.(propname) = setPropertyInput(obj,propname,props,true);
         end
+%%
+        function [obj,ok] = addDSproperties(obj,propname,varprops)
+            %add the dsproperties for variables or dimensions
+            % propname - dsproperties Property name: 'Variables' or 'Dimensions'
+            % varprops - cell array or struct of properties to be added
+            % NB a cell array must match the number of fields in dsp
+            % Property struct (5).
+            fields = fieldnames(obj.(propname));
+            nfield = length(fields);
+            if iscell(varprops) && length(varprops)==nfield
+                %convert cell input to a struct                
+                if isrow(varprops), varprops = varprops'; end  
+                varprops = cell2struct(varprops,fields);
+            elseif iscell(varprops) 
+                ok = 0;
+                warndlg(sprintf('Length of cell input must match the number of %s fields',propname))
+                return;
+            end 
+            %
+            if strcmp(propname,'Variables')                
+                addVariables(obj,varprops);
+            elseif strcmp(propname,'Dimensions')
+                addDimensions(obj,varprops);
+            else
+                ok = 0;
+                warndlg('Unknown Property name in addDSproperties')
+                return;
+            end
+            ok = 1;
+        end
     end
 %% ------------------------------------------------------------------------
 % Methods to generate blank struct, set the inputs for any property, 
@@ -357,7 +395,7 @@ classdef dsproperties < matlab.mixin.Copyable
 %                     end
                 end                
                 if strcmp(propname,'Row')
-                    isrow = true;
+%                     isrow = true;
                     addtype = @(x) sprintf('%s %s',propname,x);
                 else
                     %strip 's' from Variables and Dimensions and 
@@ -497,8 +535,14 @@ classdef dsproperties < matlab.mixin.Copyable
             % propname - dsproperties Property name to use
             % varnames - the var names or struct to be added
             ndim = length(obj.(propname));
+            singlecells = struct2cell(obj.(propname));
             if ndim==1 && isempty(obj.(propname).Name)
                 ndim = 0;    %empty struct
+            elseif ndim==1 && iscell([singlecells{:}])
+                %struct fields with cells containing just one character 
+                %vector need to be converted to character vectors
+                obj.(propname) = structfun(@cell2mat,...
+                               obj.(propname),'UniformOutput',false);
             end
             fnames = fieldnames(obj.(propname));
             nvars = length(varnames);
