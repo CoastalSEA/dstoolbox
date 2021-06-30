@@ -105,15 +105,23 @@ function h_fig = tablefigure(figtitle,headtext,atable,varnames,values)
         idlist = ~cellfun(@isempty,tabprop.List); 
         ht.ColumnFormat{idlist} = tabprop.List{idlist};
     end  
-   
+    
+    if ht.Extent(3)>h_pan.InnerPosition(3) || ...
+                                    ht.Extent(4)>h_pan.InnerPosition(4)
+       %table width wider or taller than panel - triggers scroll bars
+       scrollbar = rowheight*1.1;
+    else
+       scrollbar = 0;
+    end
+    
     ht.Position(1:2) = borders/2;
     %adjust table to fit in panel
     if ht.Extent(3)>h_pan.InnerPosition(3)          %Width
         ht.Position(3) = h_pan.InnerPosition(3);
     else
-        ht.Position(3) = ht.Extent(3);
+        ht.Position(3) = ht.Extent(3)+scrollbar;
         if isgraphics(h_fig,'figure') %adjust figure panel but not tabs
-            h_pan.Position(3) = ht.Extent(3)+borders(1);  
+            h_pan.Position(3) = ht.Position(3)+borders(1);  %add border around table
         end
         %
         if ~ishandle(figtitle) %adjust figure if created by tablefigure function              
@@ -125,14 +133,15 @@ function h_fig = tablefigure(figtitle,headtext,atable,varnames,values)
                                 isa(figtitle,'matlab.ui.container.Tab')
         ht.Position(4) = h_pan.InnerPosition(4);
     else
-        if nrows==1
-            ht.Position(4) = ht.Extent(4)+rowheight; 
-        else
-            ht.Position(4) = ht.Extent(4);
-        end
+        ht.Position(4) = ht.Extent(4)+scrollbar;
+%         if nrows==1
+%             ht.Position(4) = ht.Extent(4)+rowheight; 
+%         else
+%             ht.Position(4) = ht.Extent(4);
+%         end
         %
         if isgraphics(h_fig,'figure') %adjust figure panel but not tabs
-            h_pan.Position(4) = ht.Position(4)+borders(2);   
+            h_pan.Position(4) = ht.Position(4)+borders(2); %add border around table
         end
         %
         if ~ishandle(figtitle) %adjust figure if created by tablefigure function             

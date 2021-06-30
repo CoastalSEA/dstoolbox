@@ -27,21 +27,24 @@ function h_box = statictextbox(parent,nlines,boxpos,boxtext,boxunits)
         boxunits = 'pixels';
     end
     boxpos(3) = boxpos(3)*0.95; %reduce width to allow for scroll bar when wrapping
+    boxtext = string(boxtext);
     h_box = uicontrol('Parent',parent,'Style','text','String',boxtext,...
                        'Units',boxunits,'Position',boxpos,...
-                       'HorizontalAlignment','left','Tag','statictextbox'); 
-    boxtext = string(boxtext);
+                       'HorizontalAlignment','left','Tag','statictextbox');    
     [wrappedtext,wrappedpos] = textwrap(h_box,boxtext); 
+    
     if size(wrappedtext,1)>nlines
         delete(h_box)
-        boxpos(3) = boxpos(3)/0.95; %restore width
-        uicontrol('Parent',parent,'Style','edit','String',boxtext,...
+        boxpos(3) = boxpos(3)/0.95;   %restore width
+        boxtext = [wrappedtext;""];  %add a dummy line to aid scrolling
+        h_box = uicontrol('Parent',parent,'Style','edit','String',boxtext,...
                 'Units',boxunits,'Position',boxpos,...
                 'min',0,'max',2,'enable','inactive',...
                 'HorizontalAlignment','left',...
                 'BackgroundColor',[0.96,0.96,0.96],'Tag','statictextbox');
+        [wrappedtext,~] = textwrap(h_box,boxtext);  
     else
-        h_box.String = wrappedtext;
         h_box.Position = wrappedpos;        
-    end      
+    end    
+    h_box.String = wrappedtext;
 end
