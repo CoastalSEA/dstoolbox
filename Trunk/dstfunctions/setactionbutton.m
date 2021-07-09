@@ -46,7 +46,7 @@ function h_but = setactionbutton(parent,butext,position,callback,...
                       'UserData', userdata,...
                       'ToolTip', tooltip);
     if length(butext)<5
-        if isletter(butext)
+        if all(isstrprop(butext,'alphanum') + isstrprop(butext,'wspace'))
             h_but.FontName = 'FixedWidth';
         else
             h_but.FontName = 'Symbol';

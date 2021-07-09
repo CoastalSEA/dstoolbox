@@ -636,7 +636,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                         newdst.(parts{1}).(parts{2}) = varargin{idv(i)+1};
                     end
                 end
-            elseif length(varargin)>2  && ~isempty(varargin{3})
+            elseif length(varargin)>2  && ~isempty(varargin{3}) && ...
+                                          ~isempty(newdst.Dimensions)
                 %dimensions defined by index to existing values
                 dimnames = newdst.DimensionNames;
                 for i=1:length(idd)
@@ -645,11 +646,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     newdst.Dimensions.(dimnames{i}) = oldims(idd{i});
                 end
             end
-%             varnames = newdst.VariableNames;
-%             if ~isprop(newdst,varnames{1})         %dynamic properties not set
-%                 newdst = updateVarNames(newdst);
-%             end
-            
             newdst.LastModified = datetime('now');
         end
 %%
@@ -703,31 +699,49 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             [vdim,~,vsze] = getvariabledimensions(obj,idv);
             setdims = sum(~cellfun(@isempty,names))-1;
             missingdims = vdim-setdims; 
-
+            
             if vsze(1)==1
-                if all(vsze(2:end)==1)        %variable with no rows or dims
+                if all(vsze(2:end)==1)         %variable with no rows and no dims                        
                     names = names(1);  desc = desc(1);  label = label(1);
-                elseif isempty(obj.RowNames)  %single row with dims
+                elseif isempty(obj.RowNames)   %single row with dims
                     names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
-                    if missingdims>0          %add missing if undefined
+                    if missingdims>0           %add missing if undefined
                         [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
                     end
-                else                          %row is a dimension
-                    if all(vsze(2:end)==1)        %variable with rows but no dims
+                elseif isempty(obj.Dimensions) %no dimensions for vector/array variable
+                    nodefdims()
+                else                           %row is a dimension
+                    if all(vsze(2:end)==1)     %variable with rows but no dims
+                        
                         names = names(1:2);  desc = desc(1:2);  label = label(1:2);
-                    else                          %variable with rows and dims
-                        if missingdims>0          %add missing if undefined
+                    elseif isempty(obj.Dimensions) %no dimensions for vector/array variable
+                        nodefdims()
+                    else                       %variable with rows and dims
+                        if missingdims>0       %add missing if undefined
                             [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
                         end
                     end
                 end
-            else                              %multiple rows
-                if all(vsze(2:end)==1)        %variable with rows but no dims
+            else                               %multiple rows
+                if all(vsze(2:end)==1)         %variable with rows but no dims
                     names = names(1:2);  desc = desc(1:2);  label = label(1:2);
-                else                          %variable with rows and dims
-                    if missingdims>0          %add missing if undefined
+                elseif isempty(obj.Dimensions) %no dimensions for vector/array variable 
+                   nodefdims()
+                else                           %variable with rows and dims
+                    if missingdims>0           %add missing if undefined
                         [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
                     end
+                end
+            end
+            %
+            function nodefdims()
+                %set default names for undefined dimensions (variables that
+                %for any row are vectors or arrays, with no defined dimensions)
+                idd = find(cellfun(@isempty,names));
+                for ii=1:length(idd)
+                   names{idd(ii)} = sprintf('noDim%d',ii);
+                   desc{idd(ii)} = sprintf('Undefined dimension %d',ii);
+                   label{idd(ii)} = 'Undefined dimension';
                 end
             end
         end
@@ -743,28 +757,28 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 [~,list] = getVarAttributes(obj,list);
             end
             %
-%             range = {'',''};
             idvar = strcmp(obj.VariableDescriptions,list{1});  
             switch selected
-                case list{1}                             
+                case list{1}            %Variable                  
                     varname = obj.VariableNames{idvar};
                     range = obj.VariableRange.(varname);
-                case list{2}
+                case list{2}            %Row
                     if height(obj.DataTable)==1 && isempty(obj.RowNames)
                         dimname = obj.DimensionNames{1};
                         range = obj.DimensionRange.(dimname);
                     else
                         range = obj.RowRange;
                     end
-                otherwise
+                otherwise               %Dimension
+
                     %ensure offset is correct
                     if height(obj.DataTable)>1, nr=3; else, nr=2; end 
-                    idd = strcmp(list(nr:end),selected);
-                    dimname = obj.DimensionNames{idd};
+                    idd = strcmp(list(nr:end),selected);                    
                     if isempty(obj.DimensionRange) && any(idd)
                         [~,~,vsze] = getvariabledimensions(obj,idvar);
                         range = {int16(1),int16(vsze(idd+1))};
                     else
+                        dimname = obj.DimensionNames{idd};
                         range = obj.DimensionRange.(dimname);
                     end
             end            
@@ -1147,16 +1161,16 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             
             %check that the first variable has dimensions that match the
             %dimension properties and if not warn user
-            [~,cdim,~] = getvariabledimensions(obj,1);
-            dspdim = length({dsprops.Dimensions(:).Name});
+            [~,cdim,~] = getvariabledimensions(obj,1);     %number of dimensions for first variable (exc rows)
+            dspdim = length({dsprops.Dimensions(:).Name}); %number of named dimensions
             if dspdim==1 && isempty(dsprops.Dimensions.Name)
                 %the Dimensions struct is empty
-            elseif dspdim>1 && cdim~=dspdim
+            elseif dspdim>1 && cdim~=dspdim  %more than one named dimension but not equal to number of variable dimensions 
                 txt1 = sprintf('The first variable has %d dimensions and %d property dimensions are defined',cdim,dspdim);
                 txt2 = 'Select option:';
                 qtext = sprintf('%s\n%s',txt1,txt2);
                 answer = questdlg(qtext,'Dimensions',...
-                    'Include all','Set to Variable size','Abort','Set to Variable size');
+                    'Set to Variable size','Abort','Set to Variable size');
                 switch answer
                     case 'Set to Variable size'
                         if cdim<dspdim
