@@ -3,7 +3,7 @@
 %%
 % * *sortrows* - see <matlab:doc('dstable') dstable> documentation
 % * *displayDSproperties* - see <matlab:doc(dsproperties') dsproperties>
-% documentaion
+% documentation
 % * *dst2tsc* - see <matlab:doc('dst2tsc') dst2tsc> documentation
 % * *tsc2dst* - see <matlab:doc('tsc2dst') tsc2dst> documentation
 %%

@@ -56,7 +56,7 @@ classdef dscatalogue < handle
             %caserec - index in current Catalogue
             %returns a table with the definition for the selected record
             if nargin<2 || isempty(caserec)
-                [caserec,ok] = selectRecord(obj,'PromptText','Select case to remove:',...
+                [caserec,ok] = selectRecord(obj,'PromptText','Select case record:',...
                               'ListSize',[250,200],'SelectionMode','multiple');
                 if ok<1, casedef = []; return; end 
             end
@@ -66,7 +66,7 @@ classdef dscatalogue < handle
         function caserec = removeRecord(obj,caserec)
             %select one or more Case records and delete records from catalogue 
             if nargin<2 || isempty(caserec)
-                [caserec,ok] = selectRecord(obj,'PromptText','Select case to remove:',...
+                [caserec,ok] = selectRecord(obj,'PromptText','Select case record to remove:',...
                               'ListSize',[250,200],'SelectionMode','multiple');
                 if ok<1, return; end 
             end
@@ -77,7 +77,7 @@ classdef dscatalogue < handle
         function [caserec,newdesc] = editRecord(obj,caserec)
             %edit Case description of the caserec record
             if nargin<2 ||  isempty(caserec)
-                [caserec,ok] = selectRecord(obj,'PromptText','Select case to edit:',...
+                [caserec,ok] = selectRecord(obj,'PromptText','Select case record to edit:',...
                                                 'ListSize',[250,200]);
                 if ok<1, return; end
             end

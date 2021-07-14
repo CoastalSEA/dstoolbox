@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-02-25"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
+      --><title>dscatalogue</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-07-13"><meta name="DC.source" content="dscatalogue.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,8 +67,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>dscatalogue</h1><!--introduction--><p>dscatalogue manages a catalogue of data sets</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#3">Description</a></li><li><a href="#4">Properties</a></li><li><a href="#6">dscatalogue methods</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dsc = dscatalogue;             <span class="comment">%creates an empty dscatalogue</span>
-</pre><h2 id="3">Description</h2><p>Maintains a catalogue of cases that can be a mix of data types (e.g. model and measured data) and created by different classes. Each record is given and unique case identifier (CaseID), which is distinct from the number (row) of the record (CaseRec).</p><h2 id="4">Properties</h2><p><b>Catalogue</b> holds a <a href="matlab:doc('table')">table</a> of the case definition. The Catalogue includes the following fields: <a href="br">br</a> <i>CaseID</i> - unique identifier for each record <a href="br">br</a> <i>CaseDescription</i> - data set specific record description <a href="br">br</a> <i>CaseClass</i> - class of data set to be catalogued <a href="br">br</a> <i>CaseType</i> - type of data set (e.g. keywords: model, data)</p><p>The Catalogue table fields can be accessed using standard table notation, e.g:</p><pre class="language-matlab">dst.Catalogue.CaseClass(rowidx)  <span class="comment">%rowidx is the index of the row(s) to be returned</span>
+  </style></head><body><div class="content"><h1>dscatalogue</h1><!--introduction--><p>dscatalogue manages a catalogue of data sets</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#3">Description</a></li><li><a href="#4">Properties</a></li><li><a href="#6">dscatalogue methods</a></li><li><a href="#15">See Also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">dsc = dscatalogue;             <span class="comment">%creates an empty dscatalogue</span>
+</pre><h2 id="3">Description</h2><p>Maintains a catalogue of cases that can be a mix of data types (e.g. model and measured data) and created by different classes. Each record is given and unique case identifier (CaseID), which is distinct from the number (row) of the record (CaseRec).</p><h2 id="4">Properties</h2><p><b>Catalogue</b> holds a <a href="matlab:doc('table')">table</a> of the case definition. The Catalogue includes the following fields: <br> <i>CaseID</i> - unique identifier for each record <br> <i>CaseDescription</i> - data set specific record description <br> <i>CaseClass</i> - class of data set to be catalogued <br> <i>CaseType</i> - type of data set (e.g. keywords: model, data)</p><p>The Catalogue table fields can be accessed using standard table notation, e.g:</p><pre class="language-matlab">dst.Catalogue.CaseClass(rowidx)  <span class="comment">%rowidx is the index of the row(s) to be returned</span>
 </pre><h2 id="6">dscatalogue methods</h2><p>the dscatalogue methods allow cases to be added, removed and the case description to be edited</p><p><b>addRecord</b> - add a case definition to the catalogue</p><pre class="language-matlab">recnum = addRecord(dsc,caseclass,casetype,casedesc); <span class="comment">%casedesc is optional</span>
 </pre><p><b>getRecord</b> - return case for the caserec record</p><pre class="language-matlab">casedef = getRecord(dsc,caserec);    <span class="comment">%casedef is a table of the selected record (caserec)</span>
                                      <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
@@ -77,11 +77,11 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 dsc.Catalogue(caserec,:) = [];       <span class="comment">%alternative for use without selection UI</span>
 </pre><p><b>editRecord</b> - edit case description of the caserec record</p><pre class="language-matlab">[caserec,newdesc] = editRecord(dsc,caserec); <span class="comment">%caserec is optional</span>
                                              <span class="comment">%uses list dialogue selection if caserec is not supplied</span>
-</pre><p><b>selectRecord</b> - list dialogue box of the cases in the catalogue</p><pre class="language-matlab">[caserec,ok] = selectRecord(dsc,Name,Value);
-</pre><p>Name, Value pairs are specified as comma-separated pairs and include the following options: <a href="br">br</a> 'CaseClass', {'class'} - cell array of classes to include in the list <a href="br">br</a> 'CaseType', {'type'} - cell array of types to include in the list <a href="br">br</a> 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <a href="br">br</a> 'ListSize', [width,height] - defines the dimensions of the list dialogue <a href="br">br</a> 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'</p><p><i>selectRecord</i> outputs: <a href="br">br</a> caserec - the record number of the selected case or cases <a href="br">br</a> ok - The selection logical value indicates whether the user made a selection. If the user clicks OK, double-clicks a list item, or presses Return, then the ok return value is 1. If the user clicks Cancel, presses Esc, or clicks the close button (X) in the dialog box title bar, then the ok return value is 0.</p><p><b>selectRecordOptions</b> - select which classes or types of data to use to select records</p><pre class="language-matlab">selection = selectRecordOptions(dsc,optionlist,promptext);
-</pre><p>optionlist - unique values in the dscatalogue CaseClass or CaseType promptext - text used as a prompt</p><p><i>selectRecordOption</i> can be used in conjunction with <i>selectRecord</i> to subselect from the list of records. This can be useful with large datasets that contain several classes and/or data types.</p><p><b>caseRec</b> - find caserec using caseid</p><pre class="language-matlab">caserec = caseRec(dsc,caseid);
-</pre><p><b>caseID</b> - find caseid using caserec</p><pre class="language-matlab">caseid = caseID(dsc,caserec)
-</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+</pre><p><b>selectRecord</b> - list dialogue box of the cases in the catalogue</p><pre class="language-matlab">[caserec,ok] = selectRecord(dsc,Name,Value); <span class="comment">%prompt to select a record and return the record id</span>
+</pre><p>Name, Value pairs are specified as comma-separated pairs and include the following options: <br> 'CaseClass', {'class'} - cell array of classes to include in the list <br> 'CaseType', {'type'} - cell array of types to include in the list <br> 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br> 'ListSize', [width,height] - defines the dimensions of the list dialogue <br> 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'</p><p><i>selectRecord</i> outputs: <br> caserec - the record number of the selected case or cases <br> ok - The selection logical value indicates whether the user made a selection. If the user clicks OK, double-clicks a list item, or presses Return, then the ok return value is 1. If the user clicks Cancel, presses Esc, or clicks the close button (X) in the dialog box title bar, then the ok return value is 0.</p><p><b>selectRecordOptions</b> - select which classes or types of data to use to select records</p><pre class="language-matlab">selection = selectRecordOptions(dsc,optionlist,promptext);  <span class="comment">%sub selection of data type or class</span>
+</pre><p>optionlist - unique values in the dscatalogue CaseClass or CaseType promptext - text used as a prompt</p><p><i>selectRecordOption</i> can be used in conjunction with <i>selectRecord</i> to subselect from the list of records. This can be useful with large datasets that contain several classes and/or data types.</p><p><b>caseRec</b> - find caserec using caseid</p><pre class="language-matlab">caserec = caseRec(dsc,caseid);   <span class="comment">%get id of a record in catalogue using unique case id</span>
+</pre><p><b>caseID</b> - find caseid using caserec</p><pre class="language-matlab">caseid = caseID(dsc,caserec)   <span class="comment">%get unique case id using id of a record in catalogue</span>
+</pre><h2 id="15">See Also</h2><p><a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('dsproperties')">dsproperties</a>, <a href="matlab:doc('dstoolbox')">dstoolbox</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% dscatalogue
 % dscatalogue manages a catalogue of data sets
@@ -141,7 +141,7 @@ dsc.Catalogue(caserec,:) = [];       <span class="comment">%alternative for use 
 %%
 % *selectRecord* - list dialogue box of the cases in the catalogue
 %
-%   [caserec,ok] = selectRecord(dsc,Name,Value);
+%   [caserec,ok] = selectRecord(dsc,Name,Value); %prompt to select a record and return the record id
 %
 % Name, Value pairs are specified as comma-separated pairs and include the following options: <br>
 % 'CaseClass', {'class'} - cell array of classes to include in the list <br>
@@ -161,8 +161,8 @@ dsc.Catalogue(caserec,:) = [];       <span class="comment">%alternative for use 
 %%
 % *selectRecordOptions* - select which classes or types of data to use to select records
 %
-%   selection = selectRecordOptions(dsc,optionlist,promptext);
-%
+%   selection = selectRecordOptions(dsc,optionlist,promptext);  %sub selection of data type or class
+%   
 % optionlist - unique values in the dscatalogue CaseClass or CaseType
 % promptext - text used as a prompt 
 %
@@ -173,12 +173,15 @@ dsc.Catalogue(caserec,:) = [];       <span class="comment">%alternative for use 
 %%
 % *caseRec* - find caserec using caseid
 %
-%   caserec = caseRec(dsc,caseid);    
+%   caserec = caseRec(dsc,caseid);   %get id of a record in catalogue using unique case id  
 
 %%
 % *caseID* - find caseid using caserec
 %
-%   caseid = caseID(dsc,caserec)
+%   caseid = caseID(dsc,caserec)   %get unique case id using id of a record in catalogue
 
+%% See Also
+% <matlab:doc('dstable') dstable>, <matlab:doc('dsproperties') dsproperties>, 
+% <matlab:doc('dstoolbox') dstoolbox>.
 ##### SOURCE END #####
 --></body></html>

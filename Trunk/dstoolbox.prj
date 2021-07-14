@@ -17,6 +17,7 @@
     <param.exclude.filters>% List files contained in your toolbox folder that you would like to exclude
 % from packaging.  Excludes should be listed relative to the toolbox folder.
 % Some examples of how to specify excludes are provided below:
+setdstpath.m
 %
 % A single file in the toolbox folder:
 % .svn
@@ -118,16 +119,12 @@ Working Docs
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\dscatalogue.m</file>
       <file>${PROJECT_ROOT}\dscollection.m</file>
-      <file>${PROJECT_ROOT}\dsprop_struct_template.m</file>
       <file>${PROJECT_ROOT}\dsproperties.m</file>
-      <file>${PROJECT_ROOT}\dstable.asv</file>
       <file>${PROJECT_ROOT}\dstable.m</file>
       <file>${PROJECT_ROOT}\dstfunctions</file>
       <file>${PROJECT_ROOT}\example</file>
       <file>${PROJECT_ROOT}\help</file>
       <file>${PROJECT_ROOT}\info.xml</file>
-      <file>${PROJECT_ROOT}\setdstpath.m</file>
-      <file>${PROJECT_ROOT}\tsc2dst.m</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
