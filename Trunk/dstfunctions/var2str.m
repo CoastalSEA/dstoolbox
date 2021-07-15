@@ -27,7 +27,10 @@ function [varstr,type,format] = var2str(var,iswarn)
     if nargin<2, iswarn = true; end
     
     format = [];
-    if iscell(var)
+    if isempty(var)
+        varstr = {''}; type = []; format = [];
+        return;
+    elseif iscell(var)
         var1 = var{1}; 
     else
         var1 = var(1);
