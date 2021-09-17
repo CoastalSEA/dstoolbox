@@ -89,6 +89,31 @@
 %   dimdata = dst.Dimensions.dimName;  %assign the dimension to dimdata
 %
 
+%% Variable assignment formats
+% The format of the input variable(s) determines how the data are assigned
+% to the _dstable_. As well as individual variable assignments, as shown 
+% above, a cell array of variables can be assigned using the following syntax:
+%%
+%   dst = dstable(inputvars)    %where inputvars is a numeric array
+%   dst = dstable(inputvars{:}) %where inputvars is a cell array
+%%
+% The format of the data in _inputvars_ can be any of the following:
+
+%%
+% <html>
+% <table border=1>
+% <tr><td><b>Array type</b></td><td><b>Variable<b></td><td><b>Data type</b></td><td><b>Data format</b></td></tr>
+% <tr><td>single row vector</td><td>single</td><td>numeric array</td><td>1xM numerical array</td></tr>
+% <tr><td>single row matrix</td><td>single</td><td>numeric array</td><td>1xMxN numerical array</td></tr>
+% <tr><td>single row vector</td><td>multiple</td><td>cell array</td><td>1xM numerical arrays</td></tr>
+% <tr><td>single row matrix</td><td>multiple</td><td>cell array</td><td>1xMxN numerical arrays</td></tr>
+% <tr><td>multi row vector</td><td>single</td><td>numeric array</td><td>RxM numerical array</td></tr>
+% <tr><td>multi row matrix</td><td>single</td><td>numeric array</td><td>RxMxN numerical array</td></tr>
+% <tr><td>multi row vector</td><td>multiple</td><td>cell array</td><td>RxM numerical arrays</td></tr>
+% <tr><td>multi row matrix</td><td>multiple</td><td>cell array</td><td>RxMxN numerical arrays</td></tr>
+% </table>
+% </html>
+
 %% Assign and access Metadata Properties
 % The metadata for Variables, Row and Dimenions can be assigned and
 % accessed using a <matlab:doc('dsproperties') dsproperties> object. 
