@@ -83,6 +83,11 @@ function [varlen,varhght] = getstringextent(uic,strvar)
     elseif iscell(strvar)
         if islogical(strvar{1})
             uic.String =  num2str(strvar{1});
+        elseif isstruct(strvar{1})
+            fnames = fieldnames(strvar{1});
+            flen = cellfun(@length,fnames);
+            [~,imax] = max(flen);
+            uic.String = fnames{imax};
         else
             uic.String = strvar{1};
         end

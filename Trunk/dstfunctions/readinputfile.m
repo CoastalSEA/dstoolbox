@@ -6,7 +6,7 @@ function [data,header] = readinputfile(filename,nhead,dataSpec)
 % PURPOSE
 %   read data from a file
 % USAGE
-%   [header,data] = readinputfile(obj,nhead,dataSpec)
+%   [header,data] = readinputfile(filename,nhead,dataSpec)
 % INPUT
 %   filename - name of file to be read
 %   nhead - number of header lines

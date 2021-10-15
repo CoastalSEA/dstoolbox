@@ -14,7 +14,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 %   All additional properties are added as CustomProperties to the table in
 %   a dsproperties struct or a dsproperties object
 %   NB: dynamic properties are not saved when dstable is saved to a mat
-%   file. To reinitialise these properies to enable direct access to
+%   file. To reinitialise these properties to enable direct access to
 %   variables (eg. using obj.VariableName) call 
 %      dst = activatedynamicprops(dst);   %eg called in muiCatalogue.getDataset
 %   dstable uses ConstructOnLoad so this should no longer be needed but it
