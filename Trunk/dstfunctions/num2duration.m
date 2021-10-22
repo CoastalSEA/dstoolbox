@@ -8,10 +8,12 @@ function durvar = num2duration(num,units)
 % USAGE
 %   durvar = str2duration(strvar,format)
 % INPUT
-%   num - numeric value of a duration
+%   num - (i) numeric value of a duration, or (ii) duration values
 %   units - format of duration as a character vector
+%           optional if inputs are durations of the desired unit
 % OUTPUT
-%   durvar - variable returned as a duration in defined duration units
+%   durvar - variable returned as (i) duration in defined duration units.
+%            or (ii) numeic if the inputs are durations
 % SEE ALSO
 %   used in str2duration.m and ts_interval.m
 %
@@ -19,6 +21,10 @@ function durvar = num2duration(num,units)
 % CoastalSEA (c)June 2020
 %--------------------------------------------------------------------------
 % 
+    if nargin<2
+        units = num.Format; %use duration format is inputs are durations
+    end
+    %
     switch units
         case {'s','sec','secs'}
             durvar = seconds(num);

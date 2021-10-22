@@ -191,7 +191,8 @@ classdef dscatalogue < handle
         end
 %%
         function caserec = caseRec(obj,caseid)
-            %find caserec given caseid
+            %find caserec in current catalogue given caseid 
+            %returns empty value if caseid not found
             nsrec = length(caseid);
             caserec = zeros(1,nsrec);
             for i=1:nsrec
@@ -200,7 +201,7 @@ classdef dscatalogue < handle
         end
 %%
         function caseid = caseID(obj,caserec)
-            %find caseid given caserec
+            %find caseid given caserec from current catalogue
             caseid = obj.Catalogue.CaseID(caserec);
         end        
     end
