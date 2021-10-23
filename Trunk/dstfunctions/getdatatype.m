@@ -5,7 +5,8 @@ function dtype = getdatatype(var)
 %   getdatatype.m
 % PURPOSE
 %   find the data type of 'var', checks for:
-%       logical,integer,float,char,string,categorical,datetime,duration    
+%       logical,integer,float,char,string,categorical,datetime,duration,
+%       calendarDuration
 % USAGE
 %   dtype = getdatatype(var)
 % INPUT

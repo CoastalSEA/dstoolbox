@@ -5,7 +5,7 @@ function var = str2var(varstr,type,format,iswarn)
 %   str2var.m
 % PURPOSE
 %   Convert the input cell array of character vectors to an array of the 
-%   specified data type and using the given format if datetime or duration
+%   specified data type and using the given format if datetime, or duration, 
 % USAGE
 %   var = str2var(varstr,type,format,iswarn)
 % INPUT

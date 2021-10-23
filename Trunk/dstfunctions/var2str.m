@@ -5,7 +5,7 @@ function [varstr,type,format] = var2str(var,iswarn)
 %   var2str.m
 % PURPOSE
 %   Convert the input variable to a cell array of strings and return the 
-%   data type and format (for datetime and duration only)    
+%   data type and format (for datetime, duration and CalendarDuration only)    
 % USAGE
 %   [varstr,type,format] = var2str(var,iswarn)
 % INPUT
@@ -43,9 +43,8 @@ function [varstr,type,format] = var2str(var,iswarn)
         varstr = cellstr(var);
         format = var.Format;     
     elseif iscalendarduration(var)
-        varstr = cellstr(var);   %calendarDuration format is 'ymdt'
+        varstr = cellstr(var);   %calendarDuration format is some of 'yqmwdt'
         format = var.Format;
-%         format = varstr{1}(end); %return assigned units instead
     else
         try
             varstr = cellstr(var);

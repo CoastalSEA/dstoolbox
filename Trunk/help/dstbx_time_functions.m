@@ -8,17 +8,19 @@
 % 
 % * *getdatatype.m*
 % - find the data type of 'var', checks for:
-%   logical,integer,float,char,string,categorical,datetime,duration  
+% logical,integer,float,char,string,categorical,datetime,duration,
+% calendarDuration
 % 
 % * *getdateformat.m*
 % - try to determine the datetime format of a text string
 %
 % * *isdatdur.m*
-% - identify whether RowNames or a Variable in a dstable are datetime or duration
-% data types  
+% - identify whether RowNames or a Variable in a dstable are datetime, 
+% duration or calendarDuration 
 %
 % * *istimeseriesdst.m*
-% - check whether the first variable in a dstable is a timeseries
+% - check whether the first variable in a dstable is a datetime vector
+% array
 %
 % * *num2caldur.m*
 % - convert a number to a calendar duration based on specified units
@@ -35,14 +37,14 @@
 % 
 % * *str2var.m*
 % - Convert the input cell array of character vectors to an array of the 
-% specified data type and using the given format if datetime or duration 
+% specified data type and using the given format if datetime, or duration,
 % 
 % * *time2num.m*
-% - convert datetime or duration to a numeric value (eg for plotting)
+% - convert datetime, duration or calendarDuration to a numeric value (eg for plotting)
 %
 % * *var2str.m*
 % - convert the input variable to a cell array of strings and return the 
-% data type and format (for datetime and duration only) 
+% data type and format (for datetime, duration and calendarDuration only) 
 
 
 

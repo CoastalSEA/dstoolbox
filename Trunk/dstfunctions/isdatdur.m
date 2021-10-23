@@ -5,7 +5,7 @@ function [isdd,isdt] = isdatdur(varnames,varargin)
 %   isdatdur.m
 %PURPOSE
 %   identify whether RowNames or Variable in a dstable are datetime,
-%   duration or claendarDuration
+%   duration or calendarDuration
 % USAGE
 %   [isdd,isdt] = isdatdur(varnames,dst1,dst2)
 % INPUT

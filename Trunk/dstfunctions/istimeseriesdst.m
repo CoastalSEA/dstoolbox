@@ -4,7 +4,8 @@ function ists = istimeseriesdst(dst)
 % NAME
 %   istimeseriesdst.m
 % PURPOSE
-%   check whether the first variable in a dstable is a timeseries
+%   check whether the first variable in a dstable is a datetime vector
+%   array
 % USAGE
 %   ists = istimeseriesdst(dst)
 %INPUT

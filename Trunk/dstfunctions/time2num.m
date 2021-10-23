@@ -4,11 +4,11 @@ function [timenum,inpformat] = time2num(timein,offset)
 % NAME
 %   time2num.m
 % PURPOSE
-%   convert datetime or duration to a numeric value (eg for plotting)   
+%   convert datetime, duration or calendarDuration to a numeric value (eg for plotting)   
 % USAGE
 %   [timenum.inpformat] = time2num(timein,offset,timeunits)
 % INPUT
-%   timein - array of datetime or duration values to be checked
+%   timein - array of datetime, duration or calendarDuration values to be checked
 %   offset - duration offset eg eps(0)  (optional)
 % OUTPUT
 %   timenum - timein values converted to numeric values. If there is an
