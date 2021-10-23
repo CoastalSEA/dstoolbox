@@ -41,7 +41,11 @@ function [varstr,type,format] = var2str(var,iswarn)
         varstr = cellstr(num2str(var));
     elseif isdatetime(var) || isduration(var)
         varstr = cellstr(var);
+        format = var.Format;     
+    elseif iscalendarduration(var)
+        varstr = cellstr(var);   %calendarDuration format is 'ymdt'
         format = var.Format;
+%         format = varstr{1}(end); %return assigned units instead
     else
         try
             varstr = cellstr(var);

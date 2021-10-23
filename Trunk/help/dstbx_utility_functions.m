@@ -1,4 +1,4 @@
-%% dstoolbox functions
+%% dstoolbox utility functions
 % Summary of the functions available in the _dstfunctions_ folder. Use the Matlab(TM)
 % help function in the command window to get further details of each
 % function.
@@ -23,9 +23,6 @@
 % - find the data type of 'var', checks for:
 %   logical,integer,float,char,string,categorical,datetime,duration  
 % 
-% * *getdateformat.m*
-% - try to determine the datetime format of a text string
-% 
 % * *getdialog.m*
 % - generate a message dialogue box with no buttons. Calls setDialog.m
 % 
@@ -41,9 +38,6 @@
 % * *mat2clip.m* 
 % - Copies matrix to system clipboard. From Matlab(TM) Forum, jiro (2021),
 % https://www.mathworks.com/matlabcentral/fileexchange/8559-mat2clip.
-% 
-% * *num2duration.m*
-% - convert a number to a duration based on specified
 % 
 % * *readinputfile.m*
 % - read data from a file
@@ -63,9 +57,6 @@
 % - create static text box with wrapped text to fit the number of lines
 % if greater that nlines make box scrollable
 % 
-% * *str2duration.m*
-% - convert a string created from a duration back to a duration
-% 
 % * *str2var.m*
 % - Convert the input cell array of character vectors to an array of the 
 % specified data type and using the given format if datetime or duration
@@ -75,7 +66,7 @@
 % 
 % * *tabtablefigure.m*
 % - generate figure with tabs to show set of tables 
-% 
+%
 % * *var2str.m*
 % - convert the input variable to a cell array of strings and return the 
 % data type and format (for datetime and duration only) 

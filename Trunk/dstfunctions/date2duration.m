@@ -1,4 +1,4 @@
-function [timeints,timeunits] = date2duration(dates,offset,timeunits)
+function [timedurs,timeunits] = date2duration(dates,offset,timeunits)
 %
 %-------function help------------------------------------------------------
 %NAME
@@ -7,13 +7,13 @@ function [timeints,timeunits] = date2duration(dates,offset,timeunits)
 %   convert datetimes to durations with selected time units and an
 %   optional offset from zero. prompts for units if not defined
 % USAGE
-%   [timeints,units] = date2duration(dates)
+%   [timedurs,timeunits] = date2duration(dates,offset,timeunits)
 % INPUT
 %   dates - datetime vector to define durations
-%   offset - duration offset (optional or empty)
+%   offset - duration offset eg eps(0) (optional or empty)
 %   timeunits - unit of time duration to use (optional)
 % OUTPUT
-%   timeints - durations from t0 in selected time units. If there is an
+%   timedurs - calendar durations from t0 in selected time units. If there is an
 %              offset>0 the durations are from the first value of dates, 
 %              otherwise they are from 1-Jan-0001.
 %   timeunits - user selected units for duration 
@@ -28,23 +28,25 @@ function [timeints,timeunits] = date2duration(dates,offset,timeunits)
 %--------------------------------------------------------------------------
 %
     listxt = {'years','days','hours','minutes','seconds'};
-    if nargin<2 || isempty(offset)
+    if nargin<2
         offset = 0; 
         timeunits = getTimeUnits(listxt);
     elseif nargin<3
         timeunits = getTimeUnits(listxt);
+        if isempty(offset)
+            offset = 0;
+        end
     end
     %
-    
     if offset>0
-        t0 = dates(1)+offset;
+        t0 = dates(1)-offset;
     else
         t0 = datetime(1,1,1);
         t0.Format = dates.Format;
     end
     %
     if contains(timeunits,listxt)
-        timeints = between(t0,dates,'years'); 
+        timedurs = between(t0,dates,timeunits); %returns calendar durations
     else
         warndlg('Only years, days, hours, minutes or seconds handled')
         return

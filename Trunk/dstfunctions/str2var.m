@@ -56,6 +56,8 @@ function var = str2var(varstr,type,format,iswarn)
             %str2duration splits string if format not defined
             var = str2duration(varstr,format);
             var.Format = format;
+        case 'calendarDuration'
+            var = str2caldur(varstr);
         case 'char'
             var = varstr;
         case 'string'

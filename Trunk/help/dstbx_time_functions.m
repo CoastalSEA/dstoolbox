@@ -1,0 +1,51 @@
+%% dstoolbox functions that manipulate time variables
+% Summary of the functions available in the _dstfunctions_ folder that move
+% convert data between formats
+
+%%
+% * *deciyear.m*
+% -  convert datetimes, or date strings, to decimal years
+% 
+% * *getdatatype.m*
+% - find the data type of 'var', checks for:
+%   logical,integer,float,char,string,categorical,datetime,duration  
+% 
+% * *getdateformat.m*
+% - try to determine the datetime format of a text string
+%
+% * *isdatdur.m*
+% - identify whether RowNames or a Variable in a dstable are datetime or duration
+% data types  
+%
+% * *istimeseriesdst.m*
+% - check whether the first variable in a dstable is a timeseries
+%
+% * *num2caldur.m*
+% - convert a number to a calendar duration based on specified units
+%
+% * *num2duration.m*
+% - convert a number to a duration based on specified format (or vice versa)
+% 
+% * *str2caldur.m*
+% - convert a string created from a calendar duration back to a calendar 
+% duration
+%
+% * *str2duration.m*
+% - convert a string created from a duration back to a duration
+% 
+% * *str2var.m*
+% - Convert the input cell array of character vectors to an array of the 
+% specified data type and using the given format if datetime or duration 
+% 
+% * *time2num.m*
+% - convert datetime or duration to a numeric value (eg for plotting)
+%
+% * *var2str.m*
+% - convert the input variable to a cell array of strings and return the 
+% data type and format (for datetime and duration only) 
+
+
+
+
+
+

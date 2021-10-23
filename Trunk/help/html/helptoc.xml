@@ -32,7 +32,8 @@
                  image="HelpIcon.FUNCTION">Function Reference
             <tocitem target="dst2tsc.html">dst2tsc</tocitem>    
             <tocitem target="tsc2dst.html">tsc2dst</tocitem>  
-            <tocitem target="dstfunctions.html">Summary of utility functions</tocitem>   
+            <tocitem target="dstbx_utility_functions.html">Summary of utility functions</tocitem>  
+            <tocitem target="dstbx_time_functions.html">Summary of time functions</tocitem>  
         </tocitem>        
         <!-- Optional List of Examples, with hyperlinks to examples in other files -->
         <tocitem target="dstbx_examples.html" 
