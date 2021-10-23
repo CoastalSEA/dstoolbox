@@ -36,7 +36,7 @@ function [timenum,inpformat] = time2num(timein,offset)
         if offset>0
             startyear = timein(1);
         else
-            startyear = datetime(1,1,1,0,0,0);
+            startyear = datetime(0,1,1,0,0,0);
             startyear.Format = timein.Format;
         end
         elapsedtime = timein-startyear;     %returns duration values
