@@ -6,6 +6,14 @@
 % * *deciyear.m*
 % -  convert datetimes, or date strings, to decimal years
 % 
+% * *date2caldur.m*
+% - convert datetimes to calendar durations with selected time units and an
+% optional offset from zero. Prompts for units if not defined
+%
+% * *date2duration.m*
+% - convert datetimes to durations with selected time units and an
+% optional offset from zero. Prompts for units if not defined
+%
 % * *getdatatype.m*
 % - find the data type of 'var', checks for:
 % logical,integer,float,char,string,categorical,datetime,duration,

@@ -19,7 +19,8 @@ function [timenum,inpformat] = time2num(timein,offset)
 %   some stats routines pass offset=eps(0) to avoid divide by zero when
 %   using durations from t(1).
 % SEE ALSO
-%   date2duration is similar but returns duratios with or without offset
+%   date2duration and date2caldur are similar but return duratios with or 
+%   without offset
 %   used in muiPlots and setfigslider
 %   muiStats, regression_plot.m, descriptive_stats, CT_BeachAnalysis
 %   
