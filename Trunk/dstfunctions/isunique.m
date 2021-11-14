@@ -6,7 +6,7 @@ function [answer,idx] = isunique(usevals,isvals)
 % PURPOSE
 %   check that all values in usevals are unique
 % USAGE
-%   answer = isunique(usevals)
+%   [answer,idx] = isunique(usevals,isvals)
 % INPUT
 %   usevals - vector to be checked can be character, numeric, datetime or
 %             duration
@@ -16,8 +16,9 @@ function [answer,idx] = isunique(usevals,isvals)
 %   answer - true if all values in usevals are unique
 %   idx - indices of values that are unique or duplicates depending on isvals
 % NOTES
-%   when returning duplicates these are for all indices except the first
-%   occurrence. empty cells in cell arrays are ignored
+%   when returning indices that are not unique (ie duplicates), these are 
+%   for all indices except the first occurrence. empty cells in cell arrays
+%   are ignored,
 %
 % Author: Ian Townend
 % CoastalSEA (c)Dec 2020

@@ -25,12 +25,12 @@ function getdialog(msgtxt,msgpos,delay)
 %--------------------------------------------------------------------------
 %
     if nargin<2
-        msgpos = [0.5,0.5,0.15,0.08];
+        msgpos = [0.42,0.52,0.16,0.08];
         delay = 2;
     elseif nargin<3
         delay = 2;
     elseif isempty(msgpos)
-        msgpos = [0.5,0.5,0.15,0.08];
+        msgpos = [0.42,0.52,0.15,0.08];
     end
     hd = setdialog(msgtxt,msgpos,'normal');
     pause(delay)

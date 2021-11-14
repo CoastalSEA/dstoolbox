@@ -723,7 +723,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     end
                 end
             else                               %multiple rows
-                if all(vsze(2:end)==1)         %variable with rows but no dims
+                if all(vsze(2:end)==1) && isempty(obj.Dimensions)       
+                    %variable with rows single dimension and no dims defined                    
                     names = names(1:2);  desc = desc(1:2);  label = label(1:2);
                 elseif isempty(obj.Dimensions) %no dimensions for vector/array variable 
                    nodefdims()
@@ -1515,6 +1516,9 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             elseif narg==3 && length(varargin{3})==cdim
                 %dimension indices with a cell for each dimension
                 newvargin = varargin;
+            elseif narg==3 && cdim==0
+                %dimension specified but is single valued (variable is a row vector)
+                newvargin = [varargin{1:2},varargin(3:end)];
             elseif narg-2==cdim 
                 %dimension indices specified individually
                 newvargin = [varargin{1:2},varargin(3:end)];

@@ -224,7 +224,7 @@ classdef dscatalogue < handle
                 caseid =max(CaseID)+1;   %next case id number-can be different
             end                          %to nrec if cases have been deleted
             %
-            if nargin<3
+            if nargin<3 || isempty(casename)
                 casename = {''};
             elseif any(strcmp(obj.Catalogue.CaseDescription,casename))
                 nval = sum(contains(obj.Catalogue.CaseDescription,casename));
