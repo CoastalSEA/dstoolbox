@@ -9,8 +9,8 @@ function [rowwidth,colwidth,tableheight] = getcolumnwidths(datatxt,coltxt,rowtxt
 % USAGE
 %   [rowwidth,colwidth,tableheight] = getcolumnwidths(datatxt,coltxt)
 % INPUTS
-%   datatxt  - cell array of default data strings (optional)
-%   coltxt   - cell array of column header text or a table
+%   datatxt  - cell array of default data strings or table
+%   coltxt   - cell array of column header text (optional)
 %   rowtxt   - cell array of row label text (optional)
 % OUTPUT
 %   rowwidth - width required for text in row column in pixels
