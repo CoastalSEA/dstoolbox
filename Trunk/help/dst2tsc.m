@@ -11,10 +11,11 @@
 % _tscollection_ tsc.TimeInfo.UserData property. 
 
 %% Input arguments
-% idxtime - index vector for the subselection of time. RowNames data type 
+% _idxtime_ - index vector for the subselection of time. RowNames data type 
 % used in the _dstable_ must be datetime or duration arrays, or character 
-% vector in a datetime format recognised by _tscollection_ <br>
-% idxvars - index vector for the subselection of variables, or the variable
+% vector in a datetime format recognised by _tscollection_.
+%%
+% _idxvars_ - index vector for the subselection of variables, or the variable
 % names as a cell array of character vectors. Variable type for the _dstable_ variable
 % must be compatible with allowable <matlab:doc('timeseries') timeseries>
 % variables.

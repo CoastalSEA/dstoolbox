@@ -29,30 +29,34 @@
 % *Variables* <br>
 % A struct array of the properties for each variable including the
 % following fields: <br>
-% Name  - names used in dstable, tscollection and table to label variables <br>
-% Description - description of variables (used in data access UIs to provide 
+% _Name_  - names used in dstable, tscollection and table to label variables <br>
+% _Description_ - description of variables (used in data access UIs to provide 
 % a fuller description of the variables) <br>
-% Unit  - variable units <br>
-% Label - axis labels for results <br> 
-% QCflag - flag to indicate any quality control of data  <br>
+% _Unit_  - variable units <br>
+% _Label_ - axis labels for results <br> 
+% _QCflag_ - flag to indicate any quality control of data  <br>
 %
 % *Row* <br>
-% Name - name for datatype used in table rows Assigned to the Property TableRowName
+% A struct array of the properties for each variable including the
+% following fields: <br>
+% _Name_ - name for datatype used in table rows Assigned to the Property TableRowName
 % in a <matlab:doc('dstable') dstable> and as the first value of the 
-% DimensionNames property in a <matlab:doc('table') table> <br>
-% Description - description for RowNames in table (usually Time but
+% _DimensionNames_ property in a <matlab:doc('table') table> <br>
+% _Description_ - description for RowNames in table (usually Time but
 % rows can be any unique descriptor) <br>        
-% Unit   - units of row data  <br>
-% Label  - axis labels for use with row data <br>
-% Format - time format to use when saving time data. Formats can be durations
+% _Unit_   - units of row data  <br>
+% _Label_  - axis labels for use with row data <br>
+% _Format_ - time format to use when saving time data. Formats can be durations
 % (e.g. y,d,m,s),or datetime (e.g. dd-MMM-uuuu HH:mm:ss) <br>
 %
 % *Dimensions* <br>
-% Name - stuct name used for dimensions.<br>
-% Description - description to be used for co-ordinates <br>
-% Unit  - units for the defined co-ordinates <br>
-% Label - axis labels for use with XYZ data <br>
-% Format - data format to use when saving the dimension <br>
+% A struct array of the properties for each variable including the
+% following fields: <br>
+% _Name_ - stuct name used for dimensions.<br>
+% _Description_ - description to be used for co-ordinates <br>
+% _Unit_  - units for the defined co-ordinates <br>
+% _Label_ - axis labels for use with XYZ data <br>
+% _Format_ - data format to use when saving the dimension <br>
 %
 % The _Labels_ field can be used to define generic summaries of variables, 
 % such as when plotting different variables of the same type but labelling 

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dst2tsc</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-07-13"><meta name="DC.source" content="dst2tsc.m"><style type="text/css">
+      --><title>dst2tsc</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-11-26"><meta name="DC.source" content="dst2tsc.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,8 +67,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>dst2tsc</h1><!--introduction--><p>Method of the <i>dstable</i> class to convert a <a href="matlab:doc('dstable')">dstable</a> to a <a href="matlab:doc('tscollection')">tscollection</a>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li><li><a href="#3">Input arguments</a></li><li><a href="#4">See also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">tsc = dst2tsc(dst,idxtime,idxvars)    <span class="comment">%converts a dstable object to a tscollection object</span>
-</pre><h2 id="2">Description</h2><p>Convert a <i>dstable</i> to a <i>tscollection</i>. The DSproperties of the dstable are adjusted to match any subselection of variables and stored in the <i>tscollection</i> tsc.TimeInfo.UserData property.</p><h2 id="3">Input arguments</h2><p>idxtime - index vector for the subselection of time. RowNames data type used in the <i>dstable</i> must be datetime or duration arrays, or character vector in a datetime format recognised by <i>tscollection</i> <br> idxvars - index vector for the subselection of variables, or the variable names as a cell array of character vectors. Variable type for the <i>dstable</i> variable must be compatible with allowable <a href="matlab:doc('timeseries')">timeseries</a> variables.</p><h2 id="4">See also</h2><p><a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('tsc2dst')">tsc2dst</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+  </style></head><body><div class="content"><h1>dst2tsc</h1><!--introduction--><p>Method of the <i>dstable</i> class to convert a <a href="matlab:doc('dstable')">dstable</a> to a <a href="matlab:doc('tscollection')">tscollection</a>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li><li><a href="#3">Input arguments</a></li><li><a href="#5">See also</a></li></ul></div><h2 id="1">Syntax</h2><pre class="language-matlab">tsc = dst2tsc(dst,idxtime,idxvars)    <span class="comment">%converts a dstable object to a tscollection object</span>
+</pre><h2 id="2">Description</h2><p>Convert a <i>dstable</i> to a <i>tscollection</i>. The DSproperties of the dstable are adjusted to match any subselection of variables and stored in the <i>tscollection</i> tsc.TimeInfo.UserData property.</p><h2 id="3">Input arguments</h2><p><i>idxtime</i> - index vector for the subselection of time. RowNames data type used in the <i>dstable</i> must be datetime or duration arrays, or character vector in a datetime format recognised by <i>tscollection</i>.</p><p><i>idxvars</i> - index vector for the subselection of variables, or the variable names as a cell array of character vectors. Variable type for the <i>dstable</i> variable must be compatible with allowable <a href="matlab:doc('timeseries')">timeseries</a> variables.</p><h2 id="5">See also</h2><p><a href="matlab:doc('dstable')">dstable</a>, <a href="matlab:doc('tsc2dst')">tsc2dst</a>.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% dst2tsc
 % Method of the _dstable_ class to convert a <matlab:doc('dstable') dstable> to a
@@ -83,10 +83,11 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 % _tscollection_ tsc.TimeInfo.UserData property. 
 
 %% Input arguments
-% idxtime - index vector for the subselection of time. RowNames data type 
+% _idxtime_ - index vector for the subselection of time. RowNames data type 
 % used in the _dstable_ must be datetime or duration arrays, or character 
-% vector in a datetime format recognised by _tscollection_ <br>
-% idxvars - index vector for the subselection of variables, or the variable
+% vector in a datetime format recognised by _tscollection_.
+%%
+% _idxvars_ - index vector for the subselection of variables, or the variable
 % names as a cell array of character vectors. Variable type for the _dstable_ variable
 % must be compatible with allowable <matlab:doc('timeseries') timeseries>
 % variables.

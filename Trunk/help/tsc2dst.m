@@ -11,8 +11,9 @@
 % for the variables included in the call are added to the _dstable_.
 
 %% Input arguments
-% idxtime - index vector for the subselection of time <br>
-% idxvars - index vector for the subselection of variables, or the variable
+% _idxtime_ - index vector for the subselection of time.
+%%
+% _idxvars_ - index vector for the subselection of variables, or the variable
 % names as a cell array of character vectors.
 
 %% See also
