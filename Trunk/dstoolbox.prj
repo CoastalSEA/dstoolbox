@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="4080570676" file="D:\Work\Tools\MATLAB\MUImodels2\dstoolbox\dstoolbox.prj" location="D:\Work\Tools\MATLAB\MUImodels2\dstoolbox" name="dstoolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="1194557036" file="D:\Work\Tools\MATLAB\MUImodels2\dstoolbox\dstoolbox.prj" location="D:\Work\Tools\MATLAB\MUImodels2\dstoolbox" name="dstoolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>dstoolbox</param.appname>
     <param.authnamewatermark>Ian Townend</param.authnamewatermark>
     <param.email>i.townend@soton.ac.uk</param.email>
@@ -18,6 +18,7 @@
 % from packaging.  Excludes should be listed relative to the toolbox folder.
 % Some examples of how to specify excludes are provided below:
 setdstpath.m
+remdstpath.m
 %
 % A single file in the toolbox folder:
 % .svn
@@ -63,7 +64,9 @@ Working Docs
     <param.registered.apps />
     <param.docs>${PROJECT_ROOT}\info.xml</param.docs>
     <param.getting.started.guide>${PROJECT_ROOT}\doc\GettingStarted.mlx</param.getting.started.guide>
-    <param.matlabpath.excludes />
+    <param.matlabpath.excludes>
+      <item>/help</item>
+    </param.matlabpath.excludes>
     <param.javaclasspath.excludes />
     <param.exported.on.package>false</param.exported.on.package>
     <param.required.addons>
@@ -94,7 +97,6 @@ Working Docs
       <param.exclude.pcodedmfiles />
       <param.demosxml />
       <param.registered.apps />
-      <param.matlabpath.excludes />
       <param.javaclasspath.excludes />
       <param.exported.on.package />
       <param.matlab.project.id />
@@ -114,7 +116,6 @@ Working Docs
       <file>${PROJECT_ROOT}</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}\Contents_old.m</file>
       <file>${PROJECT_ROOT}\demos.xml</file>
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\dscatalogue.m</file>

@@ -37,7 +37,9 @@
         </tocitem>        
         <!-- Optional List of Examples, with hyperlinks to examples in other files -->
         <tocitem target="dstbx_examples.html" 
-                 image="HelpIcon.EXAMPLES">dstoolbox Examples
+                 image="HelpIcon.DEMOS">dstoolbox Examples
+            <tocitem target="muitoolbox.html">muitoolbox</tocitem>    
+            <tocitem target="modelui.html">ModelUI</tocitem>      
         </tocitem>
         <!-- Optional link or links to your or other Web sites -->
         <tocitem target="http://www.coastalsea.uk" 

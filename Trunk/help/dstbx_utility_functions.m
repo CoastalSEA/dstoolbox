@@ -21,10 +21,10 @@
 % 
 % * *getdatatype.m*
 % - find the data type of 'var', checks for:
-%   logical,integer,float,char,string,categorical,datetime,duration  
+% logical, integer, float, char, string, categorical, datetime, duration, calendarDuration
 % 
 % * *getdialog.m*
-% - generate a message dialogue box with no buttons. Calls setDialog.m
+% - generate a message dialogue box with no buttons. Calls setDialog.m^%
 % 
 % * *getfiles.m*
 % - call uigetfile and return one or more files
@@ -48,7 +48,7 @@
 % * *setdialog.m*
 % - generate a dialogue with message and no buttons. Called by getDialog.m
 % 
-% * *sort_nat*
+% * *sort_nat.m*
 % - natural order sorting sorts strings containing digits in a way such that 
 % the numerical value of the digits is taken into account. From Matlab(TM) Forum, 
 % Douglas Schwarz (2021), https://www.mathworks.com/matlabcentral/fileexchange/10959-sort_nat-natural-order-sort.
