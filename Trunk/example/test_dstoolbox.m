@@ -287,9 +287,9 @@ function test_dstable(testnum,option)
             nrows = 5;
             varnames = {'Var1'};
             data = set_variable(nrows);               %generate dataset
-            rownames1 = set_dimension(option,nrows);  %generate row dimension
+            rownames1 = set_dimension(option(1),nrows);  %generate row dimension
             t1 = dstable(data,'RowNames',rownames1,'VariableNames',varnames); %create table with same variable name
-            rownames2 = set_dimension(option,nrows,1);%generate row dimension
+            rownames2 = set_dimension(option(1),nrows,1);%generate row dimension
             t2 = dstable(data,'RowNames',rownames2,'VariableNames',{'Var1'}); %create table
             t3 = vertcat(t2,t1);                      %vertical concatenation of the two tables
             t3.DataTable                              %display
@@ -578,7 +578,7 @@ function dimensions = set_dimension(idx,idim,offset)
             txt = get_text(idim,offset);
             dimensions = string(txt);
         case 5  %numeric format
-            dimensions(:,1) = (1:idim)+offset;
+            dimensions(1,:) = (1:idim)+offset;
         case 6  %test duplicate dimension check
             dimensions = 1:idim;
             if idim>1

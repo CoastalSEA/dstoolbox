@@ -22,7 +22,7 @@ function [data,header] = readinputfile(filename,nhead,dataSpec)
     header = ''; data = [];
 
     if nhead==0 && (nargin<3 || isempty(dataSpec))
-        warndlg('Define read format in call to readInputFile using dataSpec');
+        warndlg('Define read format in call to readinputfile using dataSpec');
         return
     end
     %

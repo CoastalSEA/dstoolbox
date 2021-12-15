@@ -145,25 +145,26 @@
 %% dstable Properties
 % *DataTable* <br> This property holds the _table_ object.
 %%
-% *Dimensions* <br> Addional dimensionns are equivalent to additional Rows.
+% *Dimensions* <br> Addional dimensions are equivalent to additional Rows.
 % They allow multi-dimensional variables (e.g an [x, y, z, t] dataset) to be
-% indexed using any of the dimensions (see section on *Indexing Methods*).
+% indexed using any of the dimensions (see section on *Indexing Methods*). 
 %%
 % The _Dimensions_ are applicable to all variables in the table (i.e. they
-% are not variable specific). <br>
+% are not variable specific). <br> 
+% Each dimension is held and returned as a column vector. <br>
 %
 % Dimensions must also apply to all row values of a variable. For example
 % if Rows are assigned as the time dimension, with two further dimensions
-% for X and Y, the variable will be an (_k_ x _m_ x _n_) array, where _k_, _m_,
+% for X and Y, the variable will be a (_k_ x _m_ x _n_) array, where _k_, _m_,
 % and _n_ are the t, X, Y dimensions. If the X and Y dimensions vary with
 % time (e.g. sampling intervals in X or Y change with time) then the X and 
 % Y dimensions should be added as time dependent variables.
 %%
 % <html>
-% <table border=1><tr><td>Limitation - the dimensions are not variable 
-% specific and the dimension vectors are not checked for compatibility 
-% with any of the variable arrays. However, by adding multiple dimensions, 
-% different dimensions can be used in conjunction with different variables.
+% <table border=1><tr><td>Limitation - the Dimensions are not variable 
+% specific and the Dimension vectors are not checked for compatibility 
+% with any of the variable arrays. However, by adding multiple Dimensions, 
+% different Dimensions can be used in conjunction with different variables.
 % </td></tr></table>
 % </html>
 
