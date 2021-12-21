@@ -7,7 +7,7 @@
     <param.summary>dstoolbox is a collection of classes used to store and manage access to multi-dimensional data sets.</param.summary>
     <param.description>The toolbox is designed to store and manage multi-dimensional data sets, including meta-data of the variables and all dimensions and manage access to a collection of classes that hold data sets using a catalogue.</param.description>
     <param.screenshot>${PROJECT_ROOT}\help\html\dstoolbox_logo.png</param.screenshot>
-    <param.version>1.0</param.version>
+    <param.version>1.01</param.version>
     <param.output>${PROJECT_ROOT}\dstoolbox.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -20,8 +20,9 @@
 setdstpath.m
 remdstpath.m
 %
-% A single file in the toolbox folder:
+% A single file or files in the toolbox folder:
 % .svn
+*.asv
 %
 % A single file in a subfolder of the toolbox folder:
 help/*.m
@@ -40,6 +41,7 @@ Working Docs
 %
 % All files matching a pattern in all subfolders of the toolbox folder:
 % **/*.bak
+**/*.asv
 %</param.exclude.filters>
     <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
     <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
@@ -88,7 +90,6 @@ Working Docs
     <param.additional.sw.mac.url />
     <param.additional.sw.linux.url />
     <unset>
-      <param.version />
       <param.output />
       <param.products.name />
       <param.products.id />

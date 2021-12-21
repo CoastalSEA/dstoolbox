@@ -758,8 +758,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             nrowdim = isrow+cdim;               %number of rows and dimensions
             if length(names)-1>nrowdim  && ...  %-1 excludes variable
                   ~any(contains(names,'noDim')) %ignore if undefined dims used
-                isdim = vsze(2:end)>1;          %active Dimensions ie n>1
-                if isrow
+                %dimensions that have a single value are not excluded
+                isunitdim = structfun(@length,obj.Dimensions)==1; 
+                isdim = vsze(2:end)>1 || isunitdim; %active Dimensions ie n>1
+                if isrow                            %or isunitdim
                     isused = [true,true,isdim]; %variable,row,dimensions
                 else
                     isused = [true,isdim];      %variable,diemsnions
