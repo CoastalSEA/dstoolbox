@@ -156,7 +156,7 @@
 % Dimensions must also apply to all row values of a variable. For example
 % if Rows are assigned as the time dimension, with two further dimensions
 % for X and Y, the variable will be a (_k_ x _m_ x _n_) array, where _k_, _m_,
-% and _n_ are the t, X, Y dimensions. If the X and Y dimensions vary with
+% and _n_ are the T, X, Y dimensions. If the X and Y dimensions vary with
 % time (e.g. sampling intervals in X or Y change with time) then the X and 
 % Y dimensions should be added as time dependent variables.
 %%
@@ -165,6 +165,11 @@
 % specific and the Dimension vectors are not checked for compatibility 
 % with any of the variable arrays. However, by adding multiple Dimensions, 
 % different Dimensions can be used in conjunction with different variables.
+% For example, if <i>var1</i> is <i>k x n x m</i> with Dimensions T, X, Y,
+% then the dstable could include a vector variable, <i>var2</i> with
+% dimensions <i>1 x 1 x m</i>, or a time dependent vector <i>var3</i> with
+% dimensions <i>k x n</i>. If the latter only has one time step (i.e. a dstable row)
+% the variable should have dimensions <i>1 x n</i> when assigned.
 % </td></tr></table>
 % </html>
 
@@ -484,7 +489,11 @@
 % * desc - the descriptions of the attribures in the same order
 % * label - the labels assigned to each attribute in hte asme order
 % * idv - numerical index of selected variable
-
+%%
+% *getAllAttributes* is the same as getVarAttributes but returns lists for
+% all dimensions, regardless of the dimensions of the selected variable
+%
+%   [names,desc,label,idv] = getVarAttributes(dst,idv); %attributes as defined for getVarAttributes
 %%
 % *getVarAttRange* finds the range of the selected variable attribute
 %

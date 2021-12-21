@@ -678,7 +678,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             updateVarNames(obj,varargin{:});
         end
 %%
-        function [names,desc,label,idv] = getVarAttributes(obj,idv)
+        function [names,desc,label,idv] = getAllAttributes(obj,idv)
             %find the names, descriptions  and labels of a selected variable 
             %its row and dimensions. Also returns idv as numeric index value
             % idv - numeric index, or a variable name
@@ -747,6 +747,29 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
         end
 %%
+        function [names,desc,label,idv] = getVarAttributes(obj,idvar)
+            %alternate to getVatAttributes to get the attribute lists when
+            %a variable does not use all of the dimensions
+             % idv - numeric index, or a variable name
+            [names,desc,label,idv] = getAllAttributes(obj,idvar);
+            %check that all assigned dimensions are being used for variable
+            [~,cdim,vsze] = getvariabledimensions(obj,idv); 
+            isrow = ~isempty(obj.RowNames);     %true if rows are being used
+            nrowdim = isrow+cdim;               %number of rows and dimensions
+            if length(names)-1>nrowdim  && ...  %-1 excludes variable
+                  ~any(contains(names,'noDim')) %ignore if undefined dims used
+                isdim = vsze(2:end)>1;          %active Dimensions ie n>1
+                if isrow
+                    isused = [true,true,isdim]; %variable,row,dimensions
+                else
+                    isused = [true,isdim];      %variable,diemsnions
+                end
+                names = names(isused);          %update lists
+                desc = desc(isused);
+                label = label(isused);
+            end           
+        end
+%%
         function range = getVarAttRange(obj,list,selected)
             %return the range of the selected variable attribute
             % list - list of attributes or variable index (idvar)
@@ -771,9 +794,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                         range = obj.RowRange;
                     end
                 otherwise               %Dimension
-
                     %ensure offset is correct
-                    if height(obj.DataTable)>1, nr=3; else, nr=2; end 
+                    if isempty(obj.RowNames), nr=2; else, nr=3; end 
                     idd = strcmp(list(nr:end),selected);                    
                     if isempty(obj.DimensionRange) && any(idd)
                         [~,~,vsze] = getvariabledimensions(obj,idvar);
@@ -1519,11 +1541,16 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             elseif narg==3 && cdim==0
                 %dimension specified but is single valued (variable is a row vector)
                 newvargin = [varargin{1:2},varargin(3:end)];
+            elseif narg==3 && length(varargin{3})==cdim-1
+                %dimension specified but also uses row as a single valued dimension
+                newvargin = [varargin{1:2},varargin(3:end)];    
             elseif narg-2==cdim 
                 %dimension indices specified individually
                 newvargin = [varargin{1:2},varargin(3:end)];
             else
-                warndlg('Invalid number of indices specified')
+                msgtxt = sprintf('%s\n%s','Invalid number of indices specified',...
+                                 'Error in call to dstable.getIndexInput');
+                warndlg(msgtxt);
                 newvargin = {};
             end  
         end

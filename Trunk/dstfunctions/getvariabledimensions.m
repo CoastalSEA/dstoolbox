@@ -17,6 +17,8 @@ function [vdim,cdim,vsze] = getvariabledimensions(intable,variable)
 % NOTES
 %   gets number of dimensions where 1x1 array is regarded as a point value
 %   and hence 0-dimensional, a vector is 1-d, a matrix 2-d, etc
+%   vdim includes the row as a dimension when the table has a single row
+%   and there is a value in RowNames
 %
 % Author: Ian Townend
 % CoastalSEA (c) Dec 2020
@@ -30,5 +32,9 @@ function [vdim,cdim,vsze] = getvariabledimensions(intable,variable)
     vsze = size(samplevar);               %size of cell
     cdim = sum(vsze>1);                   %dimensions of first cell
     vdim = double(rdim>1)+cdim;           %number of dimensions
+    if rdim==1 && ~isempty(intable.Properties.RowNames)
+        %correct for single row, which is defined as a dimension (ie has a value)
+        vdim = vdim+1;       
+    end    
     vsze(1) = rdim;                       %add in row size
 end
