@@ -764,7 +764,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if isrow                            %or isunitdim
                     isused = [true,true,isdim]; %variable,row,dimensions
                 else
-                    isused = [true,isdim];      %variable,diemsnions
+                    isused = [true,isdim];      %variable dimensions
                 end
                 names = names(isused);          %update lists
                 desc = desc(isused);

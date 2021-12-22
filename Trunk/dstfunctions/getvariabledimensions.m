@@ -18,17 +18,27 @@ function [vdim,cdim,vsze] = getvariabledimensions(intable,variable)
 %   gets number of dimensions where 1x1 array is regarded as a point value
 %   and hence 0-dimensional, a vector is 1-d, a matrix 2-d, etc
 %   vdim includes the row as a dimension when the table has a single row
-%   and there is a value in RowNames
+%   and there is a value in RowNames. It also includes dimensions in a 
+%   dstable that are defined and single valued (in a table these are
+%   excluded because the dimension is not >1 and there is no infomration 
+%   about variable dimensions).
 %
 % Author: Ian Townend
 % CoastalSEA (c) Dec 2020
 %--------------------------------------------------------------------------
 %
     if isa(intable,'dstable')
-        intable = intable.DataTable;
+        if ~isempty(intable.Dimensions)
+            isunitdim = structfun(@length,intable.Dimensions)==1; 
+        else
+            isunitdim = false;
+        end
+        intable = intable.DataTable;               
+    else
+        isunitdim = false;
     end
     rdim = height(intable);               %number of rows
-    samplevar = intable{1,variable};
+    samplevar = intable{1,variable};      %data in first cell of variable
     vsze = size(samplevar);               %size of cell
     cdim = sum(vsze>1);                   %dimensions of first cell
     vdim = double(rdim>1)+cdim;           %number of dimensions
@@ -36,5 +46,11 @@ function [vdim,cdim,vsze] = getvariabledimensions(intable,variable)
         %correct for single row, which is defined as a dimension (ie has a value)
         vdim = vdim+1;       
     end    
+    %
+    if isunitdim
+        %correct for a dimension that is defined but is single valued (only
+        %applies to data in a dstable which includes dimensions).
+        vdim = vdim+sum(isunitdim);
+    end
     vsze(1) = rdim;                       %add in row size
 end
