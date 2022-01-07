@@ -759,9 +759,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             if length(names)-1>nrowdim  && ...  %-1 excludes variable
                   ~any(contains(names,'noDim')) %ignore if undefined dims used
                 %dimensions that have a single value are not excluded
-                isunitdim = structfun(@length,obj.Dimensions)==1; 
-                isdim = vsze(2:end)>1 || isunitdim; %active Dimensions ie n>1
-                if isrow                            %or isunitdim
+                isunitdim = (structfun(@length,obj.Dimensions)==1)';
+                isunitdim = isunitdim(vsze(2:end)>0);%variable may not use all dimensions
+                isdim = vsze(2:end)>1 | isunitdim;%active Dimensions ie n>1, or isunitdim
+                if isrow                          
                     isused = [true,true,isdim]; %variable,row,dimensions
                 else
                     isused = [true,isdim];      %variable dimensions
@@ -796,9 +797,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                         range = obj.RowRange;
                     end
                 otherwise               %Dimension
-                    %ensure offset is correct
-                    if isempty(obj.RowNames), nr=2; else, nr=3; end 
-                    idd = strcmp(list(nr:end),selected);                    
+%                     %ensure offset is correct
+%                     if isempty(obj.RowNames), nr=2; else, nr=3; end 
+%                     idd = strcmp(list(nr:end),selected);  
+                    idd = strcmp(obj.DimensionDescriptions,selected);
                     if isempty(obj.DimensionRange) && any(idd)
                         [~,~,vsze] = getvariabledimensions(obj,idvar);
                         range = {int16(1),int16(vsze(idd+1))};

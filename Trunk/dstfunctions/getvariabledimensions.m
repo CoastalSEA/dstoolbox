@@ -47,7 +47,7 @@ function [vdim,cdim,vsze] = getvariabledimensions(intable,variable)
         vdim = vdim+1;       
     end    
     %
-    if isunitdim
+    if any(isunitdim)
         %correct for a dimension that is defined but is single valued (only
         %applies to data in a dstable which includes dimensions).
         vdim = vdim+sum(isunitdim);
