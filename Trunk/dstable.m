@@ -1017,9 +1017,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
             %
             if idw && all(idr) && all(idv) %add variables if all tests passed
-                newrows = dstable(varargin{:},'RowNames',rownames);
-                obj = vertcat(obj,newrows);
-                updateVarNames(obj,varnames)
+                newrows = dstable(varargin{:},'RowNames',rownames,'VariableNames',varnames);               
+                obj = vertcat(obj,newrows); 
             else
                 warndlg('Number of variables, or dimensions of variables, do not match table')
             end
