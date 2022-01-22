@@ -134,11 +134,6 @@ function h_fig = tablefigure(figtitle,headtext,atable,varnames,values)
         ht.Position(4) = h_pan.InnerPosition(4);
     else
         ht.Position(4) = ht.Extent(4)+scrollbar;
-%         if nrows==1
-%             ht.Position(4) = ht.Extent(4)+rowheight; 
-%         else
-%             ht.Position(4) = ht.Extent(4);
-%         end
         %
         if isgraphics(h_fig,'figure') %adjust figure panel but not tabs
             h_pan.Position(4) = ht.Position(4)+borders(2); %add border around table
