@@ -17,6 +17,10 @@ function copydata2clip(src,~)
 % CoastalSEA (c)June 2020
 %--------------------------------------------------------------------------
 %
+    if isa(src.UserData,'dstable')
+        src.UserData = src.UserData.DataTable;
+    end
+    
     if istable(src.UserData)
         data = table2cell(src.UserData);
         varnames = src.UserData.Properties.VariableNames;
