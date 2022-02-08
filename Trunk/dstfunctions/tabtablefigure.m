@@ -29,7 +29,7 @@ function h_fig = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
                        'NextPlot','add','MenuBar','none',...
                        'Visible','off');
     h_tab = uitabgroup(h_fig,'Tag','GuiTabs');  
-    h_tab.Position = [0 0 1 0.96]; 
+    h_tab.Position = [0 0 1 0.94]; 
     
     ntables = length(tables);
     panpos = zeros(ntables,4); tablepos = panpos;
