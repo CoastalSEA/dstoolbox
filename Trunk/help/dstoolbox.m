@@ -22,6 +22,11 @@
 % that handle all types of data set (eg imported or model data) which are 
 % loaded into dstables and catalogued using _dscatalgue_.
 
+%%
+% _Note: links to dstoolbox classes, in the text, display the class 'help'. 
+% Use the links on the dstoolbox sidebar menu to access the class
+% documentation._
+
 %% Schematic
 % These classes can be used together as illustrated in the following figure:
 

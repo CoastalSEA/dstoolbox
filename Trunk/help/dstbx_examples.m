@@ -32,7 +32,7 @@
 % The test_dstoolbox function can be used to experiment with the different
 % options available for the <matlab:doc('dstable') dstable>, 
 % <matlab:doc('dsproperties') dsproperties> and 
-% <matlab:doc('dscatalogue') dsdscatalogue>. The comments included in the
+% <matlab:doc('dscatalogue') dscatalogue>. The comments included in the
 % code explain each function call.
 %%
 % *Examples of usage*
