@@ -139,12 +139,14 @@ classdef dscatalogue < handle
             idx = union(idc,idt);      
             if ~isempty(idx)           %get the combined list of cases 
                 caselist = caselist(idx);
+            elseif isempty(idx) && (~isempty(v.CaseClass) || ~isempty(v.CaseType))
+                caselist = [];
             end
             
             if isempty(caselist)       %if more than one case prompt user
                 return;                %to make selection
-            elseif length(caselist)==1
-                subrecnum = 1; ok = 1;
+            elseif length(caselist)==1 %string array length is 1
+                subrecnum = 1; ok = 1; %no selection needed
             else
                 [subrecnum,ok] = listdlg('Name','Case List', ...
                                      'ListSize',v.ListSize,...

@@ -22,16 +22,16 @@
         <!-- User Guide comes next -->
         <tocitem target="dstbx_classes.html" 
             image="HelpIcon.USER_GUIDE">dstoolbox Classes
-            <tocitem target="ds_table.html">dstable</tocitem>
-            <tocitem target="ds_properties.html">dsproperties</tocitem>
-            <tocitem target="ds_catalogue.html">dscatalogue</tocitem>           
+            <tocitem target="dstable.html">dstable</tocitem>
+            <tocitem target="dsproperties.html">dsproperties</tocitem>
+            <tocitem target="dscatalogue.html">dscatalogue</tocitem>           
         </tocitem>
         <!-- Function reference next -->
         <!-- First item is page describing function categories, if any -->
         <tocitem target="dstbx_func_help.html" 
                  image="HelpIcon.FUNCTION">Function Reference
-            <tocitem target="dst_2_tsc.html">dst2tsc</tocitem>    
-            <tocitem target="tsc_2_dst.html">tsc2dst</tocitem>  
+            <tocitem target="dst2tsc.html">dst2tsc</tocitem>    
+            <tocitem target="tsc2dst.html">tsc2dst</tocitem>  
             <tocitem target="dstbx_utility_functions.html">Summary of utility functions</tocitem>  
             <tocitem target="dstbx_time_functions.html">Summary of time functions</tocitem>  
         </tocitem>        
