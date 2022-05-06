@@ -28,7 +28,7 @@ function dtype = getdatatype(var)
              'datetime','duration','calendarDuration'};
              
     if ~iscell(var) 
-        var = {var};                          %make cell if not already one
+        var = num2cell(var);                  %make cell if not already one
     end
     nvar = length(var);
     dtype= cell(size(var));           
@@ -41,6 +41,7 @@ function dtype = getdatatype(var)
         else
             dtype{i} = underlyingType(var{i}); %introduced in v2020b
         end
+        %
         if any(strcmp(dtype(i),'categorical'))
             if isordinal(var{i})
                 dtype{i} = 'ordinal';

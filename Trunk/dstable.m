@@ -748,9 +748,9 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         end
 %%
         function [names,desc,label,idv] = getVarAttributes(obj,idvar)
-            %alternate to getVatAttributes to get the attribute lists when
+            %alternate to getAllAttributes to get the attribute lists when
             %a variable does not use all of the dimensions
-             % idv - numeric index, or a variable name
+            % idv - numeric index, or a variable name
             [names,desc,label,idv] = getAllAttributes(obj,idvar);
             %check that all assigned dimensions are being used for variable
             [~,cdim,vsze] = getvariabledimensions(obj,idv); 
@@ -765,7 +765,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if isrow                          
                     isused = [true,true,isdim]; %variable,row,dimensions
                 else
-                    isused = [true,isdim];      %variable dimensions
+                    isused = [true,isdim];      %variable,dimensions
                 end
                 names = names(isused);          %update lists
                 desc = desc(isused);
@@ -797,13 +797,18 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                         range = obj.RowRange;
                     end
                 otherwise               %Dimension
-%                     %ensure offset is correct
-%                     if isempty(obj.RowNames), nr=2; else, nr=3; end 
-%                     idd = strcmp(list(nr:end),selected);  
-                    idd = strcmp(obj.DimensionDescriptions,selected);
-                    if isempty(obj.DimensionRange) && any(idd)
+                    if isempty(obj.DimensionNames) || isempty(obj.DimensionNames{1})
+                        idd = 1;        %no dimensions defined
+                    else                %find selected dimension
+                        idd = strcmp(obj.DimensionDescriptions,selected);
+                    end
+                    %
+                    if isempty(obj.DimensionRange)
+                        %ensure offset is correct if rows are being used
+                        if isempty(obj.RowNames), nr=0; else, nr=1; end 
+                        %get size of variable and create dummy dimension
                         [~,~,vsze] = getvariabledimensions(obj,idvar);
-                        range = {int16(1),int16(vsze(idd+1))};
+                        range = {int16(1),int16(vsze(idd+nr))};
                     else
                         dimname = obj.DimensionNames{idd};
                         range = obj.DimensionRange.(dimname);
