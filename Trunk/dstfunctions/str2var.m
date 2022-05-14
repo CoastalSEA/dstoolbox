@@ -11,7 +11,8 @@ function var = str2var(varstr,type,format,iswarn)
 % INPUT
 %   varstr - character vector cell array of the variable. 
 %   type   - data type of the variable
-%   format - input format for datetime and duration data
+%   format - input format for datetime and duration data, or
+%            'valueset' of categories for categorical data
 %   iswarn - optional flag for warning message to be shown - default is true
 % OUTPUT
 %   var - array of variable of defined type and format
@@ -68,9 +69,13 @@ function var = str2var(varstr,type,format,iswarn)
             var = str2double(varstr);
             var = cast(var,num_type);        
         case 'categorical'
-            var = categorical(varstr);
+            if nargin<3 || isempty(format), var = caterr; return; end
+            if ischar(varstr), varstr = {varstr}; end %handle single character vectors
+            var = categorical(varstr,format);
         case 'ordinal'
-            var = categorical(varstr,'Ordinal',true);
+            if nargin<3 || isempty(format), var = caterr; return; end
+            if ischar(varstr), varstr = {varstr}; end %handle single character vectors
+            var = categorical(varstr,format,'Ordinal',true);
         case 'unknown'
             var = varstr;
         otherwise
@@ -79,4 +84,10 @@ function var = str2var(varstr,type,format,iswarn)
             end
             var = [];
     end
+end
+%%
+function var = caterr
+    %error message if valueset not defined for categorical type data
+    var = [];
+    warndlg('Category set not provided for categorical type data')
 end

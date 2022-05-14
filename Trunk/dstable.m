@@ -1050,7 +1050,12 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             types = {'char','string','categorical','ordinal'};
             newdst = copy(obj);
             rowdata = newdst.RowNames;
-            dtype = getdatatype(rowdata);
+            if iscell(rowdata)
+                arow = rowdata{1};
+            else
+                arow = rowdata(1);
+            end
+            dtype = getdatatype(arow);
             if ismember(dtype,types)  
                 %use sort_nat to sort numbered character RowNames
                 if ismember(dtype,{'categorical','ordinal'})
@@ -1400,6 +1405,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 dimformat = obj.DimensionFormats{dimnum};
             end
             %
+            if any(strcmp({'categorical','ordinal'},dimtype))
+                %uses the dimension as the 'valueset' of categories
+                dimformat = source;
+            end
             outdims = str2var(source,dimtype,dimformat);
         end
 %%
