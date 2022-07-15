@@ -23,15 +23,33 @@ function copydata2clip(src,~)
     
     if istable(src.UserData)
         data = table2cell(src.UserData);
+        datalen = cellfun(@length,data,'UniformOutput',false);
+        isarray = any([datalen{:}]>1);
         varnames = src.UserData.Properties.VariableNames;
         rownames = src.UserData.Properties.RowNames;
         clip = vertcat(varnames,data);
-        if ~isempty(rownames)
+        if ~isempty(rownames)  
+            %add row names to left side of matrix
             rownames = vertcat({''},rownames);
             clip = horzcat(rownames,clip);
+        elseif size(clip,1)==2 && isarray
+            %if single row of data with one or more arrays, invert so that 
+            %the arrays can be output
+            arraycell = cell(size(varnames,2),max([datalen{:}]));
+            for i=1:length(datalen)
+                arraycell(i,1:datalen{i}) = num2cell(data{i});            
+            end
+            clip = [varnames',arraycell];
         end
-    elseif iscell(src.UserData)
+    elseif ~isempty(src.UserData)
         clip = src.UserData;
+    else
+        warndlg('No data available'); return;
     end
-    mat2clip(clip);          
+    %
+    try
+        mat2clip(clip);    
+    catch
+        warndlg('Unknown data type in coydata2clip')
+    end
 end 

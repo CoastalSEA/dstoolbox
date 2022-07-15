@@ -413,9 +413,12 @@
 % the existing RowNames data type. The values in the merged list must be
 % unique. The variables must have a first dimension that matches the length
 % of the rownames vector, with other dimensions matching the existing
-% variables and listed in the same order as the existing variables. 
+% variables and listed in the same order as the existing variables.
+% Alternatively, _var1-varN_ can be a table, or a dstable, with the same width
+% (i.e. number of variables) as the table being added to (_dst1_) and
+% with the number of rows equal to the length of rownames.
 %
-%   dst2 = addrows(dst1, rownames,var1,var2,.. varN); %where var1...varN should be in 
+%   dst2 = addrows(dst1,rownames,var1,var2,.. varN); %where var1...varN should be in 
 %                                                     %the order used in the dstable
 %%
 % When adding or removing rows the metadata properties of the _dstable_ 
