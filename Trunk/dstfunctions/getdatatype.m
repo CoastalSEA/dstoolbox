@@ -27,8 +27,10 @@ function dtype = getdatatype(var)
              'char','string','categorical',...
              'datetime','duration','calendarDuration'};
              
-    if ~iscell(var) 
+    if ~iscell(var) && isnumeric(var)
         var = num2cell(var);                  %make cell if not already one
+    elseif ~iscell(var) 
+        var = {var};
     end
     nvar = length(var);
     dtype= cell(size(var));           

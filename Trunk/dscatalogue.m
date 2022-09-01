@@ -79,7 +79,7 @@ classdef dscatalogue < handle
             if nargin<2 ||  isempty(caserec)
                 [caserec,ok] = selectRecord(obj,'PromptText','Select case record to edit:',...
                                                 'ListSize',[250,200]);
-                if ok<1, return; end
+                if ok<1, newdesc = []; return; end
             end
             %now allow user to edit existing description            
             cid = obj.Catalogue.CaseID(caserec);
