@@ -4,7 +4,7 @@
 % demoData and demoModel classes <br>
 % Usage of the individual classes is provided in the test_dstoolbox
 % function. The files for the example use cases can be found in
-% the example folder <matlab:example_folder here>. 
+% the example folder <matlab:ds_example_folder here>. 
 %%
 %   dm = dstb_usage;    %initialise class that manages calls to models and data classes
 %   run_a_model(dm);    %run model and save record to catalogue

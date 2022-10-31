@@ -15,7 +15,7 @@ function hd = setdialog(msgtxt,msgpos,msgstyle)
 %   msgpos - position of message box - standard Matlab format (optional)
 %   msgstyle - dialogue WindowStyle (eg modal), default is normal (optional)
 % OUTPUT
-%   message displayed in a dialog box for a short period (default is 2s) 
+%   message displayed in a dialog box
 %   hd - handle to the dialogue
 % SEE ALSO
 %   getdialog.m
