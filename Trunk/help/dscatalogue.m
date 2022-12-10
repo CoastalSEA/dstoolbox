@@ -63,8 +63,10 @@
 % 'CaseType', {'type'} - cell array of types to include in the list <br>
 % 'PromptText', 'prompt_text' - defines the user prompt in the list dialogue <br>
 % 'ListSize', [width,height] - defines the dimensions of the list dialogue <br>
-% 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single'
-%
+% 'SelectionMode', 'mode' - list selection mode, either 'multiple' or 'single' <br>
+% 'CheckSingle', true/false - prompt for confirmation if only a single case
+% found. 
+%%
 % _selectRecord_ outputs: <br>
 % caserec - the record number of the selected case or cases <br> 
 % ok - The selection logical value indicates whether the user made a 

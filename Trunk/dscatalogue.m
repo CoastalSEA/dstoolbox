@@ -102,6 +102,7 @@ classdef dscatalogue < handle
             %  'PromptText'- text string to use for dialogue prompt
             %  'ListSize;  - size of dialogue figure, default is [100,200]
             %  'SelectionMode' - 'single' (default) or 'multiple' selections allowed
+            %  'CheckSingle' - flag to check if only single selection
             % returns caserec - the selected record number(s) and the 
             % ok flag. ok = 0 user cancelled when using list selection
             
@@ -112,6 +113,7 @@ classdef dscatalogue < handle
             v.PromptText = 'Select Scenario'; %default if not set by input
             v.ListSize = [100,200];           %default if not set by input
             v.SelectionMode = 'single';       %default if not set by input
+            v.CheckSingle = false;            %default if not set by input
             fnames = fieldnames(v);
             if nargin>1
                 for k=1:2:length(varargin) %unpack values for varargin to v
@@ -147,6 +149,10 @@ classdef dscatalogue < handle
                 return;                %to make selection
             elseif length(caselist)==1 %string array length is 1
                 subrecnum = 1; ok = 1; %no selection needed
+                if v.CheckSingle
+                    check = questdlg(sprintf('Case selected: %s',caselist{1}),'Case','Yes','No','No');
+                    if strcmp(check,'No'), return; end
+                end
             else
                 [subrecnum,ok] = listdlg('Name','Case List', ...
                                      'ListSize',v.ListSize,...
