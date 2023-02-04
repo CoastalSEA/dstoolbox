@@ -139,7 +139,7 @@
 %   dst.dimensionProperty{index} = value %dimensionProperty is any dstable metadata property
 %%
 % The assigned _value_ should be the same as any existing assignments or
-% be specified in accordance with the Metatdata Property specification.
+% be specified in accordance with the Metadata Property specification.
 %
 
 %% dstable Properties

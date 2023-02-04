@@ -127,7 +127,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             if ~isempty(idv) && ~isempty(idp)
                 warndlg('Use either VariableNames or DSproperties but not both')
                 return;
-            elseif ~isempty(idv) && ~isempty(idp)
+            elseif ~isempty(idd) && ~isempty(idp)
                 warndlg('Use either DimensionNames or DSproperties but not both')
                 return;
             end
@@ -1087,14 +1087,16 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         function dst = mergerows(dst1,dst2) 
             %insert new timeseries, dst2, in correct position in dst1
             %table RowNames
-            if ~strcmp(dst1.RowType,'datetime') || ~strcmp(dst1.RowType,'datetime')
+            if ~strcmp(dst1.RowType,'datetime') || ~strcmp(dst2.RowType,'datetime')
                 warndlg('One or more of the dstables does not use datetime Rows')
                 dst = []; return;
             end
             oldrange = dst1.RowRange;
             addrange = dst2.RowRange;
-            txt1 = sprintf('The range for the existing data is from %s to %s',datestr(oldrange{1}),datestr(oldrange{2}));
-            txt2 = sprintf('The range for the new data is from %s to %s',datestr(addrange{1}),datestr(addrange{2}));            
+            txt1 = sprintf('The range for the existing data is from %s to %s',...
+                                  string(oldrange{1}),string(oldrange{2}));
+            txt2 = sprintf('The range for the new data is from %s to %s',...
+                                  string(addrange{1}),string(addrange{2}));            
             
             if addrange{1}>oldrange{2}      %new data is after existing record
                  dst = vertcat(dst1,dst2);
@@ -1211,9 +1213,11 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %dimension properties and if not warn user
             [~,cdim,~] = getvariabledimensions(obj,1);     %number of dimensions for first variable (exc rows)
             dspdim = length({dsprops.Dimensions(:).Name}); %number of named dimensions
+            is_cell = iscell(obj.DataTable{1,1});
             if dspdim==1 && isempty(dsprops.Dimensions.Name)
                 %the Dimensions struct is empty
-            elseif dspdim>1 && cdim~=dspdim  %more than one named dimension but not equal to number of variable dimensions 
+            elseif dspdim>1 && cdim~=dspdim && ~is_cell
+                %more than one named dimension but not equal to number of variable dimensions 
                 txt1 = sprintf('The first variable has %d dimensions and %d property dimensions are defined',cdim,dspdim);
                 txt2 = 'Select option:';
                 qtext = sprintf('%s\n%s',txt1,txt2);
@@ -1673,8 +1677,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     end                                                                                              
                 end
                 obj.(propname) = dsprops.(dspname).(fname); 
-            else
-                if length(dsprops.(dspname))>1 || ...      %--added 24/2/21
+            else                                           %--added 24/2/21, modified 2/3/23
+                if isempty(dsprops.(dspname))
+                    propvalues = {''}; 
+                elseif length(dsprops.(dspname))>1 || ...      
                             (length(dsprops.(dspname).(fname))>=1 && ...
                              ~iscell(dsprops.(dspname).(fname)))  
                     propvalues = {dsprops.(dspname).(fname)};                                    
