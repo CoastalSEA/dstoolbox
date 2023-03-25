@@ -11,6 +11,10 @@
 % * *cellstruct2structarray.m*
 % - convert a struct of cell arrays of the same dimension to a struct array
 % with a set of fields for each entry in the cell array
+%
+% * *compact3Darray.m*
+% - remove the rows and columns that are zeros in all 2D matrices of a 2 or
+% 3D array and return the compacted array.
 % 
 % * *copydata2clip.m*
 % - copy data from the active figure or tab to the clipboard
