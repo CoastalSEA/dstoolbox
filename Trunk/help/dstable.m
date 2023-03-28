@@ -355,6 +355,11 @@
 %   p = addprop(dst, propertyName);  %adds property and returns meta.DynamicProperty object
 %   rmprop(obj,propertyName);        %removes propertyName from the dstable
 %  
+%%
+% To activate dynamic properties for a dstable use:
+%%
+%   dst = activatedynamicprops(dst,varnames);  %varnames is a cell array of variable names to be activated
+%                                              %if varnames is omitted method activates existing dst variables 
 
 %% dstable methods
 % Methods that can be used for a table can be used on T = dst.DataTable.

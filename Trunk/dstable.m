@@ -834,7 +834,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             if ~isempty(selist) && length(selist)>1
                 [atidx,ok] = listdlg('Name','Variables', ...
                             'PromptString','Select a variable:', ...
-                            'ListSize',[200,100],...
+                            'ListSize',[180,200],...
                             'SelectionMode','single', ...
                             'ListString',selist);
                 if ok<1              %user cancelled no selection
@@ -1041,18 +1041,19 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
         end
 %%
-        function obj = removerows(obj,rows2use)
+        function newdst = removerows(obj,rows2use)
             %remove rows from all variables in a dstable and update RowRange
             % rows2use can be index or RowNames values. The latter can be
             % in source data type format, or a string array or cell array 
             % as used by The RowNames property for a table.
+            newdst = copy(obj);
             if ~isnumeric(rows2use) && ~iscell(rows2use)
                 rows2use = cellstr(rows2use);
             end
-            obj.DataTable(rows2use,:) = [];    %delete rows
-            obj.RowRange = obj.RowNames;
+            newdst.DataTable(rows2use,:) = [];    %delete rows
+            newdst.RowRange = newdst.RowNames;
             %re-assign VaraibleRange for each variable
-            updateVarNames(obj,obj.VariableNames)
+            updateVarNames(newdst,newdst.VariableNames)
         end
 %%
         function newdst = sortrows(obj)
