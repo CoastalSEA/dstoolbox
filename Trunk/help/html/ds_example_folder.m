@@ -1,4 +1,4 @@
-function example_folder()
+function ds_example_folder()
 %find the location of the example folder and open it
 fname = 'dstable.m';
 toolboxpath = which(fname);
