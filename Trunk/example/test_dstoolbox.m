@@ -15,7 +15,7 @@ function h = test_dstoolbox(classname,casenum,option)
 %             dstable - single value or vector depending on case:
 %             for vector v(1)=row type, v(2)=dim1 type, v(3)=dim2 type
 %             1  datetime; 2  duration; 3  char; 4  string; 5  numeric;
-%             6  test duplicate dimension check; 7  categorical; 8  ordinal            
+%             6  categorical; 7  ordinal; 8  test duplicate dimensions           
 % OUTPUT
 %   See in-code comments for details of test and in-code outputs.
 %
@@ -23,8 +23,14 @@ function h = test_dstoolbox(classname,casenum,option)
 % CoastalSEA (c)June 2020
 %--------------------------------------------------------------------------
 %
-    if nargin<3
+    h = [];
+    if nargin<2
+        casenum = 0; option = [];
+    elseif nargin<3
         option = [];
+%     elseif option>5
+%         warndlg('''option'' should be from 1-5')
+%         return;
     end
 
     switch classname
@@ -86,7 +92,9 @@ end
 function test_dsproperties(testnum,option)
     %test set, edit, delete and display options
     switch testnum
-        case 1  %Set individual assinement
+        case 0
+            warndlg('Specify a case and option to use');
+        case 1  %Set individual assignment
             aa = dsproperties;              %create blank dsproperties  
             displayDSproperties(aa);
             
@@ -204,10 +212,12 @@ end
 function test_dstable(testnum,option)
     %test initialisation, setting, accessing, editing and deleting dstable
     switch testnum
+        case 0
+            warndlg('Specify a case and option to use');
         case 1  %initialise a blank dstable
             t1 = dstable      %#ok<NOPRT>
             
-        case 2  %create a simple table with no dimensions
+        case 2  %create a simple table with rows but no dimensions
             nrows = 5;
             varnames = {'Var1'};
             data = set_variable(nrows);
@@ -221,17 +231,17 @@ function test_dstable(testnum,option)
                 %define the data type for row and dimensions
             t1 = dummytable(option);    
             displayDSproperties(t1.DSproperties);        %display current definition
-            fprintf('Row: %s to %s\n',t1.RowRange{1},t1.RowRange{2})
-            fprintf('Dim1: %s to %s\n',t1.DimensionRange.Dim1{1},t1.DimensionRange.Dim1{2})
-            fprintf('Dim2: %s to %s\n',t1.DimensionRange.Dim2{1},t1.DimensionRange.Dim2{2})
-            fprintf('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})     
+            outscript('Row: %s to %s\n',t1.RowRange{1},t1.RowRange{2});
+            outscript('Dim1: %s to %s\n',t1.DimensionRange.Dim1{1},t1.DimensionRange.Dim1{2});
+            outscript('Dim2: %s to %s\n',t1.DimensionRange.Dim2{1},t1.DimensionRange.Dim2{2});
+            outscript('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2});    
 
         case 4  %update the values in the variable
             t1 = dummytable(option);
             t1.DSproperties = dsp_struct(option); %assign DSproperties struct
-            fprintf('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
+            outscript('Var: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
             t1.Var1 = t1.Var1*2;
-            fprintf('2xVar: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
+            outscript('2xVar: %s to %s\n',t1.VariableRange.Var1{1},t1.VariableRange.Var1{2})
             %now test manipulation of dstable                       
             tv2 = t1.Var2;      %extract values for Var2
             t2 = removevars(t1,'Var2');        %create new dst and remove Var2
@@ -563,7 +573,7 @@ function dsp = dsp_partialstruct
 end
 %%
 function dimensions = set_dimension(idx,idim,offset)
-    %set different types of dimension (used for row and dimensions
+    %set different types of dimension (used for row and dimensions)
     if nargin<3, offset = 0; end
     switch idx
         case 1  %datetime format
@@ -579,21 +589,22 @@ function dimensions = set_dimension(idx,idim,offset)
             dimensions = string(txt);
         case 5  %numeric format
             dimensions(1,:) = (1:idim)+offset;
-        case 6  %test duplicate dimension check
+        case 6  %categorical
+            dimensions = categorical(get_text(idim,offset));
+        case 7  %ordinal 
+            dimensions =  categorical(get_text(idim,offset),'Ordinal',true);   
+        case 8  %test duplicate dimension check
             dimensions = 1:idim;
             if idim>1
                 dimensions(idim-1) = dimensions(1); 
             else
                 dimensions = [];
             end
-        case 7  %categorical
-            dimensions = categorical(get_text(idim,offset));
-        case 8  %ordinal 
-            dimensions =  categorical(get_text(idim,offset),'Ordinal',true);
+        
     end
     %
         function yrdate = getdate(idim,offset)
-            date = datetime(now,'ConvertFrom','datenum');
+            date = datetime("now");
             addyear = years((1:idim)')+offset;
             yrdate = date+addyear;
         end
@@ -648,4 +659,13 @@ function tt = tstable()
     tt = dstable(data1,data2,data3,'RowNames',rowdims,...
                       'VariableNames',varnames);
     tt.Description = 'TS Table';     
+end
+%%
+function outscript(txt,v1,v2)
+    %check whether variables are numeric and then print to command window
+    if isnumeric(v1)
+        v1 = string(v1);
+        v2 = string(v2);
+    end
+    fprintf(txt,v1,v2);
 end

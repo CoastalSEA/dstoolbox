@@ -37,10 +37,10 @@
 %%
 % *Examples of usage*
 %%
-%   test_dstoolbox(classname,casenum,options)
+%   h = test_dstoolbox(classname,casenum,options);
 %%
 % _classname_ is one of the toolbox classes 'dscatalogue', 'dsproperties',
-% 'dstable' <br>
+% 'dstable', or the example test class 'dstb_usage' <br>
 % _casenum_ is the example test case (see below) <br>
 % _options_ define the input selection for some of the cases (see below)
 
@@ -73,7 +73,7 @@
 % _casenum_ defines the test cases below: <br>
 % Case 1 - initialise a blank dstable. option not used <br>
 % Case 2 - create a simple table with no dimensions. options is a single scalar value <br>
-% Case 3 - create table with 2d+t array. options are a [1x3] vector <br>
+% Case 3 - create table with t+2d array. options are a [1x3] vector <br>
 % Case 4 - update the values in the variable. options are a [1x3] vector <br>
 % Case 5 - horzcat and vertcat - simple table with no dimensions. options are a single scalar value <br>
 % Case 6 - horzcat and vertcat - multiple variables with dimensions. options are a [1x3] vector <br>
@@ -89,7 +89,21 @@
 % 2 - duration <br>
 % 3 - char <br>
 % 4 - string <br>
-% 5 - numeric
+% 5 - numeric <br>
+% 6 - categorical <br>
+% 7 - ordinal <br>
+% 8 - test duplicate dimensions
+
+%%
+% Example calls from Command Window
+%%
+%   h = test_dstoolbox('dscatalogue');             %add and remove records to a catalogue
+%
+%   h = test_dstoolbox('dsproperties',2);          %call and set properties individually
+%   h = test_dstoolbox('dsproperties',6,[4,1,6]);  %assign a struct array
+%
+%   h = test_dstoolbox('dstable',2,6);             %create a simple table with rows and no dimensions
+%   h = test_dstoolbox('dstable',3,[1,3,5]);       %create table with 2d+t array. options are a [1x3] vector
 %%
 % *dstb_usage* <br>
 % _casenum_ and _options_ input arguments not used <br>
