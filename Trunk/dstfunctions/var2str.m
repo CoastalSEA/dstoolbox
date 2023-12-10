@@ -38,7 +38,6 @@ function [varstr,type,format] = var2str(var,iswarn)
     type = char(getdatatype(var1)); 
     
     if isnumeric(var) || islogical(var)
-        if isrow(var); var = var'; end
         varstr = cellstr(num2str(var));
     elseif isdatetime(var) || isduration(var)
         varstr = cellstr(var);

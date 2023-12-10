@@ -264,6 +264,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %  'logical','int8','int16','int32','int64','uint8','uint16',
             %  'uint32','uint64','single','double','char','string',
             %  'categorical','ordinal','datetime','duration'
+            if isrow(inrows), inrows = inrows'; end %make column vector
             [rowstr,rtype,rformat] = var2str(inrows);
             
             if ~isempty(rowstr)
