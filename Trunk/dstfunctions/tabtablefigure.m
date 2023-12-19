@@ -17,6 +17,7 @@ function h_fig = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
 %   h_fig     - handle to figure (handle can be used to modify layout)
 % NOTES
 %   requires tablefigure.m
+%   uses cell array of tables so that tables can vary in size
 % SEE ALSO
 %   used in muiModelUI.caseCallback and dsproperties.displayDSproperties
 %
@@ -45,13 +46,12 @@ function h_fig = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
     end
     h_tab.SelectedTab = h_tab.Children(1);
     
-    %adjust position on screen
+    %adjust size of figure
     maxpanelwidth = max(panpos(:,3));
     maxpanelheight = max(panpos(:,4));
     header = panpos(1,2);
-    rowheight = tablepos(1,4)/(height(tables{1}));
-    figwidth = maxpanelwidth+rowheight;
-    figheight = maxpanelheight+2.6*header; %header+footer+tab
+    figwidth = maxpanelwidth+panpos(1,1)+2*tablepos(1,1);
+    figheight = maxpanelheight+3.2*header; %header+footer+tab
     h_fig.Position(3) = figwidth;
     h_fig.Position(4) = figheight;   
     if isvis
