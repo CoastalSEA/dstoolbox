@@ -49,5 +49,7 @@
 % data from a file, depending on the application).
 
 %% See Also
-% <matlab:doc('muitoolbox') muitoolbox> and use of both
+% Some slides providing an introduction to the use of the dstoolbox can be found
+% <matlab:dst_open_manual here>. In addition, the dstoolbox is used in 
+% the <matlab:doc('muitoolbox') muitoolbox> and the use of both
 % toolboxes is illustrated in the <matlab:doc('modelui') ModelUI> App.

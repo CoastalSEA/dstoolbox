@@ -4,7 +4,9 @@
 % demoData and demoModel classes <br>
 % Usage of the individual classes is provided in the test_dstoolbox
 % function. The files for the example use cases can be found in
-% the example folder <matlab:ds_example_folder here>. 
+% the example folder <matlab:dst_example_folder here>. Some slides
+% providing an introduction to the use of the dstoolbox can be found
+% <matlab:dst_open_manual here>.
 %%
 %   dm = dstb_usage;    %initialise class that manages calls to models and data classes
 %   run_a_model(dm);    %run model and save record to catalogue
@@ -111,5 +113,8 @@
 % sets, then calls plot and display functions for selected cases.
 
 %% See Also
+% Some slides providing an introduction to the use of the dstoolbox can be found
+% <matlab:dst_open_manual here>. In addition, tool specific doucmentation
+% is available for 
 % <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 
 % <matlab:doc('dsproperties') dsproperties>, <matlab:doc('dstoolbox') dstoolbox>.
