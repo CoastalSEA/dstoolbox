@@ -8,7 +8,7 @@ function dyr = deciyear(date)
 % USAGE
 %   dyr = deciyear(date)
 % INPUT
-%   date - datetime vector, or dates as cell array, string array or charachter vector 
+%   date - datetime vector, or dates as cell array, string array or character vector 
 % OUTPUT
 %   dyr - dates as an array of decimal years
 % NOTES
