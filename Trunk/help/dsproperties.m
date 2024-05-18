@@ -210,7 +210,27 @@
 % the clipboard.
 %%
 %   displayDSproperties(dsp);         %display current definitions
- 
+%%
+% *getDSpropsStruct* returns an empty struct of the DSproperties fields. 
+% _init_ is an integer that defines the start position of the property fields. 
+% e.g. init=2 excludes the _Name_ field in the struct that is returned.
+%%
+%   dspstruct = getDSpropsStruct(dsp,init);
+% 
+%%
+% *setDefaultDSproperties* add default values to a DSproperties object. The variable
+% names are assumed to have been defined and are not changed. If a value is not 
+% defined by the user, a default value is used. 
+% Name, value pairs that can include Variables, Row, Dimensions. 
+% The value for each contains a struct comprising: Description, Unit, Label,
+% QCflag or Format. To access a blank copy of the struct use:
+% dspstruct = getDSpropsStruct(obj,2); and assign the required default
+% values for use in the call to setDefaultDSproperties
+%%
+%   setDefaultDSproperties(dsp,Name,value);
+%   setDefaultDSproperties(dsp,'Variables',dspstruct.Variables);
+%   setDefaultDSproperties(dsp,'Variables',dspstruct.Variables,'Row',dspstruct.Row);
+
 %% See Also
 % <matlab:doc('dstable') dstable>, <matlab:doc('dscatalogue') dscatalogue>, 
 % <matlab:doc('dstoolbox') dstoolbox>.

@@ -314,6 +314,70 @@ classdef dsproperties < matlab.mixin.Copyable
             end
             ok = 1;
         end
+%%
+        function dspstruct = getDSpropsStruct(obj,init)
+            %get an emptyy default struct. init is an integer that defines
+            %the start position of the property fields. eg init=2 excludes
+            %the Name field in the struct that is returned
+            if nargin<2, init = 1; end
+            fnames = {'Variables','Row','Dimensions'};
+            datacell = cell(6-init,1);             
+            for i=1:length(fnames)
+                varnames = obj.dsPropFields.(fnames{i});
+                dspstruct.(fnames{i}) = cell2struct(datacell,varnames(init:end),1);   
+            end             
+        end  
+%%
+        function obj = setDefaultDSproperties(obj,varargin)            
+            %add default values to a DSproperties object. The variable
+            %names are assumed to have been defined and are not changed. If
+            %a value is not defined by the user, a default value is used.
+            % varargin - Name, value pairs that can include Variables,
+            %            Row, Dimensions. The value for each contains a
+            %            struct comprising: Description, Unit, Label,
+            %            QCflag or Format. To access a blank copy of the
+            %            struct use dspstruct = getDSpropsStruct(obj,init)
+            vardef = struct('Description','','Unit','-','Label','','QCflag','raw'); %variable defaults
+            dimdef = struct('Description','','Unit','-','Label','','Format','-');   %row/dim defaults
+            for k=1:2:length(varargin)
+                    inp.(varargin{k}) = varargin{k+1};  %extract inputs
+            end 
+            propnames = fieldnames(inp);             %property types to edit
+
+            for i=1:length(propnames)                %number of property types
+                for j=1:length(obj.(propnames{i}))   %number of instances
+                    varnames = fieldnames(obj.(propnames{i})(j));
+                    for k=2:length(varnames)         %number of property variables
+                        if isempty(obj.(propnames{i})(j).(varnames{k}))
+                            %property variable not defined
+                            if isempty(inp.(propnames{i}).(varnames{k}))
+                                %input variable not defined
+                                if strcmp(propnames{i},'Variable') && ...
+                                        strcmp(varnames{k},{'Unit','QCflag'})
+                                    %Unit or QCflag Variable properties
+                                    obj.(propnames{i})(j).(varnames{k}) = ...
+                                                    vardef.(varnames{k});
+                                elseif strcmp(varnames{k},{'Unit','QCflag'})
+                                    %Unit or QCflag Row/Dimension properties
+                                    obj.(propnames{i})(j).(varnames{k}) = ...
+                                                    dimdef.(varnames{k});
+                                else
+                                    %assign property Name to other variables
+                                    obj.(propnames{i})(j).(varnames{k}) = ...
+                                                 obj.(propnames{i})(j).Name;
+                                end
+                            else
+                                %input variable defined
+                                obj.(propnames{i})(j).(varnames{k}) = ...
+                                        inp.(propnames{i}).(varnames{k});
+                            end
+                        else
+                            %no need to do anything
+                        end
+                    end                    
+                end             
+            end
+        end
     end
 %% ------------------------------------------------------------------------
 % Methods to generate blank struct, set the inputs for any property, 

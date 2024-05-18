@@ -203,6 +203,27 @@ function test_dsproperties(testnum,option)
         case 12  %test input of struct with empty fields
             ff = dsproperties(dsp_partialstruct,'test');%create partial struct with blanks
             displayDSproperties(ff);        %display current definition
+
+        case 13  %test adding default values to the Variable dsproperty
+            aa = dsproperties;              %create blank dsproperties
+            aa.Variables.Name = 'Var1';
+            varprops = {'Var2','Var3'};
+            addVariables(aa,varprops); 
+            vardef = getDSpropsStruct(aa,2);
+            vardef.Variables.Unit = 'm';
+            vardef.Variables.QCflag = 'none';
+            setDefaultDSproperties(aa,'Variables',vardef.Variables)     
+            displayDSproperties(aa);        %display current definition
+
+        case 14  %test 
+            aa = dsproperties;              %create blank dsproperties
+            aa.Variables.Name = 'Var1';
+            aa.Dimensions.Name = 'Dim1';
+            dspdef = getDSpropsStruct(aa,2);
+            dspdef.Row.Description = 'Location';
+            dspdef.Dimensions.Label = 'Distance from mouth';
+            setDefaultDSproperties(aa,'Row',dspdef.Row,'Dimensions',dspdef.Dimensions)  
+            displayDSproperties(aa);        %display current definition
     end
 end
 %%
