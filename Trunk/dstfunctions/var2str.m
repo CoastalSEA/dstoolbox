@@ -32,6 +32,9 @@ function [varstr,type,format] = var2str(var,iswarn)
         return;
     elseif iscell(var)
         var1 = var{1}; 
+        if ~ischar(var1)
+            var = var1;
+        end
     else
         var1 = var(1);
     end
@@ -47,7 +50,7 @@ function [varstr,type,format] = var2str(var,iswarn)
         format = var.Format;
     else
         try
-            varstr = cellstr(var);
+            varstr = cellstr(var);  %returns strings as cell array of character vectors
             if isempty(type)
                 type = 'unknown';
             end

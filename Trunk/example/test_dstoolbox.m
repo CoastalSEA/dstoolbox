@@ -242,7 +242,7 @@ function test_dstable(testnum,option)
             nrows = 5;
             varnames = {'Var1'};
             data = set_variable(nrows);
-            rownames = set_dimension(option,nrows);
+            rownames = set_dimension(option(1),nrows);
             t1 = dstable(data,'RowNames',rownames,'VariableNames',varnames);
             t1.DataTable
             t1.DSproperties = dsp_partialstruct; %variable names in DSproperties struct
@@ -320,7 +320,7 @@ function test_dstable(testnum,option)
             data = set_variable(nrows);               %generate dataset
             rownames1 = set_dimension(option(1),nrows);  %generate row dimension
             t1 = dstable(data,'RowNames',rownames1,'VariableNames',varnames); %create table with same variable name
-            rownames2 = set_dimension(option(1),nrows,1);%generate row dimension
+            rownames2 = set_dimension(option(1),nrows,nrows);%generate row dimensions with offset to ensure unique
             t2 = dstable(data,'RowNames',rownames2,'VariableNames',{'Var1'}); %create table
             t3 = vertcat(t2,t1);                      %vertical concatenation of the two tables
             t3.DataTable                              %display

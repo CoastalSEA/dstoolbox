@@ -1539,7 +1539,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             narg = length(varargin);
             for i=1:2:narg
                 if strcmp(varargin{i},'RowNames')
-                    idr = find(ismember(obj.RowNames,varargin{i+1},'rows'));  
+                    idr = find(ismember(obj.RowNames,varargin{i+1}));  
                     if isdatetime(idr) || isduration(idr)
                         %if input is datetime or duration force match to rows format
                         idr.Format = obj.RowFormat;
