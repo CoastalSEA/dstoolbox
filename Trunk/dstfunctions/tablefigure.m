@@ -1,4 +1,4 @@
-function h_fig = tablefigure(figtitle,headtext,atable,varnames,values)
+function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 %
 %-------function help------------------------------------------------------
 % NAME
@@ -18,7 +18,8 @@ function h_fig = tablefigure(figtitle,headtext,atable,varnames,values)
 %   values    - cell array of data values if using cell arrays (must 
 %               match length of rownames and varnames)
 % OUTPUT
-%   h_fig     - handle to figure (handle can be used to modify layout)
+%   varargout: user defined output 
+%       h_fig     - handle to figure (handle can be used to modify layout)
 % NOTES
 %   when passed a table then UserData can be used to pass additional information.
 %   Uses currently included:
@@ -157,6 +158,12 @@ function h_fig = tablefigure(figtitle,headtext,atable,varnames,values)
             ht(i).Units = 'normalized';%components are resized when the                                         
         end                            %figure is resized.
         h_fig.Visible = 'on';          %make figure visible
+    end
+
+    output = h_fig; %handles to cross and and circle
+    nout = max(nargout,1) - 1;
+    for k=1:nout
+        varargout{k} = output(k); %#ok<AGROW> 
     end
 end
 %%

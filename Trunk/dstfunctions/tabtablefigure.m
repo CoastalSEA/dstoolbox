@@ -1,4 +1,4 @@
-function h_fig = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
+function varargout = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
 %
 %-------function help------------------------------------------------------
 % NAME
@@ -14,7 +14,8 @@ function h_fig = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
 %   tables - cell array of tables to be assigned to the tabs
 %   isvis  - true sets figure Visible to on, default is off
 % OUTPUT
-%   h_fig     - handle to figure (handle can be used to modify layout)
+%   varargout: user defined output 
+%       h_fig     - handle to figure (handle can be used to modify layout)
 % NOTES
 %   requires tablefigure.m
 %   uses cell array of tables so that tables can vary in size
@@ -56,5 +57,11 @@ function h_fig = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
     h_fig.Position(4) = figheight;   
     if isvis
         h_fig.Visible = 'on';
+    end
+
+    output = h_fig; %handles to cross and and circle
+    nout = max(nargout,1) - 1;
+    for k=1:nout
+        varargout{k} = output(k); %#ok<AGROW> 
     end
 end
