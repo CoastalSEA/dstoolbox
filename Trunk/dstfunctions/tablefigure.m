@@ -160,10 +160,8 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
         h_fig.Visible = 'on';          %make figure visible
     end
 
-    output = h_fig; %handles to cross and and circle
-    nout = max(nargout,1) - 1;
-    for k=1:nout
-        varargout{k} = output(k); %#ok<AGROW> 
+    if nargout>0
+        varargout{1} =  h_fig; %handles to tablrfigure
     end
 end
 %%
