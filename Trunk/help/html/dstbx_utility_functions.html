@@ -1,0 +1,156 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>dstoolbox utility functions</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-03-25"><meta name="DC.source" content="dstbx_utility_functions.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>dstoolbox utility functions</h1><!--introduction--><p>Summary of the functions available in the <i>dstfunctions</i> folder. Use the Matlab&#8482; help function in the command window to get further details of each function.</p><!--/introduction--><div><ul><li><b>cellstruct2cell.m</b> - convert a struct of cell arrays of the same dimension, to a cell array with fields as the rows and cell entries as the columns</li></ul></div><div><ul><li><b>cellstruct2structarray.m</b> - convert a struct of cell arrays of the same dimension to a struct array with a set of fields for each entry in the cell array</li></ul></div><div><ul><li><b>compact3Darray.m</b> - remove the rows and columns that are zeros in all 2D matrices of a 2 or 3D array and return the compacted array.</li></ul></div><div><ul><li><b>copydata2clip.m</b> - copy data from the active figure or tab to the clipboard</li></ul></div><div><ul><li><b>getcolumnwidths.m</b> - find the extent of text in each column (including the header), and the row text (if included)</li></ul></div><div><ul><li><b>getdatatype.m</b> - find the data type of 'var', checks for: logical, integer, float, char, string, categorical, datetime, duration, calendarDuration</li></ul></div><div><ul><li><b>getdialog.m</b> - generate a message dialogue box with no buttons. Calls setDialog.m^%</li></ul></div><div><ul><li><b>getfiles.m</b> - call uigetfile and return one or more files</li></ul></div><div><ul><li><b>getvariabledimensions.m</b> - find total number of dimensions for a variable in a table or dstable</li></ul></div><div><ul><li><b>isunique.m</b> - check that all values in usevals are unique</li></ul></div><div><ul><li><b>mat2clip.m</b> - Copies matrix to system clipboard. From Matlab&#8482; Forum, jiro (2021), <a href="https://www.mathworks.com/matlabcentral/fileexchange/8559-mat2clip">https://www.mathworks.com/matlabcentral/fileexchange/8559-mat2clip</a>.</li></ul></div><div><ul><li><b>readinputfile.m</b> - read data from a file</li></ul></div><div><ul><li><b>setactionbutton.m</b> - add an action button with callback to graphical object</li></ul></div><div><ul><li><b>setdialog.m</b> - generate a dialogue with message and no buttons. Called by getDialog.m</li></ul></div><div><ul><li><b>sort_nat.m</b> - natural order sorting sorts strings containing digits in a way such that the numerical value of the digits is taken into account. From Matlab&#8482; Forum, Douglas Schwarz (2021), <a href="https://www.mathworks.com/matlabcentral/fileexchange/10959-sort_nat-natural-order-sort">https://www.mathworks.com/matlabcentral/fileexchange/10959-sort_nat-natural-order-sort</a>.</li></ul></div><div><ul><li><b>statictextbox.m</b> - create static text box with wrapped text to fit the number of lines if greater that nlines make box scrollable</li></ul></div><div><ul><li><b>str2var.m</b> - Convert the input cell array of character vectors to an array of the specified data type and using the given format if datetime or duration</li></ul></div><div><ul><li><b>tablefigure.m</b> - generate plot figure to show table with a button to copy to clipboard</li></ul></div><div><ul><li><b>tabtablefigure.m</b> - generate figure with tabs to show set of tables</li></ul></div><div><ul><li><b>var2str.m</b> - convert the input variable to a cell array of strings and return the data type and format (for datetime and duration only)</li></ul></div><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% dstoolbox utility functions
+% Summary of the functions available in the _dstfunctions_ folder. Use the Matlab(TM)
+% help function in the command window to get further details of each
+% function.
+
+%%
+% * *cellstruct2cell.m*
+% - convert a struct of cell arrays of the same dimension, to a cell array
+% with fields as the rows and cell entries as the columns
+% 
+% * *cellstruct2structarray.m*
+% - convert a struct of cell arrays of the same dimension to a struct array
+% with a set of fields for each entry in the cell array
+%
+% * *compact3Darray.m*
+% - remove the rows and columns that are zeros in all 2D matrices of a 2 or
+% 3D array and return the compacted array.
+% 
+% * *copydata2clip.m*
+% - copy data from the active figure or tab to the clipboard
+%
+% * *getcolumnwidths.m*
+% - find the extent of text in each column (including the header), and the
+% row text (if included)
+% 
+% * *getdatatype.m*
+% - find the data type of 'var', checks for:
+% logical, integer, float, char, string, categorical, datetime, duration, calendarDuration
+% 
+% * *getdialog.m*
+% - generate a message dialogue box with no buttons. Calls setDialog.m^%
+% 
+% * *getfiles.m*
+% - call uigetfile and return one or more files
+% 
+% * *getvariabledimensions.m*
+% - find total number of dimensions for a variable in a table or dstable
+% 
+% * *isunique.m*
+% - check that all values in usevals are unique
+% 
+% * *mat2clip.m* 
+% - Copies matrix to system clipboard. From Matlab(TM) Forum, jiro (2021),
+% https://www.mathworks.com/matlabcentral/fileexchange/8559-mat2clip.
+% 
+% * *readinputfile.m*
+% - read data from a file
+% 
+% * *setactionbutton.m*
+% - add an action button with callback to graphical object
+% 
+% * *setdialog.m*
+% - generate a dialogue with message and no buttons. Called by getDialog.m
+% 
+% * *sort_nat.m*
+% - natural order sorting sorts strings containing digits in a way such that 
+% the numerical value of the digits is taken into account. From Matlab(TM) Forum, 
+% Douglas Schwarz (2021), https://www.mathworks.com/matlabcentral/fileexchange/10959-sort_nat-natural-order-sort.
+%
+% * *statictextbox.m*
+% - create static text box with wrapped text to fit the number of lines
+% if greater that nlines make box scrollable
+% 
+% * *str2var.m*
+% - Convert the input cell array of character vectors to an array of the 
+% specified data type and using the given format if datetime or duration
+% 
+% * *tablefigure.m*
+% - generate plot figure to show table with a button to copy to clipboard
+% 
+% * *tabtablefigure.m*
+% - generate figure with tabs to show set of tables 
+%
+% * *var2str.m*
+% - convert the input variable to a cell array of strings and return the 
+% data type and format (for datetime and duration only) 
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>

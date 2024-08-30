@@ -1,0 +1,158 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration build-checksum="1194557036" file="D:\Matlab Code\MUImodels\dstoolbox\dstoolbox.prj" location="D:\Matlab Code\MUImodels\dstoolbox" name="dstoolbox" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>dstoolbox</param.appname>
+    <param.authnamewatermark>Ian Townend</param.authnamewatermark>
+    <param.email>i.townend@soton.ac.uk</param.email>
+    <param.company>University of Southampton</param.company>
+    <param.summary>dstoolbox is a collection of classes used to store and manage access to multi-dimensional data sets.</param.summary>
+    <param.description>The toolbox is designed to store and manage multi-dimensional data sets, including meta-data of the variables and all dimensions and manage access to a collection of classes that hold data sets using a catalogue.</param.description>
+    <param.screenshot>${PROJECT_ROOT}\help\html\dstoolbox_logo.png</param.screenshot>
+    <param.version>1.11</param.version>
+    <param.output>${PROJECT_ROOT}\dstoolbox.mltbx</param.output>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.guid>3fed2193-17cc-4e12-9a85-874c6bf5fd0d</param.guid>
+    <param.exclude.filters>% List files contained in your toolbox folder that you would like to exclude
+% from packaging.  Excludes should be listed relative to the toolbox folder.
+% Some examples of how to specify excludes are provided below:
+setdstpath.m
+remdstpath.m
+%
+% A single file or files in the toolbox folder:
+% .svn
+*.asv
+%
+% A single file in a subfolder of the toolbox folder:
+help/*.m
+help/*.txt
+%
+% All files in a subfolder of the toolbox folder:
+% .svn/*
+% Working Docs/*
+%
+% Subfolder of the toolbox folder:
+.svn
+Working Docs
+%
+% All files of a certain name in all subfolders of the toolbox folder:
+**/.svn
+%
+% All files matching a pattern in all subfolders of the toolbox folder:
+% **/*.bak
+**/*.asv
+%</param.exclude.filters>
+    <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
+    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;examples&gt;
+   &lt;exampleCategory name="help"&gt;
+      &lt;example name="dstoolbox" type="html"&gt;
+         &lt;file type="source"&gt;/help/html/dstoolbox.html&lt;/file&gt;
+         &lt;file type="main"/&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Examples" type="html"&gt;
+         &lt;file type="source"&gt;/help/html/dstbx_examples.html&lt;/file&gt;
+         &lt;file type="main"/&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+   &lt;/exampleCategory&gt;
+&lt;/examples&gt;</param.examples>
+    <param.demosxml />
+    <param.apps>
+      <file>${PROJECT_ROOT}\ModelUI.mlappinstall</file>
+    </param.apps>
+    <param.registered.apps />
+    <param.docs>${PROJECT_ROOT}\info.xml</param.docs>
+    <param.getting.started.guide>${PROJECT_ROOT}\doc\GettingStarted.mlx</param.getting.started.guide>
+    <param.matlabpath.excludes>
+      <item>/help</item>
+    </param.matlabpath.excludes>
+    <param.javaclasspath.excludes />
+    <param.exported.on.package>false</param.exported.on.package>
+    <param.required.addons>
+      <requiredaddons />
+    </param.required.addons>
+    <param.matlab.project.id />
+    <param.matlab.project.name />
+    <param.release.start>R2016b</param.release.start>
+    <param.release.end>latest</param.release.end>
+    <param.release.current.only>false</param.release.current.only>
+    <param.compatiblity.windows>true</param.compatiblity.windows>
+    <param.compatiblity.macos>true</param.compatiblity.macos>
+    <param.compatiblity.linux>true</param.compatiblity.linux>
+    <param.compatiblity.matlabonline>true</param.compatiblity.matlabonline>
+    <param.installation.map />
+    <param.additional.sw.names />
+    <param.additional.sw.licenses />
+    <param.additional.sw.win.url />
+    <param.additional.sw.mac.url />
+    <param.additional.sw.linux.url />
+    <unset>
+      <param.output />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.exclude.pcodedmfiles />
+      <param.demosxml />
+      <param.registered.apps />
+      <param.javaclasspath.excludes />
+      <param.exported.on.package />
+      <param.matlab.project.id />
+      <param.matlab.project.name />
+      <param.release.current.only />
+      <param.compatiblity.windows />
+      <param.compatiblity.macos />
+      <param.compatiblity.linux />
+      <param.compatiblity.matlabonline />
+      <param.additional.sw.names />
+      <param.additional.sw.licenses />
+      <param.additional.sw.win.url />
+      <param.additional.sw.mac.url />
+      <param.additional.sw.linux.url />
+    </unset>
+    <fileset.rootdir>
+      <file>${PROJECT_ROOT}</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\demos.xml</file>
+      <file>${PROJECT_ROOT}\doc</file>
+      <file>${PROJECT_ROOT}\dscatalogue.m</file>
+      <file>${PROJECT_ROOT}\dscollection.m</file>
+      <file>${PROJECT_ROOT}\dsproperties.m</file>
+      <file>${PROJECT_ROOT}\dstable.m</file>
+      <file>${PROJECT_ROOT}\dstfunctions</file>
+      <file>${PROJECT_ROOT}\example</file>
+      <file>${PROJECT_ROOT}\help</file>
+      <file>${PROJECT_ROOT}\info.xml</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included />
+    <fileset.depfun.excluded />
+    <fileset.package />
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}" name="dstoolbox.mltbx" optional="false">D:\Matlab Code\MUImodels\dstoolbox\dstoolbox.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2022b</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

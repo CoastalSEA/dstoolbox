@@ -1,0 +1,128 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>dstoolbox</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2024-02-09"><meta name="DC.source" content="dstoolbox.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>dstoolbox</h1><!--introduction--><p>dstoolbox is a collection of classes used to store and manage access to multi-dimensional data sets.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Licence</a></li><li><a href="#2">Requirements</a></li><li><a href="#3">dstoolbox classes</a></li><li><a href="#6">Schematic</a></li><li><a href="#8">Usage</a></li><li><a href="#9">See Also</a></li></ul></div><h2 id="1">Licence</h2><p>The code is provided as Open Source code (issued under a GNU General Public License).</p><h2 id="2">Requirements</h2><p>dstoolbox is written in Matlab&#8482; and requires v2016b, or later. The toolbox is designed as an alternative to a Matlab&#8482; <i>table</i> but is also an integral component of the <a href="matlab:doc('muitoolbox')">muitoolbox</a>.</p><h2 id="3">dstoolbox classes</h2><p>The classes in the toolbox include:</p><div><ul><li><a href="matlab:doc('dstable')">dstable</a>, holds a collection of one or more datasets with one or more common dimension vectors and the associated metadata.</li><li><a href="matlab:doc('dsproperties')">dsproperties</a>, defines the object used to assign metadata to a <i>dstable</i>.</li><li><a href="matlab:doc('dscatalogue')">dscatalogue</a>, manages a catalogue of data sets that handle a collection of data sets (e.g. imported and model data), which are loaded into <i>dstables</i> and catalogued using <i>dscatalogue</i>.</li></ul></div><p><i>Note: links to dstoolbox classes, in the text, display the class 'help'. Use the links on the dstoolbox sidebar menu to access the class documentation.</i></p><h2 id="6">Schematic</h2><p>These classes can be used together as illustrated in the following figure:</p><p><img vspace="5" hspace="5" src="dstoolbox_model.png" alt=""> </p><h2 id="8">Usage</h2><p>The toolbox is designed to store and manage multi-dimensional data sets, including meta-data of the variables and all dimensions and manage access to a collection of classes that hold data sets using a catalogue. In the schematic outline <i>dstb_usage</i> is a class to illustrate how <i>dstable</i>, <i>dsproperties</i> and <i>dscatalgue</i> are used. Data are loaded into a <i>dstable</i> with relevant metadata added to the table and made accessibile using <i>dsproperties</i>. Each time a class adds data a record is added using <i>dscatalogue</i>. The 'Format Spec'  user functions, shown in the upper part of the figure, are implemented with functions, indicated by 'File Type' and 'Output Type', shown in the lower part of the figure. These define the meta-data of the data set being saved (and any input parameters, or details needed to read and load data from a file, depending on the application).</p><h2 id="9">See Also</h2><p>Some slides providing an introduction to the use of the dstoolbox can be found <a href="matlab:dst_open_manual">here</a>. In addition, the dstoolbox is used in the <a href="matlab:doc('muitoolbox')">muitoolbox</a> and the use of both toolboxes is illustrated in the <a href="matlab:doc('modelui')">ModelUI</a> App.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% dstoolbox
+% dstoolbox is a collection of classes used to store and manage access to
+% multi-dimensional data sets. 
+
+%% Licence
+% The code is provided as Open Source code (issued under a GNU General 
+% Public License).
+
+%% Requirements
+% dstoolbox is written in Matlab(TM) and requires v2016b, or later. The 
+% toolbox is designed as an alternative to a Matlab(TM) _table_ but is also
+% an integral component of the <matlab:doc('muitoolbox') muitoolbox>.
+
+%% dstoolbox classes
+% The classes in the toolbox include:
+%%
+% * <matlab:doc('dstable') dstable>, holds a collection of one or more datasets 
+% with one or more common dimension vectors and the associated metadata.
+% * <matlab:doc('dsproperties') dsproperties>, defines the object used to 
+% assign metadata to a _dstable_.
+% * <matlab:doc('dscatalogue') dscatalogue>, manages a catalogue of data sets
+% that handle a collection of data sets (e.g. imported and model data), which are 
+% loaded into _dstables_ and catalogued using _dscatalogue_.
+
+%%
+% _Note: links to dstoolbox classes, in the text, display the class 'help'. 
+% Use the links on the dstoolbox sidebar menu to access the class
+% documentation._
+
+%% Schematic
+% These classes can be used together as illustrated in the following figure:
+
+%%
+% <<dstoolbox_model.png>>
+
+%% Usage
+% The toolbox is designed to store and manage multi-dimensional data sets, including 
+% meta-data of the variables and all dimensions and manage access to a 
+% collection of classes that hold data sets using a catalogue. In the
+% schematic outline _dstb_usage_ is a class to illustrate how _dstable_,
+% _dsproperties_ and _dscatalgue_ are used. Data are loaded into a _dstable_
+% with relevant metadata added to the table and made accessibile using
+% _dsproperties_. Each time a class adds data a record is added using
+% _dscatalogue_. The 'Format Spec'  user functions, shown in the upper part of
+% the figure, are implemented with functions, indicated
+% by 'File Type' and 'Output Type', shown in the lower part of the figure. 
+% These define the meta-data of the data set 
+% being saved (and any input parameters, or details needed to read and load 
+% data from a file, depending on the application).
+
+%% See Also
+% Some slides providing an introduction to the use of the dstoolbox can be found
+% <matlab:dst_open_manual here>. In addition, the dstoolbox is used in 
+% the <matlab:doc('muitoolbox') muitoolbox> and the use of both
+% toolboxes is illustrated in the <matlab:doc('modelui') ModelUI> App.
+##### SOURCE END #####
+--></body></html>
