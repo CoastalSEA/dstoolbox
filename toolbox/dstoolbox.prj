@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="1194557036" file="D:\Matlab Code\MUImodels\dstoolbox\dstoolbox.prj" location="D:\Matlab Code\MUImodels\dstoolbox" name="dstoolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="1194557036" file="D:\Matlab Code\muiModels\dstoolbox\toolbox\dstoolbox.prj" location="D:\Matlab Code\muiModels\dstoolbox\toolbox" name="dstoolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>dstoolbox</param.appname>
     <param.authnamewatermark>Ian Townend</param.authnamewatermark>
     <param.email>i.townend@soton.ac.uk</param.email>
@@ -132,7 +132,7 @@ Working Docs
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="dstoolbox.mltbx" optional="false">D:\Matlab Code\MUImodels\dstoolbox\dstoolbox.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="dstoolbox.mltbx" optional="false">D:\Matlab Code\muiModels\dstoolbox\toolbox\dstoolbox.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
