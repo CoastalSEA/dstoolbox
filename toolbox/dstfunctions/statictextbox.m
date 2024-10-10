@@ -7,7 +7,7 @@ function h_box = statictextbox(parent,nlines,boxpos,boxtext,boxunits)
 %   create static text box with wrapped text to fit the number of lines
 %   if greater that nlines make box scrollable
 % USAGE
-%   h_box = statictextbox(parent,boxpos,boxtext)
+%   h_box = statictextbox(parent,nlines,boxpos,boxtext)
 % INPUT
 %   parent  - handle to graphical object parent (eg figure/tab)
 %   nlines - number of lines of wrapped text before scroll bar is required

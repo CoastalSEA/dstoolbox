@@ -15,7 +15,8 @@ function varargout = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
 %   isvis  - true sets figure Visible to on, default is off
 % OUTPUT
 %   varargout: user defined output 
-%       h_fig     - handle to figure (handle can be used to modify layout)
+%       h_fig - handle to figure (handle can be used to modify layout)
+%       h_tab - handle to tab
 % NOTES
 %   requires tablefigure.m
 %   uses cell array of tables so that tables can vary in size
@@ -59,9 +60,8 @@ function varargout = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
         h_fig.Visible = 'on';
     end
 
-    output = h_fig; %handles to cross and and circle
-    nout = max(nargout,1) - 1;
-    for k=1:nout
+    output = [h_fig, h_tab]; %handle to figure
+    for k=1:nargout
         varargout{k} = output(k); %#ok<AGROW> 
     end
 end

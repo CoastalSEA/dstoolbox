@@ -161,7 +161,7 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
     end
 
     if nargout>0
-        varargout{1} =  h_fig; %handles to tablrfigure
+        varargout{1} =  h_fig; %handle to tablefigure
     end
 end
 %%
