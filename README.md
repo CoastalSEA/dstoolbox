@@ -5,13 +5,13 @@ dstoolbox is a collection of classes used to store and manage access to multi-di
 The code is provided as Open Source code (issued under a BSD 3-clause License).
 
 ## Requirements
-dstoolbox is written in Matlab(TM) and requires v2016b, or later. The toolbox is designed as an alternative to a Matlab(TM) _table_ but is also an integral component of the <matlab:doc('muitoolbox') muitoolbox>.
+dstoolbox is written in Matlab(TM) and requires v2016b, or later. The toolbox is designed as an alternative to a Matlab(TM) _table_ but is also an integral component of the *muitoolbox*.
 
 ## dstoolbox classes
 The classes in the toolbox include:
-- <matlab:doc('dstable') dstable>, holds a collection of one or more datasets with one or more common dimension vectors and the associated metadata.
-- <matlab:doc('dsproperties') dsproperties>, defines the object used to assign metadata to a _dstable_.
-- <matlab:doc('dscatalogue') dscatalogue>, manages a catalogue of data sets that handle a collection of data sets (e.g. imported and model data), which are loaded into _dstables_ and catalogued using _dscatalogue_.
+- _dstable_, holds a collection of one or more datasets with one or more common dimension vectors and the associated metadata.
+- _dsproperties_, defines the object used to assign metadata to a _dstable_.
+- _dscatalogue_, manages a catalogue of data sets that handle a collection of data sets (e.g. imported and model data), which are loaded into _dstables_ and catalogued using _dscatalogue_.
 
 ## Schematic
 
