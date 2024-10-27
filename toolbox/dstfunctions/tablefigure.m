@@ -90,8 +90,18 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 
     %generate table of properties  
     colwidth = num2cell(colwidth,1); %format required by uitable
+    %uitable cannot handle categoric data or strings so change to char
+    iscat = varfun(@iscategorical,atable,'OutputFormat','uniform');
+    if any(iscat)        
+        atable = convertvars(atable,iscat,'cellstr');
+    end   
+    isstr = varfun(@isstring,atable,'OutputFormat','uniform');
+    if any(isstr)        
+        atable = convertvars(atable,isstr,'cellstr');
+    end 
     %must be cell array not table when uitable used with figure
     uitableout = table2cell(atable);
+    
     ht = uitable('Parent',h_pan,...
             'ColumnName',varnames,...
             'ColumnWidth', colwidth,...
