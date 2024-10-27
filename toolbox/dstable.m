@@ -817,6 +817,11 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end            
         end
 %%
+        function obj = setVariableRange(obj,varname)
+            %set or update Range for selected variable
+            obj.VariableRange.(varname) = getVariableRange(obj,varname);
+        end
+%%
         function [atname,atidx] = selectAttribute(obj,option)
             %propmpt user to select a dstable variable, or dimension
             % option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'
@@ -1295,7 +1300,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         end
     end 
 %% ------------------------------------------------------------------------
-% Functions called by methods (private)`
+% Functions called by methods (private)
 %--------------------------------------------------------------------------      
     methods (Access=private)
 %% dstable
@@ -1341,7 +1346,15 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 minval = (min(data,[],'all','omitnan'));
                 maxval = (max(data,[],'all','omitnan'));
                 range = {minval,maxval};
-            elseif iscell(data)  %character arrays
+            elseif iscategorical(data) 
+                cats = categories(data);
+                range = {cats{1},cats{end}};
+            elseif isstring(data) || iscellstr(data)
+                %treat any text data as a set of categories
+                catdata = categorical(data);
+                cats = categories(catdata);
+                range = {cats{1},cats{end}};
+            elseif iscell(data)  %cell array of non-character data
                 range ={data{1},data{end}};
             else                 %string arrays, datetime, duration, etc
                 range = {data(1),data(end)};

@@ -26,6 +26,7 @@ function durvar = str2duration(strvar,format)
         try
             %split string, handle charachter vector, cell array and strings
             [num,fmt] = splitString(strvar);
+            if isnan(num), durvar = []; return; end
             %
             if nargin<2 && ~isempty(fmt)
                 format = fmt;
@@ -64,5 +65,12 @@ function [num,format] = splitString(strvar)
         format = [];
     else
         format = C{2};   
+    end
+    
+    %trap none duration character vectors or strings
+    durtypes = {'s','sec','secs','m','min','mins','h','hr','hrs',...
+                'd','day','days','y','yr','yrs'};
+    if ~isempty(format) && ~any(strcmp(durtypes,format))
+        num = NaN; format = [];
     end
 end
