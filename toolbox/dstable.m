@@ -185,6 +185,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             if isempty(obj.VariableDescriptions)
                 obj.VariableDescriptions = obj.VariableNames;
             end
+            %
+            if isempty(obj.VariableLabels)
+                obj.VariableLabels = obj.VariableNames;
+            end
         end 
 %%
         function add_dyn_prop(obj, prop, init_val, isReadOnly)
@@ -788,15 +792,19 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             idvar = strcmp(obj.VariableDescriptions,list{1});  
             switch selected
                 case list{1}            %Variable                  
-                    varname = obj.VariableNames{idvar};
-                    range = obj.VariableRange.(varname);
+                    dimname = obj.VariableNames{idvar};
+                    range = obj.VariableRange.(dimname);
+                    dimvar = obj.(dimname);
                 case list{2}            %Row
                     if height(obj.DataTable)==1 && isempty(obj.RowNames)
                         dimname = obj.DimensionNames{1};
                         range = obj.DimensionRange.(dimname);
+                        dimvar = obj.Dimensions.(dimname);
                     else
-                        range = obj.RowRange;
+                        range = obj.RowRange;  
+                        dimvar = obj.RowNames;
                     end
+                    
                 otherwise               %Dimension
                     if isempty(obj.DimensionNames) || isempty(obj.DimensionNames{1})
                         idd = 1;        %no dimensions defined
@@ -810,11 +818,21 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                         %get size of variable and create dummy dimension
                         [~,~,vsze] = getvariabledimensions(obj,idvar);
                         range = {int16(1),int16(vsze(idd+nr))};
+                        return;
                     else
                         dimname = obj.DimensionNames{idd};
                         range = obj.DimensionRange.(dimname);
+                        dimvar = obj.Dimensions.(dimname);
                     end
-            end            
+            end  
+
+            %if range is text use list of categories rather than end values
+            if iscellstr(range) || isstring(range)
+                catvar = categorical(dimvar,dimvar);
+                range = categories(catvar);
+            elseif iscategorical(range)
+                range = categories(dimvar);
+            end                           
         end
 %%
         function obj = setVariableRange(obj,varname)
@@ -1437,8 +1455,9 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
             %
             if any(strcmp({'categorical','ordinal'},dimtype))
-                %uses the dimension as the 'valueset' of categories
-                dimformat = source;
+                %flag used in str2var to use the source as the 'valueset' 
+                %of categories
+                dimformat = 'categories';
             end
             outdims = str2var(source,dimtype,dimformat);
         end

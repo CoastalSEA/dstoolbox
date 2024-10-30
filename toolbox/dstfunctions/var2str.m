@@ -46,11 +46,14 @@ function [varstr,type,format] = var2str(var,iswarn)
         varstr = cellstr(var);
         format = var.Format;     
     elseif iscalendarduration(var)
-        varstr = cellstr(var);   %calendarDuration format is some of 'yqmwdt'
+        varstr = cellstr(var);     %calendarDuration format is some of 'yqmwdt'
         format = var.Format;
+    elseif iscategorical(var)
+        varstr = cellstr(var);     %returns categoric as cell array of character vectors
+        format = 'categories';     %used to restore categorical in str2var    
     else
         try
-            varstr = cellstr(var);  %returns strings as cell array of character vectors
+            varstr = cellstr(var); %returns strings as cell array of character vectors
             if isempty(type)
                 type = 'unknown';
             end

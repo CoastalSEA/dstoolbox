@@ -7,7 +7,10 @@ function h = test_dstoolbox(classname,casenum,option)
 %   functions to test ds components of the dstoolbox
 % USAGE
 %   test_dstoolbox('funcname',casenum,option);
-%       e.g. test_dstoolbox('dstable',6,[1,3,5]);
+%       e.g. test_dstoolbox('dscatalogue');  %class to manage catalogue of cases held
+%       e.g. test_dstoolbox('dsproperties,6,[1,3,5]');  %class to manage the meta-data properties
+%            test_dstoolbox('dstable',6,[1,3,5]);  %class for a ollection of one or more datasets
+%            h = test_dstoolbox('dstb_usage');  %class to demonstrate use of dstoolbox
 % INPUT
 %   classsname - name of dstoolbox class function to be tested
 %   casenum - number of case to run
@@ -18,6 +21,9 @@ function h = test_dstoolbox(classname,casenum,option)
 %             6  categorical; 7  ordinal; 8  test duplicate dimensions           
 % OUTPUT
 %   See in-code comments for details of test and in-code outputs.
+%   h - first dstable created (t1) when classname=dstable, or
+%   h - handle to dstb_usage, a class to demonstrate use of dstoolbox 
+%       classes
 %
 % Author: Ian Townend
 % CoastalSEA (c)June 2020
@@ -40,10 +46,10 @@ function h = test_dstoolbox(classname,casenum,option)
             test_dsproperties(casenum,option);
         case 'dstable'       %collection of one or more datasets with one 
                              %or more common dimension vectors
-            test_dstable(casenum,option);
+            h = test_dstable(casenum,option);
         case 'dscollection'
             %interface needs to be implemented by a class
-        case 'dstb_usage'    %example of using the dstoolbox
+        case 'dstb_usage'    %class to demonstrate use of dstoolbox
             h = test_dstb_usage;
     end
 end
@@ -230,7 +236,7 @@ end
 %--------------------------------------------------------------------------
 %   Tests for dstable
 %--------------------------------------------------------------------------
-function test_dstable(testnum,option)
+function t1 = test_dstable(testnum,option)
     %test initialisation, setting, accessing, editing and deleting dstable
     switch testnum
         case 0
