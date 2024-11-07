@@ -658,7 +658,7 @@ end
 %%
 function tt = dummytable(option)
     %generate table of multi-dimensional arrays
-    nrows = 5; ndim1 = 3; ndim2 = 7;    
+    nrows = 5; ndim1 = 9; ndim2 = 7;    
     varnames = {'Var1','Var2','Var3'};
     data1 = set_variable(nrows,ndim1,ndim2);
     data2 = set_variable(nrows,ndim1,ndim2);

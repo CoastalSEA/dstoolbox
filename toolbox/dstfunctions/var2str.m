@@ -31,14 +31,14 @@ function [varstr,type,format] = var2str(var,iswarn)
         varstr = {''}; type = []; format = [];
         return;
     elseif iscell(var)
-        var1 = var{1}; 
-        if ~ischar(var1)
-            var = var1;
+        var1 = var{1};
+        if ischar(var1)
+            var1 = var(1);
         end
     else
         var1 = var(1);
     end
-    type = char(getdatatype(var1)); 
+    type = getdatatype(var1); 
     
     if isnumeric(var) || islogical(var)
         varstr = cellstr(num2str(var));

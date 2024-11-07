@@ -273,7 +273,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             
             if ~isempty(rowstr)
                 obj.DataTable.Properties.RowNames = rowstr;
-                obj.RowType = rtype;
+                obj.RowType = rtype{1};
                 if isempty(obj.RowFormat)
                     obj.RowFormat = rformat;
                 end
@@ -827,10 +827,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end  
 
             %if range is text use list of categories rather than end values
-            if iscellstr(range) || isstring(range)
+            if iscellstr(range) || isstring(range{1})
                 catvar = categorical(dimvar,dimvar);
                 range = categories(catvar);
-            elseif iscategorical(range)
+            elseif iscategorical(range{1})
                 range = categories(dimvar);
             end                           
         end
@@ -1443,7 +1443,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         function outdims = getDimensionType(obj,source,dimname)
             %check dimension type and return Dimension using input format
             % source - saved Dimension values
-            % dimnum - the index of the Dimension based on DimensionNames
+            % dimname - the index of the Dimension based on DimensionNames
             % outdims - dimension converted from char to input data format
             if isnumeric(dimname)
                 dimtype = obj.DimType;
