@@ -24,11 +24,11 @@ function dtype = getdatatype(var)
 %--------------------------------------------------------------------------
 % 
     mver = version('-release'); 
-    if str2double(mver(1:4))<2021 
+    if str2double(mver(1:4))<2020 || strcmp(mver,'2020a')
         warndlg('Function underlyingType requires v2020b or later. Edit getdatatype function to use earlier code')
         dtype = {}; return;
     end
-
+    
     nvar = length(var);
     dtype= cell(size(var)); 
     for i=1:nvar

@@ -5,9 +5,9 @@
 %
 %% Syntax
 %%
-%   dsp = dsproperties;            %creates an empty object
-%   dsp = dsproperties(dsprops);   %assigns dsprops to dsp.DSproperties
-%   dsp = dsproperties('set');     %invokes UI to set values interactively
+%   dsp = dsproperties;                    %creates an empty object
+%   dsp = dsproperties(dsprops,dspdesc);   %assigns dsprops to dsp.DSproperties
+%   dsp = dsproperties('set');             %invokes UI to set values interactively
 %
 
 %% Description
@@ -19,7 +19,9 @@
 %% Input arguments
 % *dsprops* can be a valid dsproperties struct, or the keyword 'set'. The
 % keyword 'set' is the same as using setDSproperties(dsp) and calls a UI
-% to allow the propery values to be set or edited interactively.
+% to allow the propery values to be set or edited interactively. <br>
+% *dspdesc* is optional and sets the _DSPdescription_ property. If not
+% provided the user is prompted to input a description.
 %
 
 %% Properties
@@ -198,7 +200,7 @@
 % *addDSproperties* adds a set of property values to the the Variables,
 % or Dimensions, property.
 %%
-%   [dsp,ok] = addDSproperties(dsp,propname,varprops) %returns updsted dsp and ok=1 if successful
+%   [dsp,ok] = addDSproperties(dsp,propname,varprops) %returns updated dsp and ok=1 if successful
 % 
 %%
 % where _propname_ is either 'Variables' or 'Dimensions' and
