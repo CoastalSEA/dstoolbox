@@ -7,7 +7,7 @@ function h_but = setactionbutton(parent,butext,position,callback,...
 % PURPOSE
 %   add an action button with callback to graphical object
 % USAGE
-%   h_but = setactionbutton(parent,butxt,position,callback,userdata,tooltip)
+%   h_but = setactionbutton(parent,butxt,position,callback,tag,tooltip,userdata)
 % INPUTS
 %   parent   - handle to graphics object to be used as Parent
 %   butext   - text to appear on button

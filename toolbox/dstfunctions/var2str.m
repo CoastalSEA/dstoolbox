@@ -41,7 +41,8 @@ function [varstr,type,format] = var2str(var,iswarn)
     type = getdatatype(var1); 
     
     if isnumeric(var) || islogical(var)
-        varstr = cellstr(num2str(var));
+        %varstr = cellstr(num2str(var));
+        varstr = cellstr(num2str(var,get_precision(var)));
     elseif isdatetime(var) || isduration(var)
         varstr = cellstr(var);
         format = var.Format;     
