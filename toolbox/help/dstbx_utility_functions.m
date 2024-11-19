@@ -32,9 +32,21 @@
 % 
 % * *getfiles.m*
 % - call uigetfile and return one or more files
+%
+% * *getprecision.m*
+% - find the precision of a number that is a double
 % 
 % * *getvariabledimensions.m*
 % - find total number of dimensions for a variable in a table or dstable
+%
+% * *isallround.m*
+% - check whether vector of numbers or durations are are all round numbers
+% but may or may not be integer data types
+%
+% * *islist.m*
+% - test whether a variable is some form of text data. Input option allows 
+% different combinations of character data types to be tested. If option is not included
+% the function tests for cellstr, or string, or categorical, or char array
 % 
 % * *isunique.m*
 % - check that all values in usevals are unique

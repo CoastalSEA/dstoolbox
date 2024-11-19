@@ -827,7 +827,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end  
 
             %if range is text use list of categories rather than end values
-            if iscellstr(range) || isstring(range{1})
+            if islist(range,2)
                 catvar = categorical(dimvar,dimvar);
                 range = categories(catvar);
             elseif iscategorical(range{1})
@@ -1367,7 +1367,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             elseif iscategorical(data) 
                 cats = categories(data);
                 range = {cats{1},cats{end}};
-            elseif isstring(data) || iscellstr(data)
+            elseif islist(data,2)
                 %treat any text data as a set of categories
                 catdata = categorical(data);
                 cats = categories(catdata);

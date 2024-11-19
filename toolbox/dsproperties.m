@@ -558,7 +558,7 @@ classdef dsproperties < matlab.mixin.Copyable
             varnames = arrayfun(@(x) x.Name,P,'UniformOutput',false);
             if isempty(invar)
                 return;
-            elseif ischar(invar) || iscell(invar) || isstring(invar)
+            elseif islist(invar,5)
                 if isempty(varnames{1})
                     warndlg(errtxt)                    
                     return;
@@ -613,7 +613,7 @@ classdef dsproperties < matlab.mixin.Copyable
             if ischar(varnames)
 %                 obj.(propname)(ndim+1) = cell2struct(cell(nfields,1),fnames); 
                 obj.(propname)(ndim+1).Name = varnames;
-            elseif iscell(varnames) || isstring(varnames)
+            elseif islist(varnames,2)
                 varnames = convertStringsToChars(varnames);
                 if ischar(varnames)
                     obj.(propname)(ndim+1).Name = varnames;
