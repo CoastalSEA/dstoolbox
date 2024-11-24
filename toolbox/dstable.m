@@ -1359,7 +1359,9 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %find the minimum and maximum value of the data in varname 
             %if numeric otherwise return first and last value
             data = obj.DataTable.(varname);
-            if isempty(data), range = []; return; end
+            if isempty(data) || (iscell(data) && isempty([data{:}]))
+                range = []; return; 
+            end
             if isnumeric(data)   %vector and array data
                 minval = (min(data,[],'all','omitnan'));
                 maxval = (max(data,[],'all','omitnan'));

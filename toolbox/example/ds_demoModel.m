@@ -47,7 +47,7 @@ classdef ds_demoModel < handle
             dst.Dimensions.Y = xy{:,2};   %grid y-coordinate
             %assign metadata about model
             dst.Source = 'diffusion2Dmodel';
-            d = cellstr(datetime(now,'ConvertFrom','datenum'));
+            d = cellstr(datetime("now"));
             dst.MetaData = sprintf('Run on %s, using v%.1f',d{1},obj.VersionNo);
             
             %assign dstable to demoModel Collection property

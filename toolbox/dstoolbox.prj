@@ -120,7 +120,6 @@ Working Docs
       <file>${PROJECT_ROOT}\demos.xml</file>
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\dscatalogue.m</file>
-      <file>${PROJECT_ROOT}\dscollection.m</file>
       <file>${PROJECT_ROOT}\dsproperties.m</file>
       <file>${PROJECT_ROOT}\dstable.m</file>
       <file>${PROJECT_ROOT}\dstfunctions</file>

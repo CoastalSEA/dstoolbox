@@ -18,6 +18,7 @@ function islst = islist(var,option)
 %            3 - cellstr, string, categorical,
 %            4 - cellstr, string, categorical, char
 %            5 - cellstr, string, char
+%            6 - cellstr, string, char (NxM) array ie a list
 % OUTPUT
 %   islst - true if var is a list of selected types
 % SEE ALSO
@@ -44,6 +45,8 @@ function islst = islist(var,option)
                     ischar(var); 
         case 5 
             islst = iscellstr(var) || isstring(var) || ischar(var); 
+        case 6
+            islst = iscellstr(var) || isstring(var) || (ischar(var) && size(var,1)>1);                     
         otherwise
             warndlg('Unknown selection option in islist')
             islst = false;
