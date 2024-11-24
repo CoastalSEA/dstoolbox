@@ -840,24 +840,29 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             obj.VariableRange.(varname) = getVariableRange(obj,varname);
         end
 %%
-        function [atname,atidx] = selectAttribute(obj,option)
+        function [atname,atidx] = selectAttribute(obj,option,promptxt)
             %propmpt user to select a dstable variable, or dimension
             % option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'
+            if nargin<3
+                attype = {'Variable','Row','Dimension'};
+                promptxt = {sprintf('Select %s:',attype{option})}; 
+            end
             atidx = [];
+
             switch option             %get selection list for chosen option
                 case {1,'Variable'}
-                    selist = obj.VariableNames;
+                    selist = obj.VariableDescriptions;
                 case {2,'Row'}
-                    atname = obj.TableRowName;
+                    atname = obj.RowDescription;
                     atidx = 1;
                     return;
                 case {3,'Dimension'}
-                    selist = obj.DimensionNames;
+                    selist = obj.DimensionDescriptions;
             end
             %
             if ~isempty(selist) && length(selist)>1
                 [atidx,ok] = listdlg('Name','Variables', ...
-                            'PromptString','Select a variable:', ...
+                            'PromptString',promptxt, ...
                             'ListSize',[180,200],...
                             'SelectionMode','single', ...
                             'ListString',selist);
