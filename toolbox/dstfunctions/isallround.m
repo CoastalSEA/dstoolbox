@@ -4,7 +4,7 @@ function isint = isallround(vals)
 % NAME
 %   isallround.m
 % PURPOSE
-%   check whether vector of numbers or duration are are all round numbers
+%   check whether vector of numbers or duration are all round numbers
 %   and may or may not be integer data types
 % USAGE
 %   isint = isallround(vals)

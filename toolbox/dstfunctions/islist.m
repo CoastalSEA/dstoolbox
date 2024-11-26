@@ -11,8 +11,8 @@ function islst = islist(var,option)
 %   islst = islist(var,option)
 % INPUTS
 %   var - variable to test
-%   option - selection of text types to test (optional) The combination
-%            included are as follows:
+%   option - selection of text types to test (optional, default = 1) 
+%            The combinations included are as follows:
 %            1 - cellstr, string, categorical, char (NxM) array ie a list
 %            2 - cellstr, string
 %            3 - cellstr, string, categorical,
