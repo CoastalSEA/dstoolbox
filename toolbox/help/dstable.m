@@ -528,6 +528,12 @@
 %   fields = allfieldnames(dst);
 
 %%
+% *table_figure* for scalar data tables creates a stand-alone figure of
+% table, or inserts table in a tab.
+%
+%   table_figure(dst,atitle);  %atitle is an optional title or a handle to a figure or tab
+
+%%
 % *getsampleusingtime* is simialr to the Matlab function for tscollections
 % and extracts timeseries data between a start and end time from a dstable. 
 % The rows of the dstable must be datetime. All variables in the dstable 

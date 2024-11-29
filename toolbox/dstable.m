@@ -1321,6 +1321,34 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             fields = horzcat(obj.VariableNames,obj.TableRowName,...
                                                     obj.DimensionNames);
         end
+%%
+        function table_figure(obj,atitle)
+            %generate table figure of selected data set
+            % atitle - (i) text to use for title (optional), or
+            %          (ii) figure or tab handle to create table in
+            if nargin<2
+                atitle = sprintf('Data for %s table',dst.Description); 
+            end
+
+            firstcell = obj.DataTable{1,1};
+            if iscell(firstcell), firstcell = firstcell{1}; end
+            isscalarvalue = isscalar(firstcell) && isnumeric(firstcell) || ... %check for scalar numbers
+                            ischar(firstcell) || isstring(firstcell) || ...    %or character vector or string
+                            iscategorical(firstcell);                          %or categorical value
+            if ~isscalarvalue
+                %not tabular data
+                warndlg('Selected dataset is not tabular')
+                return; 
+            end 
+
+            desc = sprintf('Source:%s\nMeta-data: %s',obj.Source{1},obj.MetaData);
+            ht = tablefigure(atitle,desc,obj);
+            ht.Units = 'normalized';
+            uicontrol('Parent',ht,'Style','text',...
+                       'Units','normalized','Position',[0.1,0.95,0.8,0.05],...
+                       'String',['Case: ',obj.Description],'FontSize',10,...
+                       'HorizontalAlignment','center','Tag','titletxt');
+            end
     end 
 %% ------------------------------------------------------------------------
 % Functions called by methods (private)
@@ -1364,9 +1392,14 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %find the minimum and maximum value of the data in varname 
             %if numeric otherwise return first and last value
             data = obj.DataTable.(varname);
-            if isempty(data) || (iscell(data) && isempty([data{:}]))
+            
+            %screen data for empty of single cell values
+            if isempty(data) || (iscell(data) && isempty([data{1,:}]))
                 range = []; return; 
+            elseif iscell(data) && length(data)==1 %single cell
+                data = data{1};
             end
+
             if isnumeric(data)   %vector and array data
                 minval = (min(data,[],'all','omitnan'));
                 maxval = (max(data,[],'all','omitnan'));
