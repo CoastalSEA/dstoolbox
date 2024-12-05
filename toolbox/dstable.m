@@ -843,6 +843,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         function [atname,atidx] = selectAttribute(obj,option,promptxt)
             %propmpt user to select a dstable variable, or dimension
             % option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'
+            % returns attribute name but uses descriptions for selection
             if nargin<3
                 attype = {'Variable','Row','Dimension'};
                 promptxt = {sprintf('Select %s:',attype{option})}; 
@@ -852,12 +853,14 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             switch option             %get selection list for chosen option
                 case {1,'Variable'}
                     selist = obj.VariableDescriptions;
+                    setlist = obj.VariableNames;
                 case {2,'Row'}
-                    atname = obj.RowDescription;
+                    atname = obj.TableRowName;
                     atidx = 1;
                     return;
                 case {3,'Dimension'}
                     selist = obj.DimensionDescriptions;
+                    setlist = obj.DimensionNames;
             end
             %
             if ~isempty(selist) && length(selist)>1
@@ -869,10 +872,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if ok<1              %user cancelled no selection
                     atname = [];
                 else                 %user selection from selist
-                    atname = selist{atidx};
+                    atname = setlist{atidx};
                 end
             elseif ~isempty(selist)  %only one attribute in list
-                atname = selist{1};
+                atname = setlist{1};
                 atidx = 1;
             end                     
         end
