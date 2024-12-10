@@ -7,7 +7,7 @@
     <param.summary>dstoolbox is a collection of classes used to store and manage access to multi-dimensional data sets.</param.summary>
     <param.description>The toolbox is designed to store and manage multi-dimensional data sets, including meta-data of the variables and all dimensions and manage access to a collection of classes that hold data sets using a catalogue.</param.description>
     <param.screenshot>${PROJECT_ROOT}\help\html\dstoolbox_logo.png</param.screenshot>
-    <param.version>1.14</param.version>
+    <param.version>1.15</param.version>
     <param.output>${PROJECT_ROOT}\dstoolbox.mltbx</param.output>
     <param.products.name />
     <param.products.id />
