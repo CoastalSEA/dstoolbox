@@ -7,6 +7,7 @@ function [fname,path,nfiles] = getfiles(varargin)
 %  prompt user to select file, or multiple files if mflag='on'
 % USAGE
 %   [fname,path,nfiles] = getfiles(Name,Value)
+
 % INPUT
 %  Name, Value options are specified as comma-separated pairs including:
 %  'MultiSelect', mflag, where mflag can be 'on' or 'off' and determines
@@ -21,7 +22,10 @@ function [fname,path,nfiles] = getfiles(varargin)
 %   path - folder location of files
 %   nfiles - number of files selected
 % NOTES
-%   default with no input argument is single selection of *.t* files 
+%   default with no input argument is single selection of *.* files 
+%   to check if user cancelled:
+%   (i) single selection:   if fname==0, outputs = []; return; end
+%   (ii) multi selection:   if isnumeric(fname) && fname==0, outputs = []; return; end
 % SEE ALSO
 %  Matlab uigetfile
 %

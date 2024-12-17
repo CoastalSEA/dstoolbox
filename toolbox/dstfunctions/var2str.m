@@ -41,12 +41,8 @@ function [varstr,type,format] = var2str(var,iswarn)
     type = getdatatype(var1); 
     
     if isnumeric(var) || islogical(var)
-        p = getprecision(var);
-        if p>0
-            varstr = cellstr(num2str(var,p));
-        else
-            varstr = cellstr(num2str(var)); %num2str misbehaves if numdpl=0
-        end        
+        sp = max(getprecision(var));          %number of significant places
+        varstr = cellstr(num2str(var,sp));      
     elseif isdatetime(var) || isduration(var)
         varstr = cellstr(var);
         format = var.Format;     
