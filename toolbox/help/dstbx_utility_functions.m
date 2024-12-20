@@ -26,6 +26,9 @@
 % * *getdatatype.m*
 % - find the data type of 'var', checks for:
 % logical, integer, float, char, string, categorical, datetime, duration, calendarDuration
+%
+% * *getdecimalplaces.m*
+% - find the number of decimal places for numbers that are doubles
 % 
 % * *getdialog.m*
 % - generate a message dialogue box with no buttons. Calls setDialog.m^%
@@ -34,7 +37,7 @@
 % - call uigetfile and return one or more files
 %
 % * *getprecision.m*
-% - find the precision of a number that is a double
+% - find the precision (number of significant digits) of a number that is a double
 % 
 % * *getvariabledimensions.m*
 % - find total number of dimensions for a variable in a table or dstable

@@ -1388,6 +1388,13 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 end
                 obj.VariableRange.(varname) = getVariableRange(obj,varname);
             end 
+
+            %remove any fields from VariableRange that are no longer in varnames
+
+            fnames = fieldnames(obj.VariableRange);
+            isremoved = ~matches(fnames,obj.VariableNames);
+            obj.VariableRange = rmfield(obj.VariableRange,fnames(isremoved));
+
             obj.LastModified = datetime('now');
         end
 %%

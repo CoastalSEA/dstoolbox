@@ -4,9 +4,9 @@ function dp = getdecimalplaces(x)
 % NAME
 %   getdecimalplaces.m
 % PURPOSE
-%   find the decimal places for numbers that are doubles
+%   find the number of decimal places for numbers that are doubles
 % USAGE
-%   p = getdecimalplaces(x)
+%   dp = getdecimalplaces(x)
 % INPUTS
 %    x - number to be tested.  x can be a scalar or a vector array.
 % OUTPUT
@@ -16,7 +16,8 @@ function dp = getdecimalplaces(x)
 %     y = x.*10.^(1:20)
 %     find(y==round(y),1)
 %   However this does not work for integer and 2 decimal places when x<1.17 
-%   Remove integers using isallround and trap the cases with 2 d.p.
+%   Remove doubles that are integers using isallround and trap the cases with 2 d.p.
+%   Nans, infinites and integers are returned as dp = 0.
 % SEE ALSO
 %   called in getprecision
 %
@@ -31,7 +32,9 @@ function dp = getdecimalplaces(x)
 
     dp = zeros(size(x));
     for i=1:length(x)
-        if strcmp('double',getdatatype(x(i)))
+        if isnan(x(i)) || isinf(x(i)) || isinteger(x(i)) 
+            dp(i) = 0;
+        elseif strcmp(getdatatype(x(i)),'double')
             maxp = 20;                             %maximum number of decimal places
             if (mod(x(i), 1) == 0), continue; end  %exclude round numbers
             y = x(i).*10.^(1:maxp);
