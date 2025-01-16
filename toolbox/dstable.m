@@ -1403,11 +1403,14 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %if numeric otherwise return first and last value
             data = obj.DataTable.(varname);
             
-            %screen data for empty of single cell values
-            if isempty(data) || (iscell(data) && isempty([data{1,:}]))
+            %screen data for empty or single cell values
+            % if isempty(data) || (iscell(data) && isempty([data{1,:}]))%not sure why this used a comma seperated list - added in Nov'24
+            if isempty(data) || (iscell(data) && isempty(data{1,1}))    %modified 12/1/25
                 range = []; return; 
-            elseif iscell(data) && length(data)==1 %single cell
-                data = data{1};
+            % elseif iscell(data) && length(data)==1 %single cell       %could be an array in single cell
+            elseif iscell(data) && length(data)==1 && ... %single cell
+                    (ischar(data{1}) || length(data{1})==1)             %added additional condition 12/1/25
+                data = data{1};    %single value in cell   
             end
 
             if isnumeric(data)   %vector and array data
@@ -1424,6 +1427,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 range = {cats{1},cats{end}};
             elseif iscell(data)  %cell array of non-character data
                 range ={data{1},data{end}};
+            elseif isa(data,'triangulation')  
+                minval = (min(data.Points,[],'all','omitnan'));
+                maxval = (max(data.Points,[],'all','omitnan'));
+                range = {minval,maxval};
             else                 %string arrays, datetime, duration, etc
                 range = {data(1),data(end)};
             end
