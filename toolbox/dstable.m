@@ -87,8 +87,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                              
         %Additional metadata        
         LastModified          %date table created or modified
-        Source                %source of dst - model name or input file name
-        MetaData              %detailed description of dstable (eg how derived)
+        Source                %source of dst - model name or input file name - character vector, string or cellstr
+        MetaData              %detailed description of dstable (eg how derived) - character vector or string
     end
     
     properties (Transient)
@@ -117,11 +117,14 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 addDefaultProperties(obj); 
                 return;
             end
+
+            %find type of input and check correctly spelt
             nvars = length(varargin);
             idr = find(strcmp(varargin,'RowNames'), 1);
             idv = find(strcmp(varargin,'VariableNames'), 1);
             idp = find(strcmp(varargin,'DSproperties'), 1);
-            idd = find(strcmp(varargin,'DimensionsNames'), 1);
+            idd = find(strcmp(varargin,'DimensionNames'), 1);
+            isok = checkPropertyNames(obj,varargin{:});
             nrows = size(varargin{1},1);
             
             if ~isempty(idv) && ~isempty(idp)
@@ -129,6 +132,9 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 return;
             elseif ~isempty(idd) && ~isempty(idp)
                 warndlg('Use either DimensionNames or DSproperties but not both')
+                return;
+            elseif ~isok
+                warndlg('One or more of the ''Name'' inputs is not spelt correctly')
                 return;
             end
 
@@ -1332,24 +1338,50 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             if nargin<2
                 atitle = sprintf('Data for %s table',dst.Description); 
             end
-
+            
+            %check for scalar numbers,or character vector or string, or categorical value
             firstcell = obj.DataTable{1,1};
             if iscell(firstcell), firstcell = firstcell{1}; end
-            isscalarvalue = isscalar(firstcell) && isnumeric(firstcell) || ... %check for scalar numbers
-                            ischar(firstcell) || isstring(firstcell) || ...    %or character vector or string
-                            iscategorical(firstcell);                          %or categorical value
-            if ~isscalarvalue
+            isscalarvalue = isscalar(firstcell) && isnumeric(firstcell) || ... 
+                            ischar(firstcell) || isstring(firstcell) || ...    
+                            iscategorical(firstcell);                          
+
+            %check for single table cell with vector or matrix content
+            issingle = numel(obj.DataTable)==1 && ...
+                       (isvector(firstcell) || ismatrix(squeeze(firstcell)));
+
+            sourcetxt = getSourceText(obj);  %recover source information and
+            metatxt = obj.MetaData{1};          %meta data before potentially overwriting obj
+            desctxt = obj.Description;
+
+            if ~isscalarvalue  && ~issingle
                 %not tabular data
                 warndlg('Selected dataset is not tabular')
                 return; 
+            elseif issingle
+                firstcell = squeeze(firstcell);
+                dimvar = fieldnames(obj.Dimensions);
+                rowdims = string(obj.Dimensions.(dimvar{1}));
+                if isvector(firstcell)                     
+                    obj = dstable(firstcell','RowNames',rowdims,...
+                                             'VariableNames',dimvar);                                 
+                else
+                    varnames = obj.Dimensions.(dimvar{2});
+                    varnames = arrayfun(@num2str,varnames,'UniformOutput',false);
+                    varnames = matlab.lang.makeValidName(varnames,'Prefix',dimvar{2});
+                    firstcell = num2cell(firstcell,1);
+                    obj = dstable(firstcell{:},'RowNames',rowdims,...
+                                  'VariableNames',varnames);                                 
+                end
+                if isempty(obj.DataTable), return; end
             end 
-
-            desc = sprintf('Source:%s\nMeta-data: %s',obj.Source{1},obj.MetaData);
+            
+            desc = sprintf('Source:%s\nMeta-data: %s',sourcetxt,metatxt);                                                             
             ht = tablefigure(atitle,desc,obj);
             ht.Units = 'normalized';
             uicontrol('Parent',ht,'Style','text',...
                        'Units','normalized','Position',[0.1,0.95,0.8,0.05],...
-                       'String',['Case: ',obj.Description],'FontSize',10,...
+                       'String',['Case: ',desctxt],'FontSize',10,...
                        'HorizontalAlignment','center','Tag','titletxt');
             end
     end 
@@ -1825,7 +1857,38 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             rownames2 = table2.Properties.RowNames;
             chx.isrow = ismember(rownames1,rownames2);
         end
- %%
+%%
+        function sourcetxt = getSourceText(obj)
+            %unpack Source cell array of character vectors or strings
+            if iscell(obj.Source)
+                sourcetxt = obj.Source{1};
+                for i=2:length(obj.Source)
+                    sourcetxt = sprintf('%s\n%s',sourcetxt,obj.Source{i});
+                end
+            else
+                sourcetxt = obj.Source;
+            end
+        end
+%%
+        function isok = checkPropertyNames(~,varargin)
+            %check the names used in the assigment call
+            isok = false;
+            for i=1:length(varargin)
+                if ischar(varargin{i})
+                    if contains(varargin{i},'row','IgnoreCase',true)
+                        if ~ismatch(varargin{i},'RowNames'), return; end
+                    elseif contains(varargin{i},'var','IgnoreCase',true)
+                        if ~ismatch(varargin{i},'VariableNames'), return; end
+                    elseif contains(varargin{i},'ds','IgnoreCase',true)
+                        if ~ismatch(varargin{i},'DSproperties'), return; end
+                    elseif contains(varargin{i},'dim','IgnoreCase',true)
+                        if ~ismatch(varargin{i},'DimensionNames'), return; end
+                    end
+                end
+            end
+            isok = true;
+        end
+%%
         function labels = getLabels(obj,fieldname)
             %construct a label from description and unit fields
             f1 = sprintf('%sLabel',fieldname);
