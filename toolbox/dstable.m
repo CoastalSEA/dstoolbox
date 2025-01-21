@@ -1351,7 +1351,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                        (isvector(firstcell) || ismatrix(squeeze(firstcell)));
 
             sourcetxt = getSourceText(obj);  %recover source information and
-            metatxt = obj.MetaData{1};          %meta data before potentially overwriting obj
+            metatxt = obj.MetaData;          %meta data before potentially overwriting obj
             desctxt = obj.Description;
 
             if ~isscalarvalue  && ~issingle
