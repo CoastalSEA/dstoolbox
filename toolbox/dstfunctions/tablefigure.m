@@ -62,7 +62,11 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
     
     if isempty(headtext) 
         if ishandle(figtitle)
-            headtext = figtitle.Name;
+            if isgraphics(figtitle,'matlab.ui.container.Tab')
+                headtext = figtitle.Title;
+            else
+                headtext = figtitle.Name;
+            end
         else
             headtext = figtitle;
         end
