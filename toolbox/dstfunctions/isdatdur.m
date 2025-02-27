@@ -26,7 +26,7 @@ function [isdd,isdt] = isdatdur(varnames,varargin)
 % CoastalSEA (c)June 2021
 %--------------------------------------------------------------------------
 %
-    if length(varargin)==1 && length(varargin{1})>1
+    if isscalar(varargin) && length(varargin{1})>1
         %input is an arrary of dstables 
         varargin = num2cell(varargin{1});
     end

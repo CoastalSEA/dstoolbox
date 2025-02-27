@@ -983,8 +983,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %vertical concatenation of two or more dstables
             %number and name of variables should be the same but can be in
             %different order
-            %rows are sorted after concatenation into ascending order for
-            %the source data type of the RowNames data 
             %metadata of dstable is derived from obj1
             newdst = copy(obj1);  %new instance of dstable retaining existing properties
             for i=1:length(varargin)
@@ -1002,11 +1000,11 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 newdst.DataTable = vertcat(table1,table2);
             end
 
-            %sort rows to be in ascending order 
+            %update RowRange or assign numeric RowNames if empty 
             if ~isempty(newdst.RowNames)
-                newdst = sortrows(newdst);
                 newdst.RowRange = newdst.RowNames; 
-            elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1                
+            elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1 
+                %RowRange is updated upon assignment
                 newdst.RowNames = (1:height(newdst.DataTable))';
             end
             
@@ -1120,6 +1118,13 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                                                 'NewVariableNames',{'sxTEMPxs'});
                 newdst.DataTable = sortrows(newdst.DataTable,'sxTEMPxs');
                 newdst.DataTable = removevars(newdst.DataTable,'sxTEMPxs');
+            end
+            %update RowRange based on sorted data (only alters range for
+            %'types' data)
+            if ~isempty(newdst.RowNames)
+                newdst.RowRange = newdst.RowNames; 
+            elseif isempty(newdst.RowNames) && height(newdst.DataTable)>1                
+                newdst.RowRange = (1:height(newdst.DataTable))';
             end
         end
 %%
@@ -1347,7 +1352,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                             iscategorical(firstcell);                          
 
             %check for single table cell with vector or matrix content
-            issingle = numel(obj.DataTable)==1 && ...
+            issingle = isscalar(obj.DataTable) && ...
                        (isvector(firstcell) || ismatrix(squeeze(firstcell)));
 
             sourcetxt = getSourceText(obj);  %recover source information and
@@ -1380,8 +1385,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             ht = tablefigure(atitle,desc,obj);
             ht.Units = 'normalized';
             uicontrol('Parent',ht,'Style','text',...
-                       'Units','normalized','Position',[0.1,0.95,0.8,0.05],...
-                       'String',['Case: ',desctxt],'FontSize',10,...
+                       'Units','normalized','Position',[0.1,0.97,0.8,0.03],...
+                       'String',['Case: ',desctxt],'FontSize',9,...
                        'HorizontalAlignment','center','Tag','titletxt');
             end
     end 
@@ -1436,12 +1441,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             data = obj.DataTable.(varname);
             
             %screen data for empty or single cell values
-            % if isempty(data) || (iscell(data) && isempty([data{1,:}]))%not sure why this used a comma seperated list - added in Nov'24
             if isempty(data) || (iscell(data) && isempty(data{1,1}))    %modified 12/1/25
                 range = []; return; 
-            % elseif iscell(data) && length(data)==1 %single cell       %could be an array in single cell
-            elseif iscell(data) && length(data)==1 && ... %single cell
-                    (ischar(data{1}) || length(data{1})==1)             %added additional condition 12/1/25
+            elseif iscell(data) && isscalar(data) && ... %single cell
+                    (ischar(data{1}) || isscalar(data{1}))              %added additional condition 12/1/25
                 data = data{1};    %single value in cell   
             end
 

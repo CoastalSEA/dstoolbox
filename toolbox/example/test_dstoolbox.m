@@ -330,6 +330,8 @@ function t1 = test_dstable(testnum,option)
             t2 = dstable(data,'RowNames',rownames2,'VariableNames',{'Var1'}); %create table
             t3 = vertcat(t2,t1);                      %vertical concatenation of the two tables
             t3.DataTable                              %display
+            t3 = sortrows(t3);
+            t3.DataTable                              %display
             displayDSproperties(t3.DSproperties);
             clear t2 t3
             t2 = dstable(data,'RowNames',rownames1,'VariableNames',{'Var2'}); %create table with different variable name

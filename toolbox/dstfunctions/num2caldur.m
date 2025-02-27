@@ -30,7 +30,7 @@ function caldurvar = num2caldur(num,units)
             caldurvar = caldays(num);
         case {'w','week','weeks'}
             caldurvar = calweeks(num);
-        case {'m','mo','month','months'}
+        case {'mo','month','months'}
             caldurvar = calmonths(num);
         case {'q','quarter','quarters'}
             caldurvar = calquarters(num);

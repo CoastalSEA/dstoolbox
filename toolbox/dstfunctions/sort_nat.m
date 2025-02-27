@@ -87,7 +87,7 @@ comp(:,ndigcols) = num_dig(:,activecols);
 
 % Sort rows of composite matrix and use index to sort c in ascending or
 % descending order, depending on mode.
-[unused,index] = sortrows(comp);
+[~,index] = sortrows(comp);
 if is_descend
 	index = index(end:-1:1);
 end

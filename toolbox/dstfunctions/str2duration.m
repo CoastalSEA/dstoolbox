@@ -53,7 +53,7 @@ end
 function [num,format] = splitString(strvar)
     %handle splitting of character vector, cell array, or string vector
     C = regexp(strip(strvar),'\s+','split');
-    if ischar(strvar) || (isstring(strvar) && length(strvar)==1)
+    if ischar(strvar) || (isstring(strvar) && isscalar(strvar))
         %character vector or string scalar                           
         num = str2double(C{1});
     else   %cell array or string vector

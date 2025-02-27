@@ -27,6 +27,7 @@ function h_box = statictextbox(parent,nlines,boxpos,boxtext,boxunits)
         boxunits = 'pixels';
     end
     boxpos(3) = boxpos(3)*0.95; %reduce width to allow for scroll bar when wrapping
+    boxpos(4) = boxpos(4)*1.05; %improve appearance by increasing height
     boxtext = string(boxtext);
     h_box = uicontrol('Parent',parent,'Style','text','String',boxtext,...
                        'Units',boxunits,'Position',boxpos,...

@@ -147,7 +147,7 @@ classdef dscatalogue < handle
             
             if isempty(caselist)       %if more than one case prompt user
                 return;                %to make selection
-            elseif length(caselist)==1 %string array length is 1
+            elseif isscalar(caselist)  %string array length is 1
                 subrecnum = 1; ok = 1; %no selection needed
                 if v.CheckSingle
                     check = questdlg(sprintf('Case selected: %s',caselist{1}),'Case','Yes','No','No');

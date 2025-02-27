@@ -11,6 +11,9 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 %   or     tablefigure('Title','Descriptive text',rows,vars,data)
 % INPUT
 %   figtitle  - handle to figure/tab, or the figure title
+%               if figure title option this can be a cell array where the 
+%               figtitle{1} is used for the figure title and figtitle{2} is
+%               used for the hidden axes plot title
 %   headtext  - descriptive text that preceeds table (figtitle used as default)  
 %   atable    - a table with rows and column names, or a cell array input
 %               of row names. If rownames empty then numbered sequentially            
@@ -19,7 +22,9 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 %               match length of rownames and varnames)
 % OUTPUT
 %   varargout: user defined output 
-%       h_fig     - handle to figure (handle can be used to modify layout)
+%      1: h_fig - handle to figure (handle can be used to modify layout)
+%      2: h_pan - handel to panel
+%      3: ht    - handle to table
 % NOTES
 %   when passed a table then UserData can be used to pass additional information.
 %   Uses currently included:
@@ -84,8 +89,8 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 
     %add panel
     h_pan = uipanel('Parent',h_tab,'Units','pixels','Tag','TableFig_panel');           
-    borders = h_pan.OuterPosition(3:4)-h_pan.InnerPosition(3:4);           
-    
+    borders = h_pan.OuterPosition(3:4)-h_pan.InnerPosition(3:4);    
+
     %adjust panel dimensions to correct position on figure
     h_pan.Position(1) = rowheight/2;
     h_pan.Position(3) = h_tab.Position(3)-rowheight*0.9;
@@ -107,11 +112,11 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
     uitableout = table2cell(atable);
     
     ht = uitable('Parent',h_pan,...
-            'ColumnName',varnames,...
-            'ColumnWidth', colwidth,...
-            'RowName',rownames,...
-            'Data',uitableout,...
-            'Tag','uitablefigure');
+                 'ColumnName',varnames,...
+                 'ColumnWidth', colwidth,...
+                 'RowName',rownames,...
+                 'Data',uitableout,...
+                 'Tag','uitablefigure');
   
     tabprop = atable.Properties.UserData;
     if ~isempty(tabprop) && isfield(tabprop,'List')
@@ -166,16 +171,26 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
     
     %Create push button to copy data to clipboard
     setButton(h_tab,h_pan,rowheight,headfootsize,figtitle,atable)
-    if ~ishandle(figtitle) 
-        ht = findobj(h_fig.Children);
-        for i=1:length(ht)             %change units to normalized so that
-            ht(i).Units = 'normalized';%components are resized when the                                         
-        end                            %figure is resized.
-        h_fig.Visible = 'on';          %make figure visible
+    if ~ishandle(figtitle)
+        hch = findobj(h_fig.Children);
+        for i=1:length(hch)             %change units to normalized so that
+            hch(i).Units = 'normalized';%components are resized when the
+        end                             %figure is resized.
+        h_fig.Visible = 'on';       %make figure visible
+    else
+        %h_pan.Units = 'normalized';
+        ht.Units = 'normalized';
     end
 
-    if nargout>0
-        varargout{1} =  h_fig; %handle to tablefigure
+    if nargout==1
+        varargout{1} = h_fig; %handle to tablefigure
+    elseif nargout==2
+        varargout{1} = h_fig; %handle to tablefigure
+        varargout{2} = h_pan; %handle to tablepanel
+     elseif nargout==3 
+        varargout{1} = h_fig; %handle to table figure
+        varargout{2} = h_pan; %handle to table panel
+        varargout{3} = ht;    %handle to table
     end
 end
 %%
@@ -195,15 +210,31 @@ function [h_fig,h_tab] = setFigure(figtitle)
             h_tab.Units = 'pixels';
         end
     else
-        h_fig = figure('Name',figtitle,'Tag','TableFig',...
+        if iscell(figtitle) 
+            figt = figtitle{1};    
+        else
+            figt = figtitle;
+        end
+
+        h_fig = figure('Name',figt,'Tag','TableFig',...
                        'NextPlot','add','MenuBar','none',...
                        'Resize','on','HandleVisibility','on', ...
                        'NumberTitle','off',...
                        'Visible','off'); %NB should be off when not debugging   
-        h_fig.Units = 'pixels';             
+        h_fig.Units = 'pixels';       
+
+        if iscell(figtitle) && length(figtitle)>1  %plot title included in input            
+            title(figtitle{2},'FontSize',9);
+            axis off
+        end
         %move figure
-        h_fig.Position(1) = 200;  %middle left
-        h_fig.Position(2) = 200;
+        screen = get(0,'ScreenSize');
+        hpos = (screen(3)-h_fig.Position(3))/4;  %offcentre to left
+        if hpos<1, hpos = 1; end
+        vpos = (screen(4)-h_fig.Position(4))/1.5;  %middle
+        if vpos<1, hpos = 1; end
+        h_fig.Position(1) = hpos;
+        h_fig.Position(2) = vpos;
         h_tab = h_fig;
     end
 end
