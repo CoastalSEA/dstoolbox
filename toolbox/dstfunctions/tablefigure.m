@@ -104,10 +104,12 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
     if any(iscat)        
         atable = convertvars(atable,iscat,'cellstr');
     end   
+
     isstr = varfun(@isstring,atable,'OutputFormat','uniform');
     if any(isstr)        
         atable = convertvars(atable,isstr,'cellstr');
     end 
+
     %must be cell array not table when uitable used with figure
     uitableout = table2cell(atable);
     
@@ -117,6 +119,10 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
                  'RowName',rownames,...
                  'Data',uitableout,...
                  'Tag','uitablefigure');
+
+    %format numerical data
+    idnum = find(strcmp(atable.Properties.VariableTypes,'double')); 
+    ht.Data = formatNumeric(ht.Data,idnum);
   
     tabprop = atable.Properties.UserData;
     if ~isempty(tabprop) && isfield(tabprop,'List')
@@ -249,4 +255,24 @@ function setButton(h_tab,h_pan,rowheight,headfootsize,figtitle,tableout)
     position = [pos1 rowheight/2 100 headfootsize*0.6];%same units as figure
     setactionbutton(h_tab,'Copy to clipboard',position,...
                @copydata2clip,'uicopy','Copy table content to clipboard',tableout);
+end
+%%
+function uidata = formatNumeric(uidata,idnum)
+    %reformat numeric data in table
+    nrow = size(uidata,1);
+    for i=1:length(idnum)
+        for j=1:nrow
+            value = uidata{j,idnum(i)};
+            val = abs(value);
+            if val>999.9
+                uidata{j,idnum(i)} = sprintf('%.3e',value); 
+            elseif val>9.9
+                uidata{j,idnum(i)} = sprintf('%.1f',value);
+            elseif val>0.09
+                uidata{j,idnum(i)} = sprintf('%.3f',value); 
+            elseif val>1e-3
+                uidata{j,idnum(i)} = sprintf('%.3e',value);
+            end    
+        end
+    end
 end
