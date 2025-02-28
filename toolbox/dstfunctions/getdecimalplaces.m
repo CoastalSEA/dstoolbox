@@ -18,6 +18,7 @@ function dp = getdecimalplaces(x)
 %   However this does not work for integer and 2 decimal places when x<1.17 
 %   Remove doubles that are integers using isallround and trap the cases with 2 d.p.
 %   Nans, infinites and integers are returned as dp = 0.
+%   Added additional trap for values <1e-12 to be set to zero (28/2/25)
 % SEE ALSO
 %   called in getprecision
 %
@@ -32,7 +33,7 @@ function dp = getdecimalplaces(x)
 
     dp = zeros(size(x));
     for i=1:length(x)
-        if isnan(x(i)) || isinf(x(i)) || isinteger(x(i)) 
+        if isnan(x(i)) || isinf(x(i)) || isinteger(x(i)) || x(i)<1e-12
             dp(i) = 0;
         elseif strcmp(getdatatype(x(i)),'double')
             maxp = 20;                             %maximum number of decimal places
