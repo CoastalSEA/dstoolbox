@@ -1340,54 +1340,90 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %generate table figure of selected data set
             % atitle - (i) text to use for title (optional), or
             %          (ii) figure or tab handle to create table in
+            %               existing object
             if nargin<2
                 atitle = sprintf('Data for %s table',dst.Description); 
             end
             
-            %check for scalar numbers,or character vector or string, or categorical value
-            firstcell = obj.DataTable{1,1};
-            if iscell(firstcell), firstcell = firstcell{1}; end
-            isscalarvalue = isscalar(firstcell) && isnumeric(firstcell) || ... 
-                            ischar(firstcell) || isstring(firstcell) || ...    
-                            iscategorical(firstcell);                          
-
-            %check for single table cell with vector or matrix content
-            issingle = isscalar(obj.DataTable) && ...
-                       (isvector(firstcell) || ismatrix(squeeze(firstcell)));
+            %size of table and number of variables
+            [~,cdim,vsze] = getvariabledimensions(obj,1);
+            nvar = width(obj.DataTable);
+            idv = 1; idr = 1;
+            if cdim==2        %first variable is a matrix                
+                if nvar>1 && vsze(1)>1   %multi-row + multi-variable
+                    varnames = obj.VariableDescriptions;                     %select row and variable
+                    idv = getIndex(varnames);
+                    rownames  = obj.DataTable.Properties.RowNames;
+                    idr = getIndex(rownames);
+                elseif nvar>1            %select variable 
+                    varnames = obj.VariableDescriptions;
+                    idv = getIndex(varnames);
+                elseif vsze(1)>1         %select a row
+                    rownames  = obj.DataTable.Properties.RowNames;
+                    idr = getIndex(rownames);              
+                end
+                %NB this assumes that the defined dimensions are valid for 
+                %all variables in the table 
+                dimvar = fieldnames(obj.Dimensions);
+                rowdims = string(obj.Dimensions.(dimvar{1}));
+                varnames = obj.Dimensions.(dimvar{2});
+                varnames = arrayfun(@num2str,varnames,'UniformOutput',false);
+                varnames = matlab.lang.makeValidName(varnames,'Prefix',dimvar{2});
+                onecell = num2cell(squeeze(obj.DataTable{idr,idv}),1);
+                dst = dstable(onecell{:},'RowNames',rowdims,...
+                              'VariableNames',varnames);   
+            elseif cdim==1
+                %NB this assumes that the defined dimensions are valid for 
+                %all variables in the table 
+                dimvar = fieldnames(obj.Dimensions);
+                varnames = string(obj.Dimensions.(dimvar{1})); 
+                varnames = arrayfun(@num2str,varnames,'UniformOutput',false);
+                varnames = matlab.lang.makeValidName(varnames,'Prefix',dimvar{1});      
+                rowdims = obj.RowNames;
+                if nvar>1 && vsze(1)>1          %multi-row + multi-variable        
+                    vardesc = obj.VariableDescriptions;  %select variable                     
+                    idv = getIndex(vardesc); 
+                    idr = 1:vsze(1);
+                    onecell = num2cell(obj.DataTable{idr,idv},1);
+                elseif vsze(1)>1 
+                    idr = 1:vsze(1);
+                    onecell = num2cell(obj.DataTable{idr,idv},1);
+                else
+                    varnames = obj.VariableNames;  
+                    rowdims = string(obj.Dimensions.(dimvar{1}));
+                    onecell = cell(vsze(1),nvar);
+                    for i=1:nvar
+                        onecell{:,i} = obj.DataTable{1,i}';
+                    end
+                end    
+                dst = dstable(onecell{:},'RowNames',rowdims,...
+                                                 'VariableNames',varnames);   
+            elseif cdim==0
+                dst = obj;
+            else
+                warndlg('Selected dataset is not tabular')
+                return;
+            end
 
             sourcetxt = getSourceText(obj);  %recover source information and
             metatxt = obj.MetaData;          %meta data before potentially overwriting obj
             desctxt = obj.Description;
 
-            if ~isscalarvalue  && ~issingle
-                %not tabular data
-                warndlg('Selected dataset is not tabular')
-                return; 
-            elseif issingle
-                firstcell = squeeze(firstcell);
-                dimvar = fieldnames(obj.Dimensions);
-                rowdims = string(obj.Dimensions.(dimvar{1}));
-                if isvector(firstcell)                     
-                    obj = dstable(firstcell','RowNames',rowdims,...
-                                             'VariableNames',dimvar);                                 
-                else
-                    varnames = obj.Dimensions.(dimvar{2});
-                    varnames = arrayfun(@num2str,varnames,'UniformOutput',false);
-                    varnames = matlab.lang.makeValidName(varnames,'Prefix',dimvar{2});
-                    firstcell = num2cell(firstcell,1);
-                    obj = dstable(firstcell{:},'RowNames',rowdims,...
-                                  'VariableNames',varnames);                                 
-                end
-                if isempty(obj.DataTable), return; end
-            end 
-            
             desc = sprintf('Source:%s\nMeta-data: %s',sourcetxt,metatxt);                                                             
-            ht = tablefigure(atitle,desc,obj);
+            ht = tablefigure(atitle,desc,dst);
             ht.Units = 'normalized';
             uicontrol('Parent',ht,'Style','text',...
                        'Units','normalized','Position',[0.1,0.97,0.8,0.03],...
                        'String',['Case: ',desctxt],'FontSize',9,...
                        'HorizontalAlignment','center','Tag','titletxt');
+            
+            %nested functions----------------------------------------------
+            function idx = getIndex(list)
+                idx = listdlg('PromptString','Select a variable:',...
+                              'SelectionMode','single','ListSize',[160,200],...
+                              'Name','TableFigure','ListString',list);
+            end
+            %--------------------------------------------------------------
             end
     end 
 %% ------------------------------------------------------------------------
