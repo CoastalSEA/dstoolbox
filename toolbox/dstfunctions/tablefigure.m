@@ -121,7 +121,9 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
                  'Tag','uitablefigure');
 
     %format numerical data
-    idnum = find(strcmp(atable.Properties.VariableTypes,'double')); 
+    % Use varfun to apply the class function to each variable
+    variableTypes = varfun(@class, atable, 'OutputFormat', 'cell');
+    idnum = find(strcmp(variableTypes,'double')); 
     ht.Data = formatNumeric(ht.Data,idnum);
   
     tabprop = atable.Properties.UserData;
@@ -182,7 +184,7 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
         for i=1:length(hch)             %change units to normalized so that
             hch(i).Units = 'normalized';%components are resized when the
         end                             %figure is resized.
-        h_fig.Visible = 'on';       %make figure visible
+        h_fig.Visible = 'on';           %make figure visible
     else
         %h_pan.Units = 'normalized';
         ht.Units = 'normalized';
