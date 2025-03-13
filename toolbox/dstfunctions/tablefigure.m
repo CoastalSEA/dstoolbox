@@ -6,9 +6,9 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 % PURPOSE
 %   generate plot figure to show table with a button to copy to clipboard
 % USAGE
-%   h_fig = tablefigure(figtitle,headtext,tableout,varnames,values)  
-%   e.g.   tablefigure('Title','Descriptive text',atable)
-%   or     tablefigure('Title','Descriptive text',rows,vars,data)
+%   varargout = tablefigure(figtitle,headtext,atable,varnames,values);
+%   e.g.   [hf,hp,ht] = tablefigure('Title','Descriptive text',atable);
+%   or     tablefigure('Title','Descriptive text',rows,vars,data);
 % INPUT
 %   figtitle  - handle to figure/tab, or the figure title
 %               if figure title option this can be a cell array where the 
