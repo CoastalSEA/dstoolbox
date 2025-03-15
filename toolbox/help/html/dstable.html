@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>dstable</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-02-13"><meta name="DC.source" content="dstable.m"><style type="text/css">
+      --><title>dstable</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-03-15"><meta name="DC.source" content="dstable.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -146,9 +146,10 @@ dst = tsc2dst(tsc,idxtime,idxvars);   <span class="comment">%converts a tscollec
 </pre><p><b>getVarAttRange</b> finds the range of the selected variable attribute</p><pre class="language-matlab">range = getVarAttRange(dst,list,selected);
 </pre><div><ul><li>list - cell array of attribute descriptions to select from, or a numeric index value of the variable</li><li>selected - the character vector or string of the attibute to use</li><li>range - the start and end or min/max values of the selected attribute</li></ul></div><p><b>selectAttribute</b> propmpt user to select a dstable variable, or dimension</p><pre class="language-matlab">[name,idx] = selectAttribute(dst,option);
 </pre><div><ul><li>option - 1 or 'Variable'; 2 or 'Row'; 3 or 'Dimension'</li><li>name - selected attribute name</li><li>idx - index of selected attribute</li></ul></div><p><b>allfieldnames</b> returns a cell array of all field names in order Variable names, Row name, Dimension names</p><pre class="language-matlab">fields = allfieldnames(dst);
-</pre><p><b>table_figure</b> for scalar data tables creates a stand-alone figure of table, or inserts table in a tab.</p><pre class="language-matlab">table_figure(dst,atitle);  <span class="comment">%atitle is an optional title or a handle to a figure or tab</span>
+</pre><p><b>table_figure</b> for scalar data tables creates a stand-alone figure of table, or inserts table in a tab.</p><pre class="language-matlab">table_figure(dst,atitle,isformat);  <span class="comment">%atitle is a title or a handle to a figure or tab (optional)</span>
+                                    <span class="comment">%isformat is true if numeric values are to be formatted (optional)</span>
 </pre><p>As there is no check in table_figure for the size of the table held in <i>dst</i> and large tables can be slow to load typical usages includes a check on the array size, e.g:</p><pre class="language-matlab"><span class="keyword">if</span> numel(dst.DataTable{1,1})&lt;2e5
-    table_figure(dst,src);  <span class="comment">%generate table</span>
+    table_figure(dst,<span class="string">'atitle'</span>);  <span class="comment">%generate table</span>
 <span class="keyword">else</span>
     warndlg(<span class="string">'Dataset too large to display as a table'</span>)
 <span class="keyword">end</span>
@@ -706,17 +707,18 @@ newdataset = getData(dst,<span class="string">'Name'</span>,<span class="string"
 % *table_figure* for scalar data tables creates a stand-alone figure of
 % table, or inserts table in a tab.
 %
-%   table_figure(dst,atitle);  %atitle is an optional title or a handle to a figure or tab
+%   table_figure(dst,atitle,isformat);  %atitle is a title or a handle to a figure or tab (optional)
+%                                       %isformat is true if numeric values are to be formatted (optional)
 %%
 % As there is no check in table_figure for the size of the table held in
 % _dst_ and large tables can be slow to load typical usages includes a
 % check on the array size, e.g:
 %%
 %   if numel(dst.DataTable{1,1})<2e5
-%       table_figure(dst,src);  %generate table
+%       table_figure(dst,'atitle');  %generate table
 %   else
 %       warndlg('Dataset too large to display as a table')
-%   end  
+%   end
 
 %%
 % *getsampleusingtime* is simialr to the Matlab function for tscollections

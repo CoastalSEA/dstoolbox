@@ -1336,13 +1336,17 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                                                     obj.DimensionNames);
         end
 %%
-        function table_figure(obj,atitle)
+        function table_figure(obj,atitle,isformat)
             %generate table figure of selected data set
             % atitle - (i) text to use for title (optional), or
             %          (ii) figure or tab handle to create table in
             %               existing object
+            % isformat - format numeric data using rules in tablefigure
             if nargin<2
-                atitle = sprintf('Data for %s table',dst.Description); 
+                atitle = sprintf('Data for %s table',obj.Description);
+                isformat = false;
+            elseif nargin<3
+                isformat = false;
             end
             
             %size of table and number of variables
@@ -1362,6 +1366,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                     rownames  = obj.DataTable.Properties.RowNames;
                     idr = getIndex(rownames);              
                 end
+                if isempty(idr) || isempty(idv), return; end
                 %NB this assumes that the defined dimensions are valid for 
                 %all variables in the table 
                 dimvar = fieldnames(obj.Dimensions);
@@ -1383,6 +1388,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if nvar>1 && vsze(1)>1          %multi-row + multi-variable        
                     vardesc = obj.VariableDescriptions;  %select variable                     
                     idv = getIndex(vardesc); 
+                    if isempty(idv), return; end
                     idr = 1:vsze(1);
                     onecell = num2cell(obj.DataTable{idr,idv},1);
                 elseif vsze(1)>1 
@@ -1408,6 +1414,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             sourcetxt = getSourceText(obj);  %recover source information and
             metatxt = obj.MetaData;          %meta data before potentially overwriting obj
             desctxt = obj.Description;
+            if isformat, dst.UserData.isFormat = true; end
 
             desc = sprintf('Source:%s\nMeta-data: %s',sourcetxt,metatxt);                                                             
             ht = tablefigure(atitle,desc,dst);

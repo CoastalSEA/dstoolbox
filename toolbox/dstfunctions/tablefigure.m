@@ -120,11 +120,16 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
                  'Data',uitableout,...
                  'Tag','uitablefigure');
 
-    %format numerical data
-    % Use varfun to apply the class function to each variable
-    variableTypes = varfun(@class, atable, 'OutputFormat', 'cell');
-    idnum = find(strcmp(variableTypes,'double')); 
-    ht.Data = formatNumeric(ht.Data,idnum);
+    %format numerical data - to activate set
+    %atable.Properties.UserData.isFormat = true
+    if isfield(atable.Properties.UserData,'isFormat') && ...
+                                    atable.Properties.UserData.isFormat
+        %Use varfun to apply the class function to each variable. This only
+        %used when editing of table of mixed types is required
+        variableTypes = varfun(@class, atable, 'OutputFormat', 'cell');
+        idnum = find(strcmp(variableTypes,'double')); 
+        ht.Data = formatNumeric(ht.Data,idnum);
+    end
   
     tabprop = atable.Properties.UserData;
     if ~isempty(tabprop) && isfield(tabprop,'List')
@@ -260,21 +265,27 @@ function setButton(h_tab,h_pan,rowheight,headfootsize,figtitle,tableout)
 end
 %%
 function uidata = formatNumeric(uidata,idnum)
-    %reformat numeric data in table
-    nrow = size(uidata,1);
+    %reformat numeric data in table  (apply to whole column based on
+    %maximum value)
     for i=1:length(idnum)
-        for j=1:nrow
-            value = uidata{j,idnum(i)};
-            val = abs(value);
-            if val>999.9
-                uidata{j,idnum(i)} = sprintf('%.3e',value); 
-            elseif val>9.9
-                uidata{j,idnum(i)} = sprintf('%.1f',value);
-            elseif val>0.09
-                uidata{j,idnum(i)} = sprintf('%.3f',value); 
-            elseif val>1e-3
-                uidata{j,idnum(i)} = sprintf('%.3e',value);
-            end    
+        maxval = max(abs([uidata{:,idnum(i)}]));
+        if maxval>999.9
+            fundata = @(value) sprintf('%.3e',value); 
+        elseif maxval>9.9
+            fundata = @(value) sprintf('%.1f',value);
+        elseif maxval>0.09
+            fundata = @(value) sprintf('%.3f',value); 
+        elseif maxval>1e-3
+            fundata = @(value) sprintf('%.3e',value);
+        else
+            fundata = [];
+        end  
+
+        nrow = size(uidata,1);
+        if ~isempty(fundata)
+            for j=1:nrow
+                uidata{j,idnum(i)} = fundata(uidata{j,idnum(i)});
+            end
         end
     end
 end

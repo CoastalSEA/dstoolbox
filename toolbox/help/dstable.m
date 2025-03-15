@@ -531,17 +531,18 @@
 % *table_figure* for scalar data tables creates a stand-alone figure of
 % table, or inserts table in a tab.
 %
-%   table_figure(dst,atitle);  %atitle is an optional title or a handle to a figure or tab
+%   table_figure(dst,atitle,isformat);  %atitle is a title or a handle to a figure or tab (optional)
+%                                       %isformat is true if numeric values are to be formatted (optional)
 %%
 % As there is no check in table_figure for the size of the table held in
 % _dst_ and large tables can be slow to load typical usages includes a
 % check on the array size, e.g:
 %%
 %   if numel(dst.DataTable{1,1})<2e5
-%       table_figure(dst,src);  %generate table
+%       table_figure(dst,'atitle');  %generate table
 %   else
 %       warndlg('Dataset too large to display as a table')
-%   end  <https://www.mathworks.com MathWorks> 
+%   end
 
 %%
 % *getsampleusingtime* is simialr to the Matlab function for tscollections

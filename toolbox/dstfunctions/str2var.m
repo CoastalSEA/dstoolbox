@@ -23,13 +23,13 @@ function var = str2var(varstr,type,format,iswarn)
 % CoastalSEA (c)Jan 2021
 %--------------------------------------------------------------------------
 %
-    if nargin<2, iswarn = true; end
+    if nargin<4, iswarn = true; end
     
     if iscell(type)
         type = type{1};
     end
     
-    ntypes = {'logical','int8','int16','int32','int64','uint8','uint16',... 
+    ntypes = {'int8','int16','int32','int64','uint8','uint16',... 
               'uint32','uint64','single','double'};
     if any(strcmp(ntypes,type))
         num_type = char(type);
