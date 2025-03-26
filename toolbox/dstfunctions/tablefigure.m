@@ -23,7 +23,7 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 % OUTPUT
 %   varargout: user defined output 
 %      1: h_fig - handle to figure (handle can be used to modify layout)
-%      2: h_pan - handel to panel
+%      2: h_pan - handle to panel
 %      3: ht    - handle to table
 % NOTES
 %   when passed a table then UserData can be used to pass additional information.
