@@ -42,6 +42,7 @@ function [varstr,type,format] = var2str(var,iswarn)
     
     if isnumeric(var) || islogical(var)
         sp = max(getprecision(var));          %number of significant places
+        if var<0, sp = sp+1; end              %handle negataive numbers
         varstr = cellstr(num2str(var,sp));      
     elseif isdatetime(var) || isduration(var)
         varstr = cellstr(var);

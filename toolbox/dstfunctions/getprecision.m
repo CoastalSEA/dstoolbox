@@ -25,17 +25,18 @@ function p = getprecision(x)
 % CoastalSEA (c) Nov 2024
 %--------------------------------------------------------------------------
 % 
-   if ~isvector(x)
-       warndlg('getprecision only handles scalar and vector arrays')
-       p = []; return; 
-   end
+    if ~isvector(x)
+        warndlg('getprecision only handles scalar and vector arrays')
+        p = []; return;
+    end
+    if iscolumn(x), x = x'; end              %force row vector
 
     nrec = length(x);
     dp = getdecimalplaces(x);                %number of decimal places
     ip = zeros(1,nrec);
     for i=1:nrec                             %number of integer places
-        ip(i) = length(num2str(floor(abs(x(i)))));     
+        ip(i) = length(num2str(floor(abs(x(i)))));
     end
-  
+    
     p = dp+ip;                               %number of significant places
 end
