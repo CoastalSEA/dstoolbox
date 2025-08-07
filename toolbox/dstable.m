@@ -1352,19 +1352,22 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             %size of table and number of variables
             [~,cdim,vsze] = getvariabledimensions(obj,1);
             nvar = width(obj.DataTable);
-            idv = 1; idr = 1;
+            idv = 1; idr = 1; subtxt = '';
             if cdim==2        %first variable is a matrix                
                 if nvar>1 && vsze(1)>1   %multi-row + multi-variable
                     varnames = obj.VariableDescriptions;                     %select row and variable
                     idv = getIndex(varnames);
                     rownames  = obj.DataTable.Properties.RowNames;
                     idr = getIndex(rownames);
+                    subtxt = sprintf('%s and %s',varnames{idv},rownames{idr});
                 elseif nvar>1            %select variable 
                     varnames = obj.VariableDescriptions;
                     idv = getIndex(varnames);
+                    subtxt = varnames{idv};
                 elseif vsze(1)>1         %select a row
                     rownames  = obj.DataTable.Properties.RowNames;
-                    idr = getIndex(rownames);              
+                    idr = getIndex(rownames);  
+                    subtxt = rownames{idr};
                 end
                 if isempty(idr) || isempty(idv), return; end
                 %NB this assumes that the defined dimensions are valid for 
@@ -1388,9 +1391,16 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if nvar>1 && vsze(1)>1          %multi-row + multi-variable        
                     vardesc = obj.VariableDescriptions;  %select variable                     
                     idv = getIndex(vardesc); 
+                    subtxt = varnames{idv};
                     if isempty(idv), return; end
                     idr = 1:vsze(1);
-                    onecell = num2cell(obj.DataTable{idr,idv},1);
+                    idridvcell = obj.DataTable{idr,idv};
+                    if size(idridvcell,2)>1
+                        warndlg('Selected dataset is not in required tabular format')
+                        return;   %trap cells with multi-dimensional data (N>1)
+                    else
+                        onecell = num2cell(idridvcell,1);
+                    end
                 elseif vsze(1)>1 
                     idr = 1:vsze(1);
                     onecell = num2cell(obj.DataTable{idr,idv},1);
@@ -1419,9 +1429,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             desc = sprintf('Source:%s\nMeta-data: %s',sourcetxt,metatxt);                                                             
             ht = tablefigure(atitle,desc,dst);
             ht.Units = 'normalized';
+            titletxt = sprintf('Case: %s; Selection: %s',desctxt,subtxt);
             uicontrol('Parent',ht,'Style','text',...
-                       'Units','normalized','Position',[0.1,0.97,0.8,0.03],...
-                       'String',['Case: ',desctxt],'FontSize',9,...
+                       'Units','normalized','Position',[0.1,0.96,0.8,0.04],...
+                       'String',titletxt,'FontSize',9,...
                        'HorizontalAlignment','center','Tag','titletxt');
             
             %nested functions----------------------------------------------

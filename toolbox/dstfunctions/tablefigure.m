@@ -39,13 +39,14 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 % CoastalSEA (c)June 2020
 %--------------------------------------------------------------------------
 %
+    h_fig = []; h_pan = []; ht = [];
     msg = sprintf('Incorrect variable definition\nUse:(title,header,table) or (title,header,rownames,varnames,values)');
     if nargin==3          %table or dstable input
         if isa(atable,'dstable')
             atable = atable.DataTable;
         elseif ~isa(atable,'table')
             warndlg(msg); %return if 3 arguments and not a table or dstable
-            return
+            varout(nargout); return
         end
         rownames = atable.Properties.RowNames;
         varnames = atable.Properties.VariableNames;
@@ -58,7 +59,7 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
         end
     else        
         warndlg(msg);
-        return
+        varout(nargout); return
     end
  
     if isempty(rownames)
@@ -112,6 +113,12 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
 
     %must be cell array not table when uitable used with figure
     uitableout = table2cell(atable);
+    %trap dstables with multi-dimensional cells (eg images)
+    if ~ismatrix(uitableout{1})
+        warndlg('Incompatible data type')
+        varout(nargout); 
+        return;
+    end
     
     ht = uitable('Parent',h_pan,...
                  'ColumnName',varnames,...
@@ -194,16 +201,20 @@ function varargout = tablefigure(figtitle,headtext,atable,varnames,values)
         %h_pan.Units = 'normalized';
         ht.Units = 'normalized';
     end
+    varout(nargout)
 
-    if nargout==1
-        varargout{1} = h_fig; %handle to tablefigure
-    elseif nargout==2
-        varargout{1} = h_fig; %handle to tablefigure
-        varargout{2} = h_pan; %handle to tablepanel
-     elseif nargout==3 
-        varargout{1} = h_fig; %handle to table figure
-        varargout{2} = h_pan; %handle to table panel
-        varargout{3} = ht;    %handle to table
+    %-nested function------------------------------------------------------
+    function varout(nargout)
+        if nargout==1
+            varargout{1} = h_fig; %handle to tablefigure
+        elseif nargout==2
+            varargout{1} = h_fig; %handle to tablefigure
+            varargout{2} = h_pan; %handle to tablepanel
+         elseif nargout==3 
+            varargout{1} = h_fig; %handle to table figure
+            varargout{2} = h_pan; %handle to table panel
+            varargout{3} = ht;    %handle to table
+        end
     end
 end
 %%
