@@ -371,7 +371,7 @@
 % *addvars* syntax is the same as <matlab:doc('addvars') addvars>. 
 
 %%
-%   dst2 = addvars(dst1, varargin)  
+%   dst2 = addvars(dst1, Name, Value)  
 %%
 % _addvars_ does NOT update metadata properties for the new variable. To do this
 % interactively use setDSproperties(dst.DSproperties).
@@ -409,7 +409,7 @@
 % and passes thes to plot with any additional input variables 
 % accepted by <matlab:doc('plot') plot>. Returns the plot handle, h.
 %%
-%   h = plot(dst,'varName',varargin) 
+%   h = plot(dst,'varName', Name, Value) 
 
 %%
 % The following functions are specific to a _dstable_.
@@ -460,6 +460,16 @@
 % *orderdims* order dimensions that have been assigned
 %
 %   dst = orderdims(dst,dimnames);        %re-order the dimensions to match dimnames (cell array)
+%%
+% *varfun* apply a function to dstable variables. Name, Values are as used
+% for the equivalent _table_ <matlab:doc('varfun') varfun> function. 
+%
+%   newdst = varfun(varfunc,dst,Name,Value); %varfunc is an anonymous handle to the function to be applied
+%%
+% *rowfun* apply a function to dstable rows. Name, Values are as used
+% for the equivalent _table_ <matlab:doc('rowfun') rowfun> function. 
+% 
+%   newdst = varfun(rowfunc,dst,Name,Value); %rowfunc is an anonymous handle to the function to be applied
 %%  
 % *dst2tsc* and *tsc2dst* convert between dstable and tscollection objects 
 % (see <matlab:doc('dst2tsc') dst2tsc> and <matlab:doc('tsc2dst') tsc2dst> for further

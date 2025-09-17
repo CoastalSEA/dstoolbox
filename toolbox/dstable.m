@@ -1195,6 +1195,29 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 warndlg('Ordered dimension name do not match existing dimension names')
             end
         end
+%%
+        function newobj = varfun(vfunc,obj,varargin)
+            %apply a function to dstable variables
+            %eg to apply func tfunc = @(x) (x-d)/znorm; to each variable
+            %newobj = varfun(rfunc,obj);
+            atable = obj.DataTable;
+            newtable = varfun(vfunc,atable,varargin{:});
+            newtable.Properties.VariableNames = obj.VariableNames;
+            newobj = copy(obj);     %copy dstable to avoid overwriting existing obj
+            newobj.DataTable = newtable;
+        end
+%%
+        function newobj = rowfun(rfunc,obj,varargin)
+            %apply a function to dstable rows
+            %eg to sum all variables in each row:
+            %rfunc = @(varargin) sum([varargin{:}]);
+            %newobj = rowfun(rfunc,obj,'InputVariables',obj.VariableNames,'OutputVariableNames','RowSum');    
+            atable = obj.DataTable;
+            newtable = rowfun(rfunc,atable,varargin{:});
+            newobj = copy(obj);     %copy dstable to avoid overwriting existing obj
+            newobj.DataTable = newtable;
+        end
+
 %% ------------------------------------------------------------------------   
 % Manipulate Dimensions - make dimensions apply to table or variable
 %--------------------------------------------------------------------------
@@ -1681,7 +1704,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             nrow = vsze(1);               %number of rows
             ndim = vsze(2:end);           %length of each dimension
 
-            if isempty(inputvargs{1})     %asign row indices
+            if isempty(inputvargs{1})     %assign row indices
                 idr = 1:nrow;
             else
                 idr = inputvargs{1};
@@ -1691,14 +1714,14 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 end
             end
 
-            if isempty(inputvargs{2})     %aasign variable indices
+            if isempty(inputvargs{2})     %assign variable indices
                 idv = 1:nvar;
             else
                 idv = inputvargs{2};   
             end
 
             idd = inputvargs{3};
-            if isempty(idd)               %aasign dimension indices
+            if isempty(idd)               %assign dimension indices
                 for j=1:length(ndim)
                     idd{j} = 1:ndim(j);
                 end
