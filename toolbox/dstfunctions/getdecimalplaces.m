@@ -36,7 +36,7 @@ function dp = getdecimalplaces(x)
         if isnan(x(i)) || isinf(x(i)) || isinteger(x(i)) || x(i)<1e-12
             dp(i) = 0;
         elseif strcmp(getdatatype(x(i)),'double')
-            maxp = 20;                             %maximum number of decimal places
+            maxp = 30;                             %maximum number of decimal places
             if (mod(x(i), 1) == 0), continue; end  %exclude round numbers
             y = x(i).*10.^(1:maxp);
             isround = y==round(y);
