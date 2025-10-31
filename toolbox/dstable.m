@@ -679,11 +679,12 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             dstime = isbetween(obj.RowNames,startime,endtime);
             newdst = getDSTable(obj,dstime,':');
             
-            %tested following but also slow finding indeices            
+            %tested following but also slow finding indices            
             % idr = find(ismember(obj.RowNames,startime,'rows')); 
             % ide = find(ismember(obj.RowNames,endtime,'rows')); 
             % newdst = getDSTable(obj,idr:ide,':');
         end
+
 %%
         function obj = activatedynamicprops(obj,varargin)
             updateVarNames(obj,varargin{:});

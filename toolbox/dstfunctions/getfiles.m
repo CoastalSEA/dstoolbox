@@ -7,7 +7,6 @@ function [fname,path,nfiles] = getfiles(varargin)
 %  prompt user to select file, or multiple files if mflag='on'
 % USAGE
 %   [fname,path,nfiles] = getfiles(Name,Value)
-
 % INPUT
 %  Name, Value options are specified as comma-separated pairs including:
 %  'MultiSelect', mflag, where mflag can be 'on' or 'off' and determines
@@ -32,9 +31,8 @@ function [fname,path,nfiles] = getfiles(varargin)
 % Author: Ian Townend
 % CoastalSEA (c) Nov 2020
 %--------------------------------------------------------------------------
-%
-    % ask for filename(s)-multiple selection allowed if mflag='on'
-    mflag = 'off';
+%    
+    mflag = 'off'; % ask for filename(s)-multiple selection allowed if mflag='on'
     filetype = '*.*';
     userprompt = 'Select data file(s)>';
     if nargin>1

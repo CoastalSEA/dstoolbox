@@ -168,11 +168,11 @@ T.Properties.CustomProperties.(propertyName)
 <h2 id="12">Input arguments</h2>
 <p>These are the same as for <a href="matlab:doc('table')">table</a> with the exception of <i>rowNames</i> and the addition of dimNames and dsProps.</p>
 <p>
-<b>rowNames</b> <a href="br">br</a> Names of the rows in the output table, specified as a cell array of character vectors, a string array, a datetime array, a duration array, or a numeric vector. The number of names in rowNames must equal the number of rows for the variables being added. rowNames must define each row using distinct, non-empty values.</p>
+<b>rowNames</b> <br> Names of the rows in the output table, specified as a cell array of character vectors, a string array, a datetime array, a duration array, or a numeric vector. The number of names in rowNames must equal the number of rows for the variables being added. rowNames must define each row using distinct, non-empty values.</p>
 <p>
-<b>dimNames</b> <a href="br">br</a> Names of the dimensions to be included with the table, specified as a cell array of character vectors or a string array, whose elements are nonempty and distinct. Dimension names must be valid MATLAB identifiers.</p>
+<b>dimNames</b> <br> Names of the dimensions to be included with the table, specified as a cell array of character vectors or a string array, whose elements are nonempty and distinct. Dimension names must be valid MATLAB identifiers.</p>
 <p>
-<b>dsProps</b> <a href="br">br</a> a struct for a <a href="matlab:doc('dsproperties')">dsproperties</a> object defining the metadata for the Variables, Row and Dimensions of the <i>table</i>.</p>
+<b>dsProps</b> <br> a struct for a <a href="matlab:doc('dsproperties')">dsproperties</a> object defining the metadata for the Variables, Row and Dimensions of the <i>table</i>.</p>
 <h2 id="14">Assign and access Variables and Dimensions</h2>
 <p>Variables and dimensions can be assigned and accessed using dot syntax, as follows:</p>
 <pre class="language-matlab">dst.variableName = vardata;        <span class="comment">%assign vardata to the variable</span>
@@ -217,10 +217,10 @@ dst.dimensionProperty{index} = value <span class="comment">%dimensionProperty is
 <p>The assigned <i>value</i> should be the same as any existing assignments or be specified in accordance with the Metadata Property specification.</p>
 <h2 id="27">dstable Properties</h2>
 <p>
-<b>DataTable</b> <a href="br">br</a> This property holds the <i>table</i> object.</p>
+<b>DataTable</b> <br> This property holds the <i>table</i> object.</p>
 <p>
-<b>Dimensions</b> <a href="br">br</a> Addional dimensions are equivalent to additional Rows. They allow multi-dimensional variables (e.g an [x, y, z, t] dataset) to be indexed using any of the dimensions (see section on <b>Indexing Methods</b>).</p>
-<p>The <i>Dimensions</i> are applicable to all variables in the table (i.e. they are not variable specific). <a href="br">br</a> Each dimension is held and returned as a column vector. <a href="br">br</a>
+<b>Dimensions</b> <br> Addional dimensions are equivalent to additional Rows. They allow multi-dimensional variables (e.g an [x, y, z, t] dataset) to be indexed using any of the dimensions (see section on <b>Indexing Methods</b>).</p>
+<p>The <i>Dimensions</i> are applicable to all variables in the table (i.e. they are not variable specific). <br> Each dimension is held and returned as a column vector. <br>
 </p>
 <p>Dimensions must also apply to all row values of a variable. For example if Rows are assigned as the time dimension, with two further dimensions for X and Y, the variable will be a (<i>k</i> x <i>m</i> x <i>n</i>) array, where <i>k</i>, <i>m</i>, and <i>n</i> are the T, X, Y dimensions. If the X and Y dimensions vary with time (e.g. sampling intervals in X or Y change with time) then the X and Y dimensions should be added as time dependent variables.</p>
 <p>
@@ -236,14 +236,14 @@ the variable should have dimensions <i>1 x n</i> when assigned.
 </td></tr></table>
 </p>
 <p>
-<b>LastModified</b> <a href="br">br</a> Date when variables or dimensions of the <i>dstable</i> were created or last modified</p>
+<b>LastModified</b> <br> Date when variables or dimensions of the <i>dstable</i> were created or last modified</p>
 <p>
-<b>Source</b> <a href="br">br</a> Description of data source, model used, etc</p>
+<b>Source</b> <br> Description of data source, model used, etc</p>
 <p>
-<b>MetaData</b> <a href="br">br</a> Additional user data, such as more detailed description of table, version of model used to generate input, etc.</p>
+<b>MetaData</b> <br> Additional user data, such as more detailed description of table, version of model used to generate input, etc.</p>
 <h2 id="34">dstable Metadata Properties</h2>
 <p>
-<b>Access Table Metadata Properties</b> <a href="br">br</a> A dstable contains metadata properties that describe the table, its variables and the 'dimensions' in the Row and Dimensions properties.</p>
+<b>Access Table Metadata Properties</b> <br> A dstable contains metadata properties that describe the table, its variables and the 'dimensions' in the Row and Dimensions properties.</p>
 <p>Access these properties using the syntax <i>dstableName</i>. <i>PropertyName</i> , where <i>PropertyName</i> is the name of a property. For example, you can access the names of the variables in dstable, dst, using the syntax dst.VariableNames, or using the table syntax T.Properties.VariableNames (where T = dst.DataTable).</p>
 <p>You can return a summary of all the metadata properties using the syntax <i>dstableName</i> or <i>tableName</i>.Properties.</p>
 <p>dstable provides direct access to metadata because the table is assigned to the DataTable property (necessary because it cannot be a Superclass). In contrast tables access metadata through the Properties property, allowing the table data to be accessed directly using dot syntax. For example, if table T has a variable named Var1, then you can access the variable as an array using the syntax T.Var1. For a dstable the equivalent syntax would be dst.Var1, or dst.DataTable.Var1.</p>
@@ -252,43 +252,43 @@ the variable should have dimensions <i>1 x n</i> when assigned.
 <h2 id="39">Variable Metadata Properties</h2>
 <p>These are the same as for <a href="matlab:doc('table')">table</a> with the addition of VariableLabels and VariableQCflags.</p>
 <p>
-<b>VariableNames</b> <a href="br">br</a> Variable Names, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p>
+<b>VariableNames</b> <br> Variable Names, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p>
 <p>
-<b>VariableDescriptions</b> <a href="br">br</a> Variable descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p>
+<b>VariableDescriptions</b> <br> Variable descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p>
 <p>
-<b>VariableUnits</b> <a href="br">br</a> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p>
+<b>VariableUnits</b> <br> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p>
 <p>
-<b>VariableLabels</b> <a href="br">br</a> Variable labels, specified as a cell array of character vectors, or a string array. This property can be an empty cell array, which is the default. If the array is not empty, then it must contain as many elements as there are variables. You can specify an individual empty character vector, or empty string, for a variable that does not have a label. These are typicaly used to provide a more generic short desctiption that might be used to label several variables of the same type (e.g. 'Velocity').</p>
+<b>VariableLabels</b> <br> Variable labels, specified as a cell array of character vectors, or a string array. This property can be an empty cell array, which is the default. If the array is not empty, then it must contain as many elements as there are variables. You can specify an individual empty character vector, or empty string, for a variable that does not have a label. These are typicaly used to provide a more generic short desctiption that might be used to label several variables of the same type (e.g. 'Velocity').</p>
 <p>
-<b>VariableQCflags</b> <a href="br">br</a> Variable quality control flags, specified as a cell array of character vectors, or a string array. This property can be an empty cell array, which is the default. If the array is not empty, then it must contain as many elements as there are variables. You can specify an individual empty character vector, or empty string, for a variable that does not have a label.</p>
+<b>VariableQCflags</b> <br> Variable quality control flags, specified as a cell array of character vectors, or a string array. This property can be an empty cell array, which is the default. If the array is not empty, then it must contain as many elements as there are variables. You can specify an individual empty character vector, or empty string, for a variable that does not have a label.</p>
 <p>
-<b>VariabelRange</b> (read only) <a href="br">br</a> Set internally when variables are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array. If there are mutliple variables, the property returns a struct with the fields of the VariableNames.</p>
+<b>VariabelRange</b> (read only) <br> Set internally when variables are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array. If there are mutliple variables, the property returns a struct with the fields of the VariableNames.</p>
 <h2 id="41">Row Metadata Properties</h2>
 <p>
 <b>TableRowName</b> The name assigned to the variable dimension in the rows column can be specified as a character vector or string. This property maps to the first value of the DimensionNames cell array of the DataTable property. When loading metadata properties using a <a href="matlab:doc('dsproperties')">dsproperties</a> object, the Row.Name field is assigned to TableRowName. Hence, dst.TableRowNames is equivalent to dst.DataTable.Properties.DimensionNames{1}.</p>
 <p>
-<b>RowDescription</b> <a href="br">br</a> Row description, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p>
+<b>RowDescription</b> <br> Row description, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default.</p>
 <p>
-<b>RowUnit</b> <a href="br">br</a> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p>
+<b>RowUnit</b> <br> Row units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p>
 <p>
-<b>RowLabel</b> <a href="br">br</a> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p>
+<b>RowLabel</b> <br> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default.</p>
 <p>
-<b>RowFormat</b> <a href="br">br</a> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default.</p>
+<b>RowFormat</b> <br> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default.</p>
 <p>
-<b>RowRange</b> (read only) <a href="br">br</a> Set internally when RowNames are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array.</p>
+<b>RowRange</b> (read only) <br> Set internally when RowNames are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Value returned as a 2 element cell array.</p>
 <h2 id="42">Dimension Metadata Properties</h2>
 <p>
-<b>DimensionNames</b> <a href="br">br</a> Dimension names, specified as a cell array of character vectors or a string array, whose elements are nonempty and distinct. Variable names must be valid MATLAB identifiers. You can determine valid variable names using the function <a href="matlab:doc('isvarname')">isvarname</a> . MATLAB removes any leading or trailingwhitespace from the variable names. The number of names must equal the number of dimensions defined. However Dimensions can be added using dot indexing with a DimensionField name, as explained below.</p>
+<b>DimensionNames</b> <br> Dimension names, specified as a cell array of character vectors or a string array, whose elements are nonempty and distinct. Variable names must be valid MATLAB identifiers. You can determine valid variable names using the function <a href="matlab:doc('isvarname')">isvarname</a> . MATLAB removes any leading or trailingwhitespace from the variable names. The number of names must equal the number of dimensions defined. However Dimensions can be added using dot indexing with a DimensionField name, as explained below.</p>
 <p>
-<b>DimensionDescriptions</b> <a href="br">br</a> Dimension descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
+<b>DimensionDescriptions</b> <br> Dimension descriptions, specified as a cell array of character vectors or a string array This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
 <p>
-<b>DimensionUnits</b> <a href="br">br</a> Dimension units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
+<b>DimensionUnits</b> <br> Dimension units, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
 <p>
-<b>DimensionLabels</b> <a href="br">br</a> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
+<b>DimensionLabels</b> <br> Row labels, specified as a cell array of character vectors or a string array. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
 <p>
-<b>DimensionFormats</b> <a href="br">br</a> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
+<b>DimensionFormats</b> <br> Row format is specified as a <a href="matlab:doc('datetime')">datetime</a> or <a href="matlab:doc('duration')">duration</a> format string. This property can be an empty cell array, which is the default. The number of descriptions must equal the number of dimensions defined. You can specify an individual empty character vector or empty string for a variable that does not have a description.</p>
 <p>
-<b>DimensionRange</b> (read only) <a href="br">br</a> Set internally when Dimensions are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Values returned as a 2 element cell array. If there are mutliple dimensions, the property returns a struct with the fields of the DimensionNames.</p>
+<b>DimensionRange</b> (read only) <br> Set internally when Dimensions are loaded or updated. Defines the minimum and maximum values of an array, or the first and last values if non-numeric. Values returned as a 2 element cell array. If there are mutliple dimensions, the property returns a struct with the fields of the DimensionNames.</p>
 <h2 id="43">Custom Properties</h2>
 <p>These can be added to the <i>table</i> held in the dst.DataTable property as detailed in <a href="matlab:doc('table')">table</a>.</p>
 <p>In a dstable a number of properties are added to the CustomPoperties object by default. These are detailed in the sections below.</p>
@@ -462,14 +462,14 @@ dst = tsc2dst(tsc,idxtime,idxvars);   <span class="comment">%converts a tscollec
 <h2 id="101">dstable Indexing Methods</h2>
 <p>Data held in a dstable can be accessed by rows, variables and/or dimensions.</p>
 <p>
-<b>Using the <i>table</i>, T = dst.DataTable</b> <a href="br">br</a> The syntax to extract rows and variables from the table is the same as summarised in <a href="matlab:doc('access-data-in-a-table')">Access Data in a Table</a>.</p>
+<b>Using the <i>table</i>, T = dst.DataTable</b> <br> The syntax to extract rows and variables from the table is the same as summarised in <a href="matlab:doc('access-data-in-a-table')">Access Data in a Table</a>.</p>
 <p>To access a subset of values using the dimension indices the syntax can be any of the following:</p>
 <pre class="language-matlab">T = dst.DataTable      <span class="comment">%extract table to use any of the following:</span>
 extracted_data = T{rows,vars}(:,idd1,idd2,..iddN);
 extracted_data = T.varname(rows,idd1,idd2,..iddN);
 extracted_data = T.(vars)(rows,idd1,idd2,..iddN);
 </pre>
-<p>where rows, vars, idd1,...iddN are indices for the Rows, Variables and Dimensions, respecitvely. <a href="br">br</a>
+<p>where rows, vars, idd1,...iddN are indices for the Rows, Variables and Dimensions, respecitvely. <br>
 </p>
 <div>
 <ul>
@@ -487,7 +487,7 @@ T.(varname) = [];      <span class="comment">%varname to be deleted</span>
 T(rows,:) = [];        <span class="comment">%rows to be deleted for all variables</span>
 </pre>
 <p>
-<b>Using indices with a <i>dstable</i></b> <a href="br">br</a> Using a <i>dstable</i> the data can be retrieved based on Rows, Variables and Dimensions, using one of three functions depending on the type of output required.</p>
+<b>Using indices with a <i>dstable</i></b> <br> Using a <i>dstable</i> the data can be retrieved based on Rows, Variables and Dimensions, using one of three functions depending on the type of output required.</p>
 <pre class="language-matlab">newdst = getDSTable(dst,__);      <span class="comment">%returns a dstable with the selected data and updated metadata</span>
 newtable = getDataTable(dst,__);  <span class="comment">%returns a table with the selected data</span>
 newdataset = getData(dst,__);     <span class="comment">%returns a cell array of the selected data</span>
@@ -500,7 +500,7 @@ newdst = getDSTable(dst,idr,idv,idd);               <span class="comment">%where
 </pre>
 <p>The same syntax can be used with getDataTable and getTable</p>
 <p>
-<b>Using dimension values with a <i>dstable</i></b> <a href="br">br</a> Using a <i>dstable</i> there is also the option to use the dimension values (including rows) to access data in the table. The syntax is as follows:</p>
+<b>Using dimension values with a <i>dstable</i></b> <br> Using a <i>dstable</i> there is also the option to use the dimension values (including rows) to access data in the table. The syntax is as follows:</p>
 <pre class="language-matlab">newdst = getDSTable(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>);
 newtable = getDataTable(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>);
 newdataset = getData(dst,<span class="string">'Name'</span>,<span class="string">'Value'</span>);
