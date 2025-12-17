@@ -1,4 +1,4 @@
-function [data,header] = readinputfile(filename,nhead,dataSpec)
+function [data,header] = readinputfile(filename,nhead,dataSpec,dateLocale)
 %
 %-------function help------------------------------------------------------
 % NAME
@@ -6,17 +6,21 @@ function [data,header] = readinputfile(filename,nhead,dataSpec)
 % PURPOSE
 %   read data from a file
 % USAGE
-%   [data,header] = readinputfile(filename,nhead,dataSpec)
+%   [data,header] = readinputfile(filename,nhead)
+%   [data,header] = readinputfile(filename,nhead,dataSpec,userLocale)
+%   [data,header] = readinputfile(filename,nhead,[],dateLocale)
 % INPUT
 %   filename - name of file to be read
 %   nhead - number of header lines
 %   dataSpec - defines read format (not required if defined in file header)
+%   dateLocale - enforce a specific date Locale to match input date type 
+%                e.g. 'en_UK', 'zh_CN', etc. default is 'en_UK'
 % OUTPUT
 %   data - data set read using dataSpec
 %   header - first nhead lines of file
 %
 % Author: Ian Townend
-% CoastalSEA (c)Nov 2020
+% CoastalSEA (c) Nov 2020
 %--------------------------------------------------------------------------
 %
     header = ''; data = [];
@@ -28,6 +32,9 @@ function [data,header] = readinputfile(filename,nhead,dataSpec)
     %
     if nargin<3
         dataSpec = [];
+        dateLocale = 'en_UK';
+    elseif nargin<4
+        dateLocale = 'en_UK';
     end
 
     %open file
@@ -48,7 +55,7 @@ function [data,header] = readinputfile(filename,nhead,dataSpec)
         dataSpec = header{1}; %format spec MUST be on first line
     end
     %read numeric data            
-    data = textscan(fid,dataSpec);
+    data = textscan(fid, dataSpec, 'DateLocale', dateLocale);  % Enforcing the locale to en_UK can successfully read CCO Water Level file in China (where default Datelocale is 'zh_CN').
     if isempty(data)
         warndlg('No data. Check file format selected')
     end
