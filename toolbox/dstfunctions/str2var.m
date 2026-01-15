@@ -39,7 +39,11 @@ function var = str2var(varstr,type,format,iswarn)
     switch type
         case 'datetime'
             if ~isempty(format)
-                var = datetime(varstr,'InputFormat',format);
+                try
+                    var = datetime(varstr,'InputFormat',format);                    
+                catch
+                    var = datetime(varstr,'InputFormat',format,'Locale','en_GB'); 
+                end
                 var.Format = format;
             else
                 try

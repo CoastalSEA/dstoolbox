@@ -265,7 +265,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             if isempty(obj.DataTable)
                 warndlg('Add variables to table before adding RowNames');
                 return;
-            elseif ~isunique(inrows)
+            elseif ~isunique(inrows,1,0) %isvals-true; ignoreInvalid-false
                 warndlg('Values used for RowNames must be unique');
                 return;
             end
@@ -460,7 +460,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 for i=1:dimnum
                     %vals is a struct with data in the defined input format. 
                     oneval = vals.(fname{i});
-                    if ~isunique(oneval)                        
+                    if ~isunique(oneval,1,0)                        
                         msg1 = 'Values for Dimension';
                         msg2 = 'were not set';
                         msg3 = 'Dimension values must be unique';
