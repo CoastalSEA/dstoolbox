@@ -53,11 +53,62 @@ function [data,header] = readinputfile(filename,nhead,dataSpec,dateLocale)
 
     if isempty(dataSpec)
         dataSpec = header{1}; %format spec MUST be on first line
+        if contains(dataSpec,'repmat')
+        % Extract repmat expression 
+        expr = regexp(dataSpec, "repmat\('[^']+',1,\d+\)", "match", "once"); 
+        spec = expandFormatExpression(expr); 
+        % Build final format string 
+        prefix = extractBefore(dataSpec, expr); 
+        dataSpec = [char(strtrim(prefix)),spec];
+        end
     end
-    %read numeric data            
-    data = textscan(fid, dataSpec, 'DateLocale', dateLocale);  % Enforcing the locale to en_UK can successfully read CCO Water Level file in China (where default Datelocale is 'zh_CN').
+    %read numeric data  
+
+    data = textscan(fid, dataSpec,'DateLocale', dateLocale);  % Enforcing the locale to en_UK can successfully read CCO Water Level file in China (where default Datelocale is 'zh_CN').
     if isempty(data)
         warndlg('No data. Check file format selected')
     end
     fclose(fid);
 end  
+
+%%
+function out = expandFormatExpression(expr)
+%EXPANDFORMATEXPRESSION Expand repmat('<pattern>',1,N) inside a string.
+%
+%   out = expandFormatExpression(expr)
+%
+%   Example:
+%       expr = "repmat('\t%f',1,53)";
+%       out  = expandFormatExpression(expr);
+%
+%   Produces:
+%       '\t%f\t%f\t%f ... (53 times)'
+
+    arguments
+        expr (1,1) string
+    end
+
+    % Regular expression to match repmat('<pattern>',1,N)
+    % Captures:
+    %   tokens{1} = pattern (e.g. '\t%f')
+    %   tokens{2} = repeat count N
+    tokens = regexp(expr, ...
+        "repmat\('([^']+)',\s*1,\s*(\d+)\)", ...
+        "tokens", "once");
+
+    if isempty(tokens)
+        error('expandFormatExpression:NoMatch', ...
+            'Expression does not contain a valid repmat(...) pattern.');
+    end
+
+    pattern = tokens{1};
+    count   = str2double(tokens{2});
+
+    if isnan(count) || count < 1
+        error('expandFormatExpression:BadCount', ...
+            'Repeat count must be a positive integer.');
+    end
+
+    % Expand
+    out = repmat(pattern, 1, count);
+end
