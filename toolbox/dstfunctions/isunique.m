@@ -43,7 +43,9 @@ function [answer,idx] = isunique(usevals,isvals,ignoreInvalid)
         invalidMask = isnat(usevals);    
     elseif iscell(usevals)
         % Empty cells count as invalid
-        invalidMask = cellfun(@isempty, usevals);    
+        invalidMask = cellfun(@isempty, usevals); 
+    elseif iscategorical(usevals)
+        invalidMask = [];
     else
         error('Unsupported data type for uniqueness check.');
     end

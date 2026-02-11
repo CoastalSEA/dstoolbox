@@ -1129,9 +1129,11 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end
         end
 %%
-        function dst = mergerows(dst1,dst2) 
+        function [dst,isall] = mergerows(dst1,dst2,isall) 
             %insert new timeseries, dst2, in correct position in dst1
             %table RowNames
+            if nargin<3, isall = false; end
+
             if ~strcmp(dst1.RowType,'datetime') || ~strcmp(dst2.RowType,'datetime')
                 warndlg('One or more of the dstables does not use datetime Rows')
                 dst = []; return;
@@ -1155,10 +1157,19 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst                    
                 dst = dst2;
             else  %new data overlaps one end, or sits within existing data range
-                txt3 = 'The new data is, at least in part, within the time range of the existing data';
-                msg = sprintf('%s\n%s\n%s\nDo you want to continue?',txt3,txt1,txt2);
-                answer = questdlg(msg,'Data input','Yes','No','No');
-                if strcmp(answer,'No'), dst = dst1; return; end  %returns old dst
+                if ~isall
+                    txt3 = 'The new data is, at least in part, within the time range of the existing data';
+                    msg = sprintf('%s\n%s\n%s\nDo you want to continue?',txt3,txt1,txt2);
+                    answer = questdlg(msg,'Data input','Yes','No','Yes to All','No');
+                else
+                    answer = 'Yes to All';
+                end
+                %
+                if strcmp(answer,'No')
+                    dst = dst1; return;                   %returns old dst
+                elseif strcmp(answer,'Yes to All')
+                    isall = true;
+                end  
                 %add new data over interval addrange. Offset ensures no
                 %duplicates. Existing data within interval is overwritten
                 oldrows = dst1.RowNames;
