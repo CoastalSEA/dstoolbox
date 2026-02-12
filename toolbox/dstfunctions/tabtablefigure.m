@@ -38,13 +38,24 @@ function varargout = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
     panpos = zeros(ntables,4); tablepos = panpos;
     for i=1:ntables
         padtabname = sprintf('  %s  ',tabnames{i});
-        ht = uitab(h_tab,'Title',padtabname,'Tag',tabnames{i});
+        ht = uitab(h_tab,'Title',padtabname,'Tag',tabnames{i}); %tab handle
         h_tab.SelectedTab = ht;                                 
-        tablefigure(h_fig,tabtxts{i},tables{i}); 
-        panpobj = findobj(ht,'Tag','TableFig_panel');
+        tablefigure(h_fig,tabtxts{i},tables{i});                %add tablefigure
+        panpobj = findobj(ht,'Tag','TableFig_panel');           %panel handle
         panpos(i,:) = panpobj.Position;
-        tableobj = findobj(ht,'Type','uitable');
+        tableobj = findobj(ht,'Type','uitable');                %table handle
         tablepos(i,:) = tableobj.Position; 
+        minwidth = 350;
+        if panpos(i,3)<minwidth        %set panel and table to a minimum width
+            panpobj.Position(3) = minwidth;
+            panpos(i,3) = minwidth;    
+            textobj =  findobj(ht,'Tag','statictextbox');
+            textobj.Position(3) = minwidth;
+            boxtext = textobj.String;  %unwrap and rewrap text strings
+            unwrap = boxtext(4:end);
+            newtxt = [boxtext(1:3);{[unwrap{:}]}];
+            textobj.String = textwrap(textobj,newtxt);  
+        end        
     end
     h_tab.SelectedTab = h_tab.Children(1);
     
