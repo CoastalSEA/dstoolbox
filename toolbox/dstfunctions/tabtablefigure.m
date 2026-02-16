@@ -53,7 +53,7 @@ function varargout = tabtablefigure(figtitle,tabnames,tabtxts,tables,isvis)
             textobj.Position(3) = minwidth;
             boxtext = textobj.String;  %unwrap and rewrap text strings
             unwrap = boxtext(4:end);
-            newtxt = [boxtext(1:3);{[unwrap{:}]}];
+            newtxt = [boxtext(1:3);{[unwrap{:}]};""];
             textobj.String = textwrap(textobj,newtxt);  
         end        
     end
