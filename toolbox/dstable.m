@@ -615,8 +615,10 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         function newdst = getDSTable(obj,varargin)
             %extract data from a dstable using the dimension data
             %and return a 'dstable' based on the selected dimension 
-            %values. Update dimensions and preserve metadata
-            % varargin can include
+            %values. Update dimensions and preserve metadata varargin 
+            %can include. NB: all variables MUST have same dimensions
+            %see: dstable.getDataUsingIndices(line 1694)
+            %> data = data(:,idd{:}); %subsample data set             
             [idr,idv,idd] = getInputIndices(obj,varargin{:});
             datatable = getDataUsingIndices(obj,idv,idr,idd);
             if isempty(datatable), newdst = []; return; end
@@ -1516,7 +1518,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             end 
 
             %remove any fields from VariableRange that are no longer in varnames
-
             fnames = fieldnames(obj.VariableRange);
             isremoved = ~matches(fnames,obj.VariableNames);
             obj.VariableRange = rmfield(obj.VariableRange,fnames(isremoved));
