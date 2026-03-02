@@ -1297,6 +1297,8 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             is_cell = iscell(obj.DataTable{1,1});
             if dspdim==1 && isempty(dsprops.Dimensions.Name)
                 %the Dimensions struct is empty
+            elseif dspdim>1 && dspdim-cdim==1
+                %one of the dimensions is a scalar
             elseif dspdim>1 && cdim~=dspdim && ~is_cell
                 %more than one named dimension but not equal to number of variable dimensions 
                 txt1 = sprintf('The first variable has %d dimensions and %d property dimensions are defined',cdim,dspdim);
