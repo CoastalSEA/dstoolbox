@@ -962,7 +962,12 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 %
                 newdst.DataTable = horzcat(table1,table2);
             end
-            
+            %update CustomProperties and Dimensions if present
+            %NB behaviour of custom properties changed in v2024b 
+            %earlier versions just used first table, now uses first table
+            %that has CustomProperties assigned
+            newdst = updateCustomProperties(newdst,[{obj1},varargin(:)']);
+
             %--------------------------------------------------------------
             function newdst = issueWarning(idx)
                 newdst = [];
@@ -1010,6 +1015,12 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 %RowRange is updated upon assignment
                 newdst.RowNames = (1:height(newdst.DataTable))';
             end
+
+            %update CustomProperties and Dimensions if present
+            %NB behaviour of custom properties changed in v2024b 
+            %earlier versions just used first table, now uses first table
+            %that has CustomProperties assigned
+            newdst = updateCustomProperties(newdst,obj1,varargin{:});
             
             %update VariableRange
             updateVarNames(newdst,newdst.VariableNames)
@@ -1048,7 +1059,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         end
 %%
         function obj = addrows(obj,rownames,varargin)
-            %add rows to all variales in a dstable and sort into row order
+            %add rows to all variales in a dstable
             idw = width(obj)==length(varargin);          %check number of variables
             nvar = length(varargin);
             varnames = obj.VariableNames;
@@ -1814,6 +1825,44 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 desc{nrec+i} = sprintf('Index %d',i);
                 label{nrec+i} = sprintf('Index %d',i);
             end
+        end
+%%
+        function obj = updateCustomProperties(obj,varargin)
+            %update CustomProperties and Dimensions if present
+            %NB behaviour of custom properties changed in v2024b 
+            %earlier versions just used first table, now uses first table
+            %that has CustomProperties assigned
+            % obj - newly concatenated dstable
+            % varargin - source tables used in concatenation
+
+            % Determine which input tables have CustomProperties
+            hasCP = cellfun(@(t) ~isempty(t.DataTable.Properties.CustomProperties.Dimensions), varargin);
+        
+            % If the first table has CP, MATLAB already kept them — nothing to do
+            if hasCP(1)
+                return
+            end
+        
+            % Otherwise, adopt CP from the first table that has them
+            fnames = fieldnames(obj.CustomProperties);
+            dimprops = fnames(contains(fnames,'Dimension'));
+            idx = find(hasCP, 1, 'first');
+            if ~isempty(idx)
+                for j = 1:numel(dimprops)
+                    obj.DataTable.Properties.CustomProperties.(dimprops{j}) = ...
+                       varargin{idx}.DataTable.Properties.CustomProperties.(dimprops{j});
+                end
+                obj.DimType = varargin{idx}.DimType;
+                obj.DimPropsType = varargin{idx}.DimPropsType;                
+            end
+
+            %concatenate source metadata
+            source = varargin{1}.DataTable.Properties.CustomProperties.Source;
+            for i=2:numel(varargin)
+                addsource = varargin{i}.DataTable.Properties.CustomProperties.Source;
+                source = [source;addsource]; %#ok<AGROW>
+            end
+            obj.DataTable.Properties.CustomProperties.Source = source;
         end
 %% dsproperties       
         function dsp = setgetDSprops(obj,dsprops)
