@@ -678,7 +678,13 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
         function newdst = getsampleusingtime(obj,startime,endtime)
             %find the rows between the start and end times and return a
             %subsampled dstable
-            dstime = isbetween(obj.RowNames,startime,endtime);
+            if nargin==3
+                %start and end times as input
+                dstime = isbetween(obj.RowNames,startime,endtime);
+            elseif nargin==2
+                %startime is vector of times to select
+                dstime = ismember(obj.RowNames,startime,'rows');                 
+            end
             newdst = getDSTable(obj,dstime,':');
             
             %tested following but also slow finding indices            
