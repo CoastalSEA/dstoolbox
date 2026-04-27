@@ -100,7 +100,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 %   constructor methods
 %   dstable property Set and Get methods
 %   dstable functions:
-%       getDStable, getDataTable, getData, 
+%       getDSTable, getDataTable, getData, 
 %       getVarAttributes, getVarAttRange, selectAttribute, updateRange
 %       addvars, removevars,    
 %       movevars, horzcat, vertcat, sortrows, mergerows, plot
@@ -572,7 +572,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
 %--------------------------------------------------------------------------
         function set.LastModified(obj,setdate)
             obj.DataTable.Properties.CustomProperties.LastModified = setdate;
-        end        
+        end       
         %
         function dateset = get.LastModified(obj)
             dateset = obj.DataTable.Properties.CustomProperties.LastModified;
@@ -662,6 +662,20 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             newdst.LastModified = datetime('now');
         end
 %%
+        function newdst = getDSTrows(obj,irows)
+            %extract rows from a dstable and return as updated dstable
+            %obj can be an array of dstables, irows is the idnices of the
+            %rows in the new table
+            nstates = numel(obj);
+            newdst(nstates) = copy(obj(1)); 
+            for j=1:nstates
+                newdst(j) = copy(obj(j));                     
+                newdst(j).DataTable = obj(j).DataTable(irows,:); 
+                newdst(j).RowRange = newdst(j).RowNames;
+                newdst(j) = activatedynamicprops(newdst(j));
+            end
+        end
+%%
         function datatable = getDataTable(obj,varargin)
             %extract data from a dstable using the row,var,dim values or
             %indices and return a 'table' based on the selected values        
@@ -692,7 +706,6 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
             % ide = find(ismember(obj.RowNames,endtime,'rows')); 
             % newdst = getDSTable(obj,idr:ide,':');
         end
-
 %%
         function obj = activatedynamicprops(obj,varargin)
             updateVarNames(obj,varargin{:});
