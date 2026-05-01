@@ -737,7 +737,7 @@ classdef (ConstructOnLoad) dstable < dynamicprops & matlab.mixin.SetGet & matlab
                 if all(vsze(2:end)==1)         %variable with no rows and no dims                        
                     names = names(1);  desc = desc(1);  label = label(1);
                 elseif isempty(obj.RowNames)   %single row with dims
-                    names = names([1,3]);  desc = desc([1,3]);  label = label([1,3]);
+                    names = names([1,3:end]);  desc = desc([1,3:end]);  label = label([1,3:end]);
                     if missingdims>0           %add missing if undefined
                         [names,desc,label] = addDimIndex(obj,names,desc,label,missingdims);
                     end
